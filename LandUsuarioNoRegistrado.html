@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="es">
+<!--
+  ╔══════════════════════════════════════════════════════════╗
+  ║  SkyReserva — Página de Inicio (Usuario No Registrado)  ║
+  ║  UTN · Facultad Regional Rosario                        ║
+  ║  Cátedra: Entornos Gráficos 2026                        ║
+  ╠══════════════════════════════════════════════════════════╣
+  ║  Estándares aplicados:                                  ║
+  ║  · HTML5 semántico (header, main, section, footer, nav) ║
+  ║  · WCAG 2.1 AA (skip-link, ARIA, contraste, focus)      ║
+  ║  · Bootstrap 5.3 — paleta y utilidades estándar         ║
+  ╚══════════════════════════════════════════════════════════╝
+-->
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- SEO básico -->
+  <meta name="description"
+        content="SkyReserva – Sistema de gestión de reservas de pasajes de avión. UTN Facultad Regional Rosario, Cátedra Entornos Gráficos 2026." />
+
+  <title>SkyReserva – Inicio | Reservas de Vuelos</title>
+
+  <!-- ① Bootstrap 5.3 CSS (CDN oficial) -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+    crossorigin="anonymous"
+  />
+
+  <!-- ② Bootstrap Icons -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    rel="stylesheet"
+  />
+
+  <!-- ③ Estilos propios (solo lo que Bootstrap no cubre) -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body class="bg-light">
+
+  <!-- ════════════════════════════════════════════════════════
+       SKIP LINK — WCAG 2.4.1 Bypass Blocks
+       Primer elemento del DOM; se vuelve visible al presionar Tab.
+       Permite a usuarios de teclado/lectores de pantalla saltar
+       la navegación repetida e ir directo al contenido.
+  ═════════════════════════════════════════════════════════ -->
+  <a class="skip-link btn btn-primary btn-sm" href="#contenido-principal">
+    Saltar al contenido principal
+  </a>
+
+
+  <!-- ════════════════════════════════════════════════════════
+       HEADER + NAV
+       <header> identifica la cabecera del documento.
+       <nav> con aria-label diferencia esta barra de otras
+       posibles nav del documento (p.ej., la del footer).
+  ═════════════════════════════════════════════════════════ -->
+  <header>
+    <nav
+      class="navbar navbar-expand-lg navbar-dark bg-primary"
+      aria-label="Navegación principal"
+    >
+      <div class="container">
+
+        <!-- Marca / Logotipo -->
+        <!-- aria-label extra para lectores que solo anuncian el texto visible -->
+        <a
+          class="navbar-brand fw-bold d-flex align-items-center gap-2"
+          href="index.html"
+          aria-label="SkyReserva — Ir a la página de inicio"
+        >
+          <i class="bi bi-airplane-fill" aria-hidden="true"></i>
+          SkyReserva
+        </a>
+
+        <!-- Botón hamburguesa (mobile)
+             aria-controls apunta al id del menú colapsable.
+             aria-expanded lo maneja Bootstrap automáticamente. -->
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#menuPrincipal"
+          aria-controls="menuPrincipal"
+          aria-expanded="false"
+          aria-label="Abrir o cerrar menú de navegación"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Menú colapsable -->
+        <div class="collapse navbar-collapse" id="menuPrincipal">
+
+          <!-- Links de navegación pública -->
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <!-- aria-current="page" indica la página activa al lector de pantalla -->
+              <a class="nav-link active" href="index.html" aria-current="page">
+                <i class="bi bi-house-fill me-1" aria-hidden="true"></i>
+                Inicio
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#seccion-aerolineas">
+                <i class="bi bi-building me-1" aria-hidden="true"></i>
+                Aerolíneas
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#seccion-vuelos">
+                <i class="bi bi-airplane me-1" aria-hidden="true"></i>
+                Vuelos
+              </a>
+            </li>
+          </ul>
+
+          <!-- Acciones de sesión -->
+          <div class="d-flex gap-2" role="group" aria-label="Acciones de sesión">
+            <a
+              href="login.html"
+              class="btn btn-outline-light btn-sm"
+              aria-label="Iniciar sesión en SkyReserva"
+            >
+              <i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>
+              Iniciar Sesión
+            </a>
+            <a
+              href="register.html"
+              class="btn btn-light btn-sm text-primary fw-semibold"
+              aria-label="Crear una cuenta nueva en SkyReserva"
+            >
+              <i class="bi bi-person-plus-fill me-1" aria-hidden="true"></i>
+              Registrarse
+            </a>
+          </div>
+
+        </div><!-- /.collapse -->
+      </div><!-- /.container -->
+    </nav>
+  </header>
+
+
+  <!-- ════════════════════════════════════════════════════════
+       MAIN — todo el contenido principal va aquí.
+       id="contenido-principal" es el destino del skip-link.
+       El atributo tabindex="-1" permite que el foco llegue
+       programáticamente sin que el elemento sea tabulable.
+  ═════════════════════════════════════════════════════════ -->
+  <main id="contenido-principal" tabindex="-1">
+
+
+    <!-- ──────────────────────────────────────────────────────
+         SECCIÓN 1: HERO
+         aria-labelledby asocia la sección con su h1,
+         lo que permite a lectores de pantalla anunciar
+         "región: Tu próximo vuelo..." al entrar.
+    ─────────────────────────────────────────────────────── -->
+    <section
+      class="hero-section text-white bg-primary py-5"
+      aria-labelledby="hero-titulo"
+    >
+      <div class="container py-5">
+        <div class="row align-items-center">
+          <div class="col-lg-7">
+
+            <!-- Eyebrow -->
+            <p class="text-white-50 text-uppercase small fw-semibold mb-2">
+              <i class="bi bi-globe2 me-1" aria-hidden="true"></i>
+              UTN FRR · Entornos Gráficos 2026
+            </p>
+
+            <!--
+              h1: único en la página, describe el propósito principal.
+              id referenciado por aria-labelledby del <section>.
+            -->
+            <h1 id="hero-titulo" class="display-4 fw-bold mb-3">
+              Tu próximo vuelo,<br>
+              a un clic de distancia
+            </h1>
+
+            <p class="lead text-white-50 mb-4">
+              Buscá y reservá vuelos en las mejores aerolíneas, gestioná tus
+              reservas y consultá tus compras desde un solo lugar.
+            </p>
+
+            <div class="d-flex gap-3 flex-wrap">
+              <a href="#seccion-vuelos" class="btn btn-light btn-lg text-primary fw-semibold">
+                <i class="bi bi-search me-2" aria-hidden="true"></i>
+                Buscar Vuelos
+              </a>
+              <a href="register.html" class="btn btn-outline-light btn-lg">
+                <i class="bi bi-person-plus me-2" aria-hidden="true"></i>
+                Crear Cuenta
+              </a>
+            </div>
+
+            <!-- Estadísticas decorativas -->
+            <ul
+              class="d-flex gap-5 mt-5 pt-4 border-top border-white border-opacity-25 list-unstyled"
+              role="list"
+              aria-label="Estadísticas del sistema"
+            >
+              <li role="listitem" class="text-center">
+                <span class="d-block fs-3 fw-bold">12+</span>
+                <span class="text-white-50 small text-uppercase">Aerolíneas</span>
+              </li>
+              <li role="listitem" class="text-center">
+                <span class="d-block fs-3 fw-bold">340+</span>
+                <span class="text-white-50 small text-uppercase">Rutas</span>
+              </li>
+              <li role="listitem" class="text-center">
+                <span class="d-block fs-3 fw-bold">98%</span>
+                <span class="text-white-50 small text-uppercase">Satisfacción</span>
+              </li>
+            </ul>
+
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container -->
+    </section><!-- /#hero -->
+
+
+    <!-- ──────────────────────────────────────────────────────
+         SECCIÓN 2: BUSCADOR DE VUELOS
+         role="search" identifica la región de búsqueda;
+         lectores de pantalla lo anuncian como "región de búsqueda".
+    ─────────────────────────────────────────────────────── -->
+    <section
+      class="py-5 bg-white shadow-sm"
+      aria-labelledby="buscador-titulo"
+      role="search"
+    >
+      <div class="container">
+
+        <h2 id="buscador-titulo" class="h5 fw-semibold text-primary mb-4">
+          <i class="bi bi-search me-2" aria-hidden="true"></i>
+          Buscar vuelos disponibles
+        </h2>
+
+        <form action="#seccion-vuelos" method="get" aria-label="Formulario de búsqueda de vuelos">
+          <div class="row g-3 align-items-end">
+
+            <!-- Origen -->
+            <div class="col-md-3">
+              <label for="busq-origen" class="form-label fw-semibold">
+                <i class="bi bi-geo me-1" aria-hidden="true"></i>
+                Origen
+              </label>
+              <input
+                type="text"
+                id="busq-origen"
+                name="origenVuelo"
+                class="form-control"
+                placeholder="Ciudad o aeropuerto"
+                autocomplete="off"
+              />
+            </div>
+
+            <!-- Destino -->
+            <div class="col-md-3">
+              <label for="busq-destino" class="form-label fw-semibold">
+                <i class="bi bi-geo-fill me-1" aria-hidden="true"></i>
+                Destino
+              </label>
+              <input
+                type="text"
+                id="busq-destino"
+                name="destinoVuelo"
+                class="form-control"
+                placeholder="Ciudad o aeropuerto"
+                autocomplete="off"
+              />
+            </div>
+
+            <!-- Fecha -->
+            <div class="col-md-2">
+              <label for="busq-fecha" class="form-label fw-semibold">
+                <i class="bi bi-calendar3 me-1" aria-hidden="true"></i>
+                Fecha de salida
+              </label>
+              <input
+                type="date"
+                id="busq-fecha"
+                name="fechaSalidaVuelo"
+                class="form-control"
+              />
+            </div>
+
+            <!-- Aerolínea -->
+            <div class="col-md-2">
+              <label for="busq-aerolinea" class="form-label fw-semibold">
+                <i class="bi bi-building me-1" aria-hidden="true"></i>
+                Aerolínea
+              </label>
+              <select
+                id="busq-aerolinea"
+                name="codAerolinea"
+                class="form-select"
+              >
+                <option value="">Todas</option>
+                <option value="1">Aerolíneas Argentinas</option>
+                <option value="2">LATAM Airlines</option>
+                <option value="3">Flybondi</option>
+                <option value="4">JetSmart</option>
+              </select>
+            </div>
+
+            <!-- Submit -->
+            <div class="col-md-2">
+              <button type="submit" class="btn btn-primary w-100">
+                <i class="bi bi-search me-1" aria-hidden="true"></i>
+                Buscar
+              </button>
+            </div>
+
+          </div><!-- /.row -->
+        </form>
+
+      </div><!-- /.container -->
+    </section><!-- /buscador -->
+
+
+    <!-- ──────────────────────────────────────────────────────
+         SECCIÓN 3: AEROLÍNEAS
+    ─────────────────────────────────────────────────────── -->
+    <section
+      id="seccion-aerolineas"
+      class="py-5"
+      aria-labelledby="aerolineas-titulo"
+    >
+      <div class="container">
+
+        <header class="mb-5 fade-up">
+          <p class="text-primary text-uppercase small fw-semibold mb-1">
+            <i class="bi bi-building me-1" aria-hidden="true"></i>
+            Aerolíneas
+          </p>
+          <h2 id="aerolineas-titulo" class="h2 fw-bold">
+            Nuestras aerolíneas asociadas
+          </h2>
+          <p class="text-secondary">
+            Trabajamos con las principales aerolíneas de la región.
+          </p>
+        </header>
+
+        <!--
+          Lista semántica. Cada <li> contiene un <article>
+          (contenido autocontenido y reutilizable).
+          aria-label en cada article describe el ítem.
+        -->
+        <ul class="row g-4 list-unstyled" role="list" aria-label="Lista de aerolíneas disponibles">
+
+          <!-- Aerolínea 1 -->
+          <li class="col-sm-6 col-lg-3 fade-up" role="listitem">
+            <article class="card airline-card h-100 border-0 shadow-sm" aria-label="Aerolíneas Argentinas">
+              <div class="card-body d-flex flex-column p-4">
+                <div class="airline-icon text-primary mb-3" aria-hidden="true">
+                  <i class="bi bi-airplane fs-1"></i>
+                </div>
+                <p class="text-primary small text-uppercase fw-semibold mb-1">
+                  IATA: AA &nbsp;·&nbsp; Cód: 001
+                </p>
+                <h3 class="h6 fw-bold mb-1">Aerolíneas Argentinas</h3>
+                <p class="text-secondary small mb-2">
+                  <i class="bi bi-geo-alt-fill me-1" aria-hidden="true"></i>
+                  Argentina &nbsp;·&nbsp; AR
+                </p>
+                <p class="text-secondary small flex-grow-1">
+                  La aerolínea de bandera argentina conecta las principales ciudades
+                  del país y del mundo con vuelos directos e interconexiones.
+                </p>
+                <a
+                  href="#seccion-vuelos"
+                  class="btn btn-outline-primary btn-sm mt-3"
+                  aria-label="Ver vuelos de Aerolíneas Argentinas"
+                >
+                  Ver vuelos <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
+                </a>
+              </div>
+            </article>
+          </li>
+
+          <!-- Aerolínea 2 -->
+          <li class="col-sm-6 col-lg-3 fade-up" role="listitem" style="transition-delay:.08s">
+            <article class="card airline-card h-100 border-0 shadow-sm" aria-label="LATAM Airlines">
+              <div class="card-body d-flex flex-column p-4">
+                <div class="airline-icon text-primary mb-3" aria-hidden="true">
+                  <i class="bi bi-globe2 fs-1"></i>
+                </div>
+                <p class="text-primary small text-uppercase fw-semibold mb-1">
+                  IATA: LA &nbsp;·&nbsp; Cód: 002
+                </p>
+                <h3 class="h6 fw-bold mb-1">LATAM Airlines</h3>
+                <p class="text-secondary small mb-2">
+                  <i class="bi bi-geo-alt-fill me-1" aria-hidden="true"></i>
+                  Chile &nbsp;·&nbsp; CL
+                </p>
+                <p class="text-secondary small flex-grow-1">
+                  El grupo aéreo más grande de Latinoamérica, con cobertura regional
+                  y conexiones intercontinentales a Europa y Estados Unidos.
+                </p>
+                <a
+                  href="#seccion-vuelos"
+                  class="btn btn-outline-primary btn-sm mt-3"
+                  aria-label="Ver vuelos de LATAM Airlines"
+                >
+                  Ver vuelos <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
+                </a>
+              </div>
+            </article>
+          </li>
+
+          <!-- Aerolínea 3 -->
+          <li class="col-sm-6 col-lg-3 fade-up" role="listitem" style="transition-delay:.16s">
+            <article class="card airline-card h-100 border-0 shadow-sm" aria-label="Flybondi">
+              <div class="card-body d-flex flex-column p-4">
+                <div class="airline-icon text-primary mb-3" aria-hidden="true">
+                  <i class="bi bi-lightning-charge fs-1"></i>
+                </div>
+                <p class="text-primary small text-uppercase fw-semibold mb-1">
+                  IATA: FO &nbsp;·&nbsp; Cód: 003
+                </p>
+                <h3 class="h6 fw-bold mb-1">Flybondi</h3>
+                <p class="text-secondary small mb-2">
+                  <i class="bi bi-geo-alt-fill me-1" aria-hidden="true"></i>
+                  Argentina &nbsp;·&nbsp; AR
+                </p>
+                <p class="text-secondary small flex-grow-1">
+                  Aerolínea de bajo costo pionera en democratizar los vuelos, con
+                  tarifas accesibles en rutas domésticas argentinas.
+                </p>
+                <a
+                  href="#seccion-vuelos"
+                  class="btn btn-outline-primary btn-sm mt-3"
+                  aria-label="Ver vuelos de Flybondi"
+                >
+                  Ver vuelos <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
+                </a>
+              </div>
+            </article>
+          </li>
+
+          <!-- Aerolínea 4 -->
+          <li class="col-sm-6 col-lg-3 fade-up" role="listitem" style="transition-delay:.24s">
+            <article class="card airline-card h-100 border-0 shadow-sm" aria-label="JetSmart">
+              <div class="card-body d-flex flex-column p-4">
+                <div class="airline-icon text-primary mb-3" aria-hidden="true">
+                  <i class="bi bi-stars fs-1"></i>
+                </div>
+                <p class="text-primary small text-uppercase fw-semibold mb-1">
+                  IATA: JA &nbsp;·&nbsp; Cód: 004
+                </p>
+                <h3 class="h6 fw-bold mb-1">JetSmart</h3>
+                <p class="text-secondary small mb-2">
+                  <i class="bi bi-geo-alt-fill me-1" aria-hidden="true"></i>
+                  Chile &nbsp;·&nbsp; CL
+                </p>
+                <p class="text-secondary small flex-grow-1">
+                  Ultra low cost con presencia en Argentina, Chile, Perú y Colombia.
+                  Ideal para viajeros que priorizan el precio.
+                </p>
+                <a
+                  href="#seccion-vuelos"
+                  class="btn btn-outline-primary btn-sm mt-3"
+                  aria-label="Ver vuelos de JetSmart"
+                >
+                  Ver vuelos <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
+                </a>
+              </div>
+            </article>
+          </li>
+
+        </ul><!-- /lista aerolíneas -->
+      </div><!-- /.container -->
+    </section><!-- /#seccion-aerolineas -->
+
+
+    <!-- ──────────────────────────────────────────────────────
+         SECCIÓN 4: VUELOS DISPONIBLES
+    ─────────────────────────────────────────────────────── -->
+    <section
+      id="seccion-vuelos"
+      class="py-5 bg-white"
+      aria-labelledby="vuelos-titulo"
+    >
+      <div class="container">
+
+        <header class="mb-5 fade-up">
+          <p class="text-primary text-uppercase small fw-semibold mb-1">
+            <i class="bi bi-airplane-fill me-1" aria-hidden="true"></i>
+            Vuelos
+          </p>
+          <h2 id="vuelos-titulo" class="h2 fw-bold">Vuelos disponibles</h2>
+          <p class="text-secondary">
+            Encontrá el vuelo ideal. Iniciá sesión para reservar.
+          </p>
+        </header>
+
+        <!--
+          Lista semántica de vuelos.
+          Cada vuelo es un <article> con aria-label descriptivo
+          que permite al lector de pantalla anunciarlo completo.
+        -->
+        <ul class="list-unstyled" role="list" aria-label="Lista de vuelos disponibles">
+
+          <!-- Vuelo 1 -->
+          <li class="mb-3 fade-up" role="listitem">
+            <article
+              class="card flight-card border-0 shadow-sm"
+              aria-label="Vuelo 0001: Rosario a Buenos Aires, 15 de mayo 2026, ARS 48.500"
+            >
+              <div class="card-body">
+                <div class="row align-items-center g-3">
+
+                  <div class="col-md-2">
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                      <i class="bi bi-airplane me-1" aria-hidden="true"></i>
+                      Aer. Argentinas · 0001
+                    </span>
+                  </div>
+
+                  <div class="col-md-5">
+                    <div class="d-flex align-items-center">
+                      <div class="text-center">
+                        <div class="iata-code text-dark fw-bold">ROS</div>
+                        <small class="text-secondary text-uppercase">Rosario</small>
+                      </div>
+                      <div class="route-line" aria-hidden="true"></div>
+                      <i class="bi bi-airplane-fill text-primary mx-2" aria-hidden="true"></i>
+                      <div class="route-line" aria-hidden="true"></div>
+                      <div class="text-center">
+                        <div class="iata-code text-dark fw-bold">EZE</div>
+                        <small class="text-secondary text-uppercase">Buenos Aires</small>
+                      </div>
+                    </div>
+                    <small class="text-secondary d-block mt-1">
+                      <i class="bi bi-clock me-1" aria-hidden="true"></i>2h 10min · Directo
+                    </small>
+                  </div>
+
+                  <div class="col-md-2 text-center">
+                    <div class="text-secondary small">
+                      <i class="bi bi-calendar3 me-1" aria-hidden="true"></i>
+                      <time datetime="2026-05-15T08:30">15 May 2026 · 08:30</time>
+                    </div>
+                    <div class="text-success small mt-1">
+                      <i class="bi bi-people-fill me-1" aria-hidden="true"></i>
+                      32 asientos disp.
+                    </div>
+                  </div>
+
+                  <div class="col-md-1 text-center">
+                    <span class="badge bg-success-subtle text-success border border-success-subtle">
+                      <i class="bi bi-tag-fill me-1" aria-hidden="true"></i>15% OFF
+                    </span>
+                  </div>
+
+                  <div class="col-md-2 text-end">
+                    <div class="fw-bold fs-5 text-dark">
+                      <small class="text-secondary fw-normal fs-6">ARS</small> 48.500
+                    </div>
+                    <a
+                      href="login.html"
+                      class="btn btn-primary btn-sm mt-2"
+                      aria-label="Reservar vuelo ROS a EZE el 15 de mayo. Iniciar sesión para continuar."
+                    >
+                      Reservar
+                    </a>
+                  </div>
+
+                </div><!-- /.row -->
+              </div><!-- /.card-body -->
+            </article>
+          </li>
+
+          <!-- Vuelo 2 -->
+          <li class="mb-3 fade-up" role="listitem" style="transition-delay:.07s">
+            <article
+              class="card flight-card border-0 shadow-sm"
+              aria-label="Vuelo 0002: Buenos Aires a Santiago, 18 de mayo 2026, ARS 124.900"
+            >
+              <div class="card-body">
+                <div class="row align-items-center g-3">
+                  <div class="col-md-2">
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                      <i class="bi bi-airplane me-1" aria-hidden="true"></i>LATAM · 0002
+                    </span>
+                  </div>
+                  <div class="col-md-5">
+                    <div class="d-flex align-items-center">
+                      <div class="text-center">
+                        <div class="iata-code text-dark fw-bold">AEP</div>
+                        <small class="text-secondary text-uppercase">Bs. Aires</small>
+                      </div>
+                      <div class="route-line" aria-hidden="true"></div>
+                      <i class="bi bi-airplane-fill text-primary mx-2" aria-hidden="true"></i>
+                      <div class="route-line" aria-hidden="true"></div>
+                      <div class="text-center">
+                        <div class="iata-code text-dark fw-bold">SCL</div>
+                        <small class="text-secondary text-uppercase">Santiago</small>
+                      </div>
+                    </div>
+                    <small class="text-secondary d-block mt-1">
+                      <i class="bi bi-clock me-1" aria-hidden="true"></i>3h 50min · Directo
+                    </small>
+                  </div>
+                  <div class="col-md-2 text-center">
+                    <div class="text-secondary small">
+                      <i class="bi bi-calendar3 me-1" aria-hidden="true"></i>
+                      <time datetime="2026-05-18T14:15">18 May 2026 · 14:15</time>
+                    </div>
+                    <div class="text-warning small mt-1">
+                      <i class="bi bi-people-fill me-1" aria-hidden="true"></i>
+                      8 asientos disp.
+                    </div>
+                  </div>
+                  <div class="col-md-1 text-center">
+                    <span class="text-secondary small">Sin promo</span>
+                  </div>
+                  <div class="col-md-2 text-end">
+                    <div class="fw-bold fs-5 text-dark">
+                      <small class="text-secondary fw-normal fs-6">ARS</small> 124.900
+                    </div>
+                    <a href="login.html" class="btn btn-primary btn-sm mt-2"
+                      aria-label="Reservar vuelo AEP a SCL el 18 de mayo. Iniciar sesión para continuar.">
+                      Reservar
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </li>
+
+          <!-- Vuelo 3 -->
+          <li class="mb-3 fade-up" role="listitem" style="transition-delay:.14s">
+            <article
+              class="card flight-card border-0 shadow-sm"
+              aria-label="Vuelo 0003: Córdoba a Mendoza, 20 de mayo 2026, ARS 29.990"
+            >
+              <div class="card-body">
+                <div class="row align-items-center g-3">
+                  <div class="col-md-2">
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                      <i class="bi bi-airplane me-1" aria-hidden="true"></i>Flybondi · 0003
+                    </span>
+                  </div>
+                  <div class="col-md-5">
+                    <div class="d-flex align-items-center">
+                      <div class="text-center">
+                        <div class="iata-code text-dark fw-bold">COR</div>
+                        <small class="text-secondary text-uppercase">Córdoba</small>
+                      </div>
+                      <div class="route-line" aria-hidden="true"></div>
+                      <i class="bi bi-airplane-fill text-primary mx-2" aria-hidden="true"></i>
+                      <div class="route-line" aria-hidden="true"></div>
+                      <div class="text-center">
+                        <div class="iata-code text-dark fw-bold">MDZ</div>
+                        <small class="text-secondary text-uppercase">Mendoza</small>
+                      </div>
+                    </div>
+                    <small class="text-secondary d-block mt-1">
+                      <i class="bi bi-clock me-1" aria-hidden="true"></i>1h 45min · Directo
+                    </small>
+                  </div>
+                  <div class="col-md-2 text-center">
+                    <div class="text-secondary small">
+                      <i class="bi bi-calendar3 me-1" aria-hidden="true"></i>
+                      <time datetime="2026-05-20T11:00">20 May 2026 · 11:00</time>
+                    </div>
+                    <div class="text-success small mt-1">
+                      <i class="bi bi-people-fill me-1" aria-hidden="true"></i>
+                      50 asientos disp.
+                    </div>
+                  </div>
+                  <div class="col-md-1 text-center">
+                    <span class="badge bg-success-subtle text-success border border-success-subtle">
+                      <i class="bi bi-tag-fill me-1" aria-hidden="true"></i>30% OFF
+                    </span>
+                  </div>
+                  <div class="col-md-2 text-end">
+                    <div class="fw-bold fs-5 text-dark">
+                      <small class="text-secondary fw-normal fs-6">ARS</small> 29.990
+                    </div>
+                    <a href="login.html" class="btn btn-primary btn-sm mt-2"
+                      aria-label="Reservar vuelo COR a MDZ el 20 de mayo. Iniciar sesión para continuar.">
+                      Reservar
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </li>
+
+          <!-- Vuelo 4 -->
+          <li class="mb-3 fade-up" role="listitem" style="transition-delay:.21s">
+            <article
+              class="card flight-card border-0 shadow-sm"
+              aria-label="Vuelo 0004: Iguazú a Bariloche, 22 de mayo 2026, ARS 55.750"
+            >
+              <div class="card-body">
+                <div class="row align-items-center g-3">
+                  <div class="col-md-2">
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                      <i class="bi bi-airplane me-1" aria-hidden="true"></i>JetSmart · 0004
+                    </span>
+                  </div>
+                  <div class="col-md-5">
+                    <div class="d-flex align-items-center">
+                      <div class="text-center">
+                        <div class="iata-code text-dark fw-bold">IGR</div>
+                        <small class="text-secondary text-uppercase">Iguazú</small>
+                      </div>
+                      <div class="route-line" aria-hidden="true"></div>
+                      <i class="bi bi-airplane-fill text-primary mx-2" aria-hidden="true"></i>
+                      <div class="route-line" aria-hidden="true"></div>
+                      <div class="text-center">
+                        <div class="iata-code text-dark fw-bold">BRC</div>
+                        <small class="text-secondary text-uppercase">Bariloche</small>
+                      </div>
+                    </div>
+                    <small class="text-secondary d-block mt-1">
+                      <i class="bi bi-clock me-1" aria-hidden="true"></i>2h 30min · Directo
+                    </small>
+                  </div>
+                  <div class="col-md-2 text-center">
+                    <div class="text-secondary small">
+                      <i class="bi bi-calendar3 me-1" aria-hidden="true"></i>
+                      <time datetime="2026-05-22T16:45">22 May 2026 · 16:45</time>
+                    </div>
+                    <div class="text-success small mt-1">
+                      <i class="bi bi-people-fill me-1" aria-hidden="true"></i>
+                      21 asientos disp.
+                    </div>
+                  </div>
+                  <div class="col-md-1 text-center">
+                    <span class="text-secondary small">Sin promo</span>
+                  </div>
+                  <div class="col-md-2 text-end">
+                    <div class="fw-bold fs-5 text-dark">
+                      <small class="text-secondary fw-normal fs-6">ARS</small> 55.750
+                    </div>
+                    <a href="login.html" class="btn btn-primary btn-sm mt-2"
+                      aria-label="Reservar vuelo IGR a BRC el 22 de mayo. Iniciar sesión para continuar.">
+                      Reservar
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </li>
+
+        </ul><!-- /lista vuelos -->
+
+        <div class="text-center mt-3 fade-up">
+          <a href="login.html" class="btn btn-outline-primary">
+            Ver todos los vuelos
+            <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
+          </a>
+        </div>
+
+      </div><!-- /.container -->
+    </section><!-- /#seccion-vuelos -->
+
+
+    <!-- ──────────────────────────────────────────────────────
+         SECCIÓN 5: CÓMO FUNCIONA
+    ─────────────────────────────────────────────────────── -->
+    <section
+      class="py-5"
+      aria-labelledby="como-funciona-titulo"
+    >
+      <div class="container">
+
+        <header class="text-center mb-5 fade-up">
+          <p class="text-primary text-uppercase small fw-semibold mb-1">
+            <i class="bi bi-info-circle me-1" aria-hidden="true"></i>
+            ¿Cómo funciona?
+          </p>
+          <h2 id="como-funciona-titulo" class="h2 fw-bold">
+            Reservar tu vuelo nunca fue tan simple
+          </h2>
+        </header>
+
+        <!-- Pasos numerados como lista ordenada semántica -->
+        <ol class="row g-4 list-unstyled" aria-label="Pasos para realizar una reserva">
+
+          <li class="col-md-6 col-lg-3 fade-up">
+            <div class="d-flex gap-3 align-items-start">
+              <div class="step-number bg-primary text-white flex-shrink-0" aria-hidden="true">1</div>
+              <div>
+                <h3 class="h6 fw-bold">Creá tu cuenta</h3>
+                <p class="text-secondary small">
+                  Registrate de forma rápida. Recibirás un correo de validación
+                  para activar tu perfil y comenzar a operar.
+                </p>
+              </div>
+            </div>
+          </li>
+
+          <li class="col-md-6 col-lg-3 fade-up" style="transition-delay:.08s">
+            <div class="d-flex gap-3 align-items-start">
+              <div class="step-number bg-primary text-white flex-shrink-0" aria-hidden="true">2</div>
+              <div>
+                <h3 class="h6 fw-bold">Buscá tu vuelo</h3>
+                <p class="text-secondary small">
+                  Filtrá por origen, destino, fecha y aerolínea. Consultá precios,
+                  asientos disponibles y promociones vigentes.
+                </p>
+              </div>
+            </div>
+          </li>
+
+          <li class="col-md-6 col-lg-3 fade-up" style="transition-delay:.16s">
+            <div class="d-flex gap-3 align-items-start">
+              <div class="step-number bg-primary text-white flex-shrink-0" aria-hidden="true">3</div>
+              <div>
+                <h3 class="h6 fw-bold">Realizá la reserva</h3>
+                <p class="text-secondary small">
+                  Seleccioná tu vuelo y aplicá la promoción disponible si aplica.
+                  La reserva quedará en estado <em>pendiente de pago</em>.
+                </p>
+              </div>
+            </div>
+          </li>
+
+          <li class="col-md-6 col-lg-3 fade-up" style="transition-delay:.24s">
+            <div class="d-flex gap-3 align-items-start">
+              <div class="step-number bg-primary text-white flex-shrink-0" aria-hidden="true">4</div>
+              <div>
+                <h3 class="h6 fw-bold">Confirmá y viajá</h3>
+                <p class="text-secondary small">
+                  Una vez realizado el pago, la reserva pasa a <em>confirmada</em>.
+                  Consultá tu historial de compras cuando quieras.
+                </p>
+              </div>
+            </div>
+          </li>
+
+        </ol>
+      </div>
+    </section><!-- /cómo funciona -->
+
+
+    <!-- ──────────────────────────────────────────────────────
+         SECCIÓN 6: CTA
+    ─────────────────────────────────────────────────────── -->
+    <section
+      class="py-5 bg-primary text-white text-center"
+      aria-labelledby="cta-titulo"
+    >
+      <div class="container py-3 fade-up">
+        <h2 id="cta-titulo" class="display-6 fw-bold mb-3">
+          ¿Listo para despegar?
+        </h2>
+        <p class="lead text-white-50 mb-4">
+          Creá tu cuenta gratis y empezá a explorar vuelos y promociones exclusivas.
+        </p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+          <a href="register.html" class="btn btn-light btn-lg text-primary fw-semibold">
+            <i class="bi bi-person-plus-fill me-2" aria-hidden="true"></i>
+            Registrarse gratis
+          </a>
+          <a href="login.html" class="btn btn-outline-light btn-lg">
+            <i class="bi bi-box-arrow-in-right me-2" aria-hidden="true"></i>
+            Ya tengo cuenta
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main><!-- /#contenido-principal -->
+
+
+  <!-- ════════════════════════════════════════════════════════
+       FOOTER con MAPA DE SITIO (requerido por la consigna)
+       Cada bloque de links es un <nav> con aria-label propio,
+       lo que permite a los lectores de pantalla anunciar la
+       región al entrar ("Navegación: Mapa del sitio").
+       Las listas <ul class="sitemap-list"> son semánticas y
+       sin decoración visual pero correctamente estructuradas.
+  ═════════════════════════════════════════════════════════ -->
+  <footer class="bg-dark text-light py-5">
+    <div class="container">
+      <div class="row g-5">
+
+        <!-- Identidad -->
+        <div class="col-lg-3 col-md-6">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <i class="bi bi-airplane-fill text-primary" aria-hidden="true"></i>
+            <span class="fw-bold fs-5">SkyReserva</span>
+          </div>
+          <p class="text-secondary small">
+            Sistema de gestión de reservas de pasajes de avión.<br>
+            UTN – Facultad Regional Rosario<br>
+            Cátedra Entornos Gráficos 2026
+          </p>
+        </div>
+
+        <!-- MAPA DEL SITIO (sección obligatoria de la consigna) -->
+        <nav class="col-lg-3 col-md-6" aria-label="Mapa del sitio">
+          <h2 class="h6 text-uppercase text-secondary small fw-semibold mb-3">
+            <i class="bi bi-map me-1" aria-hidden="true"></i>
+            Mapa del Sitio
+          </h2>
+          <!--
+            <ul> con .sitemap-list (definida en styles.css):
+            list-style:none pero mantiene semántica de lista.
+            Los lectores de pantalla anuncian "lista de 7 elementos".
+          -->
+          <ul class="sitemap-list" role="list">
+            <li><a href="index.html">Inicio</a></li>
+            <li><a href="#seccion-aerolineas">Aerolíneas</a></li>
+            <li><a href="#seccion-vuelos">Vuelos</a></li>
+            <li><a href="register.html">Registrarse</a></li>
+            <li><a href="login.html">Iniciar Sesión</a></li>
+            <li><a href="forgot-password.html">Recuperar Contraseña</a></li>
+            <li><a href="sitemap.html">Mapa de Sitio completo</a></li>
+          </ul>
+        </nav>
+
+        <!-- Mi Cuenta -->
+        <nav class="col-lg-3 col-md-6" aria-label="Secciones del pasajero">
+          <h2 class="h6 text-uppercase text-secondary small fw-semibold mb-3">
+            Mi Cuenta
+          </h2>
+          <ul class="sitemap-list" role="list">
+            <li><a href="login.html">Mi Perfil</a></li>
+            <li><a href="login.html">Buscar Vuelos</a></li>
+            <li><a href="login.html">Mis Reservas</a></li>
+            <li><a href="login.html">Historial de Compras</a></li>
+            <li><a href="login.html">Ver Novedades</a></li>
+          </ul>
+        </nav>
+
+        <!-- Administración -->
+        <nav class="col-lg-3 col-md-6" aria-label="Secciones de administración">
+          <h2 class="h6 text-uppercase text-secondary small fw-semibold mb-3">
+            Administración
+          </h2>
+          <ul class="sitemap-list" role="list">
+            <li><a href="login.html">Panel Administrador</a></li>
+            <li><a href="login.html">Panel CEO Aerolínea</a></li>
+            <li><a href="login.html">Gestión de Vuelos</a></li>
+            <li><a href="login.html">Gestión de Promociones</a></li>
+            <li><a href="login.html">Reportes</a></li>
+          </ul>
+        </nav>
+
+      </div><!-- /.row -->
+
+      <!-- Barra inferior -->
+      <div class="border-top border-secondary mt-5 pt-4 d-flex justify-content-between flex-wrap gap-2">
+        <small class="text-secondary">
+          &copy; 2026 SkyReserva — Todos los derechos reservados.
+        </small>
+        <small class="text-secondary">
+          UTN FRR · Entornos Gráficos
+        </small>
+      </div>
+
+    </div><!-- /.container -->
+  </footer>
+
+
+  <!-- Bootstrap JS Bundle (incluye Popper) -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmkYJfmIlCv0SSFCE5nEatGkWxlg"
+    crossorigin="anonymous"
+  ></script>
+
+  <!-- Animación fade-up — respeta prefers-reduced-motion (WCAG 2.3.3) -->
+  <script>
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (!prefersReduced) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.12 });
+
+      document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+    } else {
+      // Sin animación: visible inmediatamente para usuarios que lo requieren
+      document.querySelectorAll('.fade-up').forEach(el => el.classList.add('visible'));
+    }
+  </script>
+
+</body>
+</html>
