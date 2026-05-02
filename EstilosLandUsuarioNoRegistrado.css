@@ -131,12 +131,12 @@ footer {
 }
 .sitemap-list a {
   text-decoration: none;
-  color: var(--bs-secondary-color, #6c757d);
+  color: #adb5bd !important;
   font-size: 0.9rem;
 }
 .sitemap-list a:hover,
 .sitemap-list a:focus {
-  color: var(--bs-primary);
+  color: blue;
   text-decoration: underline;
 }
 
