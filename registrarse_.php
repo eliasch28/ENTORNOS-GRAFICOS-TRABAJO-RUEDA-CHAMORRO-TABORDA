@@ -1,19 +1,4 @@
 <?php
-/**
- * ╔══════════════════════════════════════════════════════════════╗
- * ║  registrarse.php — SkyReserva                               ║
- * ║  UTN · Facultad Regional Rosario · Entornos Gráficos 2026   ║
- * ╠══════════════════════════════════════════════════════════════╣
- * ║  Descripción: Formulario de registro de nuevos usuarios.    ║
- * ║  Tipos soportados: Cliente/Pasajero y CEO de Aerolínea.     ║
- * ║  Validación: HTML5 nativa + validación servidor PHP.        ║
- * ║  Sin JavaScript — solo PHP, HTML5 y Bootstrap estándar.     ║
- * ╚══════════════════════════════════════════════════════════════╝
- */
-
-/* ──────────────────────────────────────────────────────────────
-   BLOQUE 1: INICIALIZACIÓN DE VARIABLES DE ESTADO
-────────────────────────────────────────────────────────────── */
 $registroExitoso = false;
 $tipoRegistrado  = '';
 $errores         = [];
@@ -24,23 +9,13 @@ $formData        = [
     'telefonoUsuario' => '',
 ];
 
-
-/* ──────────────────────────────────────────────────────────────
-   BLOQUE 2: PROCESAMIENTO DEL FORMULARIO (POST)
-────────────────────────────────────────────────────────────── */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    /* 2.1 – Sanitización de entradas
-       htmlspecialchars() previene XSS.
-       trim() elimina espacios en blanco innecesarios.
-       La clave NO se imprime; solo se hashea.               */
     $nombreUsuario   = trim(htmlspecialchars($_POST['nombreUsuario']   ?? ''));
     $claveUsuario    = $_POST['claveUsuario'] ?? '';
     $tipoUsuario     = trim(htmlspecialchars($_POST['tipoUsuario']     ?? ''));
     $emailUsuario    = trim(htmlspecialchars($_POST['emailUsuario']    ?? ''));
     $telefonoUsuario = trim(htmlspecialchars($_POST['telefonoUsuario'] ?? ''));
-
-    /* Repopular el formulario para no perder datos si hay error */
     $formData = [
         'nombreUsuario'   => $nombreUsuario,
         'tipoUsuario'     => $tipoUsuario,
@@ -48,7 +23,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'telefonoUsuario' => $telefonoUsuario,
     ];
 
-    /* 2.2 – Validaciones del lado del servidor */
     if (empty($nombreUsuario)) {
         $errores[] = 'El nombre de usuario es obligatorio.';
     }
@@ -65,64 +39,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errores[] = 'El teléfono es obligatorio.';
     }
 
-    /* 2.3 – Procesamiento si no hay errores */
     if (empty($errores)) {
-
-        /* ── HASH DE CONTRASEÑA ────────────────────────────
-           NUNCA guardar contraseñas en texto plano.
-           password_hash() utiliza bcrypt por defecto.       */
         $claveHash = password_hash($claveUsuario, PASSWORD_DEFAULT);
-
-        /* ── CONEXIÓN A BASE DE DATOS ──────────────────────
-           TODO: Implementar en etapa de integración con BD.
-
-           Opción A — MySQLi:
-           $conn = mysqli_connect('localhost','db_user','db_pass','skyreserva');
-
-           Opción B — PDO (recomendada):
-           $pdo = new PDO(
-               'mysql:host=localhost;dbname=skyreserva;charset=utf8mb4',
-               'db_user', 'db_pass',
-               [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
-           );
-        ── FIN CONEXIÓN ─────────────────────────────────── */
-
-        /* ── INSERCIÓN EN TABLA USUARIOS ───────────────────
-           TODO: Implementar en etapa de integración con BD.
-
-           Tabla USUARIOS (modelo de datos de la cátedra):
-             codUsuario       INT  AUTO_INCREMENT PK
-             nombreUsuario    VARCHAR(100)
-             claveUsuario     VARCHAR(255)  <- guardar el hash
-             tipoUsuario      VARCHAR(20)   <- 'usuario' | 'aerolinea'
-             emailUsuario     VARCHAR(100)
-             telefonoUsuario  VARCHAR(20)
-
-           Con PDO (prepared statement):
-           $stmt = $pdo->prepare(
-               "INSERT INTO USUARIOS
-                (nombreUsuario, claveUsuario, tipoUsuario, emailUsuario, telefonoUsuario)
-                VALUES (:nombre, :clave, :tipo, :email, :tel)"
-           );
-           $stmt->execute([
-               ':nombre' => $nombreUsuario,
-               ':clave'  => $claveHash,
-               ':tipo'   => $tipoUsuario,
-               ':email'  => $emailUsuario,
-               ':tel'    => $telefonoUsuario,
-           ]);
-        ── FIN INSERCIÓN ────────────────────────────────── */
-
-        /* ── LÓGICA POST-REGISTRO POR TIPO ─────────────────
-           Si es Cliente ('usuario'):
-             TODO: Generar token, guardarlo en BD y enviar
-             email de validación con enlace de activación.
-
-           Si es CEO ('aerolinea'):
-             TODO: Notificar al Administrador para que
-             apruebe o rechace la solicitud de registro.
-        ── FIN LÓGICA POST-REGISTRO ─────────────────────── */
-
         $registroExitoso = true;
         $tipoRegistrado  = $tipoUsuario;
         $formData        = ['nombreUsuario'=>'','tipoUsuario'=>'','emailUsuario'=>'','telefonoUsuario'=>''];
@@ -148,8 +66,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <link rel="stylesheet" href="EstilosLandUsuarioNoRegistrado.css"/>
 
   <style>
-    /* Estilos exclusivos de registrarse.php */
-
     .tipo-card {
       cursor: pointer;
       border: 2px solid var(--bs-border-color);
@@ -160,12 +76,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       border-color: var(--bs-primary);
       background-color: var(--bs-primary-bg-subtle);
     }
-    /* CSS puro :has() — sin JS — activa estilos cuando el radio está marcado */
     .tipo-card:has(input[type="radio"]:checked) {
       border-color: var(--bs-primary);
       background-color: var(--bs-primary-bg-subtle);
     }
-
     .divider-text {
       display: flex;
       align-items: center;
@@ -192,8 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <a class="navbar-brand fw-bold d-flex align-items-center gap-2"
            href="LandUsuarioNoRegistrado.html"
            aria-label="SkyReserva — Ir a la página de inicio">
-          <i class="bi bi-airplane-fill" aria-hidden="true"></i>
-          SkyReserva
+          <i class="bi bi-airplane-fill" aria-hidden="true"></i>SkyReserva
         </a>
 
         <button class="navbar-toggler" type="button"
@@ -223,18 +136,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           </ul>
           <div class="d-flex gap-2" role="group" aria-label="Acciones de sesión">
             <a href="login.php" class="btn btn-outline-light btn-sm">
-              <i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>
-              Iniciar Sesión
+              <i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>Iniciar Sesión
             </a>
             <a href="registrarse_.php"
                class="btn btn-light btn-sm text-primary fw-semibold"
                aria-current="page">
-              <i class="bi bi-person-plus-fill me-1" aria-hidden="true"></i>
-              Registrarse
+              <i class="bi bi-person-plus-fill me-1" aria-hidden="true"></i>Registrarse
             </a>
           </div>
         </div>
-
       </div>
     </nav>
   </header>
@@ -257,7 +167,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               </p>
             </div>
 
-            <!-- Mensajes de feedback -->
             <?php if ($registroExitoso && $tipoRegistrado === 'usuario'): ?>
               <div class="alert alert-success d-flex align-items-start gap-3" role="alert">
                 <i class="bi bi-envelope-check-fill fs-4 flex-shrink-0 mt-1" aria-hidden="true"></i>
@@ -269,8 +178,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     Revisá tu bandeja de entrada y hacé clic en el enlace para activar tu cuenta.
                   </p>
                   <a href="login.php" class="btn btn-success btn-sm">
-                    <i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>
-                    Ir a Iniciar Sesión
+                    <i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>Ir a Iniciar Sesión
                   </a>
                 </div>
               </div>
@@ -305,7 +213,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               </div>
             <?php endif; ?>
 
-            <!-- Formulario — oculto tras registro exitoso -->
             <?php if (!$registroExitoso): ?>
             <form action="registrarse_.php" method="post"
                   class="card border-0 shadow-sm p-4 p-md-5"
@@ -333,7 +240,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
               </div>
 
-              <!-- Contraseña -->
               <div class="mb-3">
                 <label for="claveUsuario" class="form-label fw-semibold">
                   <i class="bi bi-lock me-1" aria-hidden="true"></i>
@@ -356,11 +262,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
               </div>
 
-              <!-- Tipo de usuario -->
               <fieldset class="mb-3">
                 <legend class="form-label fw-semibold mb-2">
-                  <i class="bi bi-person-badge me-1" aria-hidden="true"></i>
-                  Tipo de usuario
+                  <i class="bi bi-person-badge me-1" aria-hidden="true"></i>Tipo de usuario
                   <span class="text-danger" aria-hidden="true">*</span>
                 </legend>
                 <div class="row g-3">
@@ -387,7 +291,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </label>
                   </div>
                 </div>
-                <!-- Nota siempre visible — sin JS -->
+                
                 <div class="alert alert-warning py-2 mt-3 mb-0 small" role="note">
                   <i class="bi bi-info-circle me-1" aria-hidden="true"></i>
                   Los registros de <strong>CEO de Aerolínea</strong> requieren
@@ -395,7 +299,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
               </fieldset>
 
-              <!-- Email -->
               <div class="mb-3">
                 <label for="emailUsuario" class="form-label fw-semibold">
                   <i class="bi bi-envelope me-1" aria-hidden="true"></i>
@@ -417,7 +320,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
               </div>
 
-              <!-- Teléfono -->
               <div class="mb-4">
                 <label for="telefonoUsuario" class="form-label fw-semibold">
                   <i class="bi bi-telephone me-1" aria-hidden="true"></i>
@@ -441,17 +343,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               </p>
 
               <button type="submit" class="btn btn-primary w-100 btn-lg">
-                <i class="bi bi-person-check-fill me-2" aria-hidden="true"></i>
-                Crear cuenta
+                <i class="bi bi-person-check-fill me-2" aria-hidden="true"></i>Crear cuenta
               </button>
 
               <div class="my-4 divider-text">¿Ya tenés cuenta?</div>
 
               <a href="login.php" class="btn btn-outline-secondary w-100">
-                <i class="bi bi-box-arrow-in-right me-2" aria-hidden="true"></i>
-                Iniciar Sesión
+                <i class="bi bi-box-arrow-in-right me-2" aria-hidden="true"></i>Iniciar Sesión
               </a>
-
             </form>
             <?php endif; ?>
 
@@ -488,8 +387,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <li><a href="LandUsuarioNoRegistrado.html#seccion-vuelos">Vuelos</a></li>
             <li><a href="registrarse_.php" aria-current="page">Registrarse</a></li>
             <li><a href="login.php">Iniciar Sesión</a></li>
-            <li><a href="#">Recuperar Contraseña</a></li>
-            <li><a href="#">Mapa de Sitio completo</a></li>
+            <li><a href="recuperar_contrasena_.php">Recuperar Contraseña</a></li>
           </ul>
         </nav>
 
@@ -523,7 +421,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
   </footer>
 
-  <!-- Bootstrap JS — solo para el navbar toggler en mobile -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
           integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmkYJfmIlCv0SSFCE5nEatGkWxlg"
           crossorigin="anonymous"></script>

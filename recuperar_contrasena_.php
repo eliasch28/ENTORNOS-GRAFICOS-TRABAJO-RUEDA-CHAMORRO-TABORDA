@@ -1,31 +1,22 @@
 <?php
-$loginExitoso  = false;
-$errorLogin    = '';
-$formData      = ['nombreUsuario' => ''];
-
-$mensajesRedireccion = [
-    'reserva'  => 'Debés iniciar sesión para poder reservar un vuelo.',
-    'perfil'   => 'Debés iniciar sesión para acceder a tu perfil.',
-    'historial'=> 'Debés iniciar sesión para ver tu historial de compras.',
-    'reservas' => 'Debés iniciar sesión para gestionar tus reservas.',
-];
-$msgKey         = $_GET['msg'] ?? '';
-$msgRedireccion = $mensajesRedireccion[$msgKey] ?? '';
-
+$envioExitoso = false;
+$errores      = [];
+$formData     = ['emailUsuario' => ''];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $nombreUsuario = trim(htmlspecialchars($_POST['nombreUsuario'] ?? ''));
-    $claveUsuario  = $_POST['claveUsuario'] ?? '';
+    $emailUsuario = trim(htmlspecialchars($_POST['emailUsuario'] ?? ''));
+    $formData = ['emailUsuario' => $emailUsuario];
 
-    $formData = ['nombreUsuario' => $nombreUsuario];
-
-    if (empty($nombreUsuario) || empty($claveUsuario)) {
-        $errorLogin = 'Completá el nombre de usuario y la contraseña para continuar.';
+    if (empty($emailUsuario)) {
+        $errores[] = 'El correo electrónico es obligatorio.';
+    } elseif (!filter_var($emailUsuario, FILTER_VALIDATE_EMAIL)) {
+        $errores[] = 'El correo electrónico ingresado no es válido.';
     }
 
-    if (empty($errorLogin)) {
-        $errorLogin = 'Usuario o contraseña incorrectos.';
+    if (empty($errores)) {
+        $envioExitoso = true;
+        $formData     = ['emailUsuario' => ''];
     }
 }
 ?>
@@ -35,8 +26,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description"
-        content="Iniciá sesión en SkyReserva para gestionar tus reservas de vuelos. UTN FRR, Cátedra Entornos Gráficos 2026." />
-  <title>Iniciar Sesión | SkyReserva – UTN FRR</title>
+        content="Recuperá tu contraseña de SkyReserva ingresando tu correo electrónico registrado. UTN FRR, Cátedra Entornos Gráficos 2026." />
+  <title>Recuperar Contraseña | SkyReserva – UTN FRR</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
         rel="stylesheet"
@@ -60,36 +51,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       flex: 1;
       border-top: 1px solid var(--bs-border-color);
     }
-    .user-type-item {
+    .steps-list {
+      list-style: none;
+      padding-left: 0;
+      margin-bottom: 0;
+    }
+    .steps-list li {
       display: flex;
       align-items: flex-start;
       gap: 0.75rem;
-      padding: 0.75rem 0;
+      padding: 0.65rem 0;
       border-bottom: 1px solid var(--bs-border-color);
+      font-size: 0.88rem;
+      color: var(--bs-secondary-color);
     }
-    .user-type-item:last-child {
+    .steps-list li:last-child {
       border-bottom: none;
       padding-bottom: 0;
     }
-    .user-type-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 8px;
+    .step-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background-color: var(--bs-primary);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1rem;
       flex-shrink: 0;
+      margin-top: 1px;
     }
   </style>
 </head>
 
 <body class="bg-light">
-
-  <a class="skip-link btn btn-primary btn-sm" href="#contenido-principal">
-    Saltar al contenido principal
-  </a>
-
   <header>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary"
          aria-label="Navegación principal">
@@ -127,12 +124,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </li>
           </ul>
           <div class="d-flex gap-2" role="group" aria-label="Acciones de sesión">
-            <a href="login.php"
-               class="btn btn-light btn-sm text-primary fw-semibold"
-               aria-current="page">
+            <a href="login.php" class="btn btn-outline-light btn-sm">
               <i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>Iniciar Sesión
             </a>
-            <a href="registrarse_.php" class="btn btn-outline-light btn-sm">
+            <a href="registrarse_.php" class="btn btn-light btn-sm text-primary fw-semibold">
               <i class="bi bi-person-plus-fill me-1" aria-hidden="true"></i>Registrarse
             </a>
           </div>
@@ -143,147 +138,142 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
   <main id="contenido-principal" tabindex="-1">
-    <section class="py-5" aria-labelledby="login-titulo">
+    <section class="py-5" aria-labelledby="recuperar-titulo">
       <div class="container">
         <div class="row justify-content-center g-4">
 
           <div class="col-md-8 col-lg-5">
 
             <div class="text-center mb-4">
-              <i class="bi bi-shield-lock text-primary"
+              <i class="bi bi-key text-primary"
                  style="font-size:3rem;" aria-hidden="true"></i>
-              <h1 id="login-titulo" class="h3 fw-bold mt-2">
-                Iniciar Sesión
+              <h1 id="recuperar-titulo" class="h3 fw-bold mt-2">
+                Recuperar contraseña
               </h1>
               <p class="text-secondary">
-                Ingresá con tu cuenta para acceder a SkyReserva.
+                Ingresá tu correo electrónico registrado y te enviaremos
+                un enlace para restablecer tu contraseña.
               </p>
             </div>
 
-            <?php if (!empty($msgRedireccion)): ?>
-              <div class="alert alert-info d-flex align-items-center gap-2" role="status">
-                <i class="bi bi-info-circle-fill flex-shrink-0" aria-hidden="true"></i>
-                <?= htmlspecialchars($msgRedireccion) ?>
+            <?php if ($envioExitoso): ?>
+              <div class="alert alert-success d-flex align-items-start gap-3"
+                   role="alert">
+                <i class="bi bi-envelope-check-fill fs-4 flex-shrink-0 mt-1"
+                   aria-hidden="true"></i>
+                <div>
+                  <h2 class="alert-heading h6 fw-bold mb-1">
+                    ¡Correo enviado!
+                  </h2>
+                  <p class="mb-3">
+                    Si el correo ingresado está registrado en el sistema,
+                    recibirás un enlace para restablecer tu contraseña.
+                    Revisá tu bandeja de entrada y también la carpeta de spam.
+                  </p>
+                  <p class="mb-3 small text-secondary">
+                    <i class="bi bi-clock me-1" aria-hidden="true"></i>El enlace expirará en <strong>1 hora</strong>.
+                  </p>
+                  <a href="login.php" class="btn btn-success btn-sm">
+                    <i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>Volver a Iniciar Sesión
+                  </a>
+                </div>
+              </div>
+
+            <?php endif; ?>
+
+            <?php if (!empty($errores)): ?>
+              <div class="alert alert-danger d-flex align-items-center gap-2"
+                   role="alert">
+                <i class="bi bi-exclamation-triangle-fill flex-shrink-0"
+                   aria-hidden="true"></i>
+                <ul class="mb-0 ps-2">
+                  <?php foreach ($errores as $error): ?>
+                    <li><?= htmlspecialchars($error) ?></li>
+                  <?php endforeach; ?>
+                </ul>
               </div>
             <?php endif; ?>
 
-            <?php if (!empty($errorLogin)): ?>
-              <div class="alert alert-danger d-flex align-items-center gap-2" role="alert">
-                <i class="bi bi-exclamation-triangle-fill flex-shrink-0" aria-hidden="true"></i>
-                <?= htmlspecialchars($errorLogin) ?>
-              </div>
-            <?php endif; ?>
-
-
-            <form action="login.php" method="post"
+            <?php if (!$envioExitoso): ?>
+            <form action="recuperar_contrasena_.php" method="post"
                   class="card border-0 shadow-sm p-4 p-md-5"
-                  aria-label="Formulario de inicio de sesión">
+                  aria-label="Formulario de recuperación de contraseña">
 
-              <div class="mb-3">
-                <label for="nombreUsuario" class="form-label fw-semibold">
-                  <i class="bi bi-person me-1" aria-hidden="true"></i>Nombre de usuario
+              <div class="mb-4">
+                <label for="emailUsuario" class="form-label fw-semibold">
+                  <i class="bi bi-envelope me-1" aria-hidden="true"></i>Correo electrónico registrado
+                  <span class="text-danger" aria-hidden="true">*</span>
                 </label>
-                <input type="text"
-                       id="nombreUsuario" name="nombreUsuario"
+                <input type="email"
+                       id="emailUsuario" name="emailUsuario"
                        class="form-control"
-                       placeholder="Tu nombre de usuario"
-                       value="<?= htmlspecialchars($formData['nombreUsuario']) ?>"
+                       placeholder="ejemplo@correo.com"
+                       value="<?= htmlspecialchars($formData['emailUsuario']) ?>"
                        required
                        autofocus
-                       autocomplete="username"
+                       autocomplete="email"
                        aria-required="true"
+                       aria-describedby="emailUsuario-ayuda"
                        maxlength="100"/>
-              </div>
-
-              <div class="mb-2">
-                <label for="claveUsuario" class="form-label fw-semibold">
-                  <i class="bi bi-lock me-1" aria-hidden="true"></i>Contraseña
-                </label>
-                <input type="password"
-                       id="claveUsuario" name="claveUsuario"
-                       class="form-control"
-                       placeholder="Tu contraseña"
-                       required
-                       autocomplete="current-password"
-                       aria-required="true"
-                       maxlength="8"/>
-              </div>
-
-              <div class="text-end mb-4">
-                <a href="recuperar_contrasena_.php"
-                   class="text-secondary small"
-                   aria-label="Ir a la página de recuperación de contraseña">
-                  ¿Olvidaste tu contraseña?
-                </a>
+                <div id="emailUsuario-ayuda" class="form-text">
+                  Debe coincidir con el correo con el que te registraste.
+                </div>
               </div>
 
               <button type="submit" class="btn btn-primary w-100 btn-lg">
-                <i class="bi bi-box-arrow-in-right me-2" aria-hidden="true"></i>Ingresar
+                <i class="bi bi-send me-2" aria-hidden="true"></i>Enviar enlace de recuperación
               </button>
 
-              <div class="my-4 divider-text">¿No tenés cuenta?</div>
+              <div class="my-4 divider-text">¿Recordaste tu contraseña?</div>
 
-              <a href="registrarse_.php" class="btn btn-outline-secondary w-100">
-                <i class="bi bi-person-plus me-2" aria-hidden="true"></i>Crear una cuenta nueva
+              <a href="login.php" class="btn btn-outline-secondary w-100">
+                <i class="bi bi-box-arrow-in-right me-2" aria-hidden="true"></i>Volver a Iniciar Sesión
               </a>
             </form>
+            <?php endif; ?>
 
           </div>
-          <div class="col-lg-4 d-none d-lg-block">
 
+          <div class="col-lg-4 d-none d-lg-block">
             <div class="card border-0 shadow-sm p-4 h-100">
 
               <h2 class="h6 fw-bold text-primary mb-1">
-                <i class="bi bi-people-fill me-2" aria-hidden="true"></i>Tipos de usuario
+                <i class="bi bi-question-circle-fill me-2" aria-hidden="true"></i>¿Cómo funciona?
               </h2>
               <p class="text-secondary small mb-3">
-                Cada perfil tiene acceso a distintas funciones del sistema.
+                El proceso de recuperación tiene tres pasos simples.
               </p>
 
-              <div class="user-type-item">
-                <div class="user-type-icon bg-danger-subtle text-danger">
-                  <i class="bi bi-gear-fill" aria-hidden="true"></i>
-                </div>
-                <div>
-                  <div class="fw-semibold small">Administrador</div>
-                  <div class="text-secondary" style="font-size:.8rem;">
-                    Gestiona aerolíneas, aprueba promociones y genera reportes.
-                  </div>
-                </div>
-              </div>
-
-              <div class="user-type-item">
-                <div class="user-type-icon bg-warning-subtle text-warning">
-                  <i class="bi bi-building-fill" aria-hidden="true"></i>
-                </div>
-                <div>
-                  <div class="fw-semibold small">CEO de Aerolínea</div>
-                  <div class="text-secondary" style="font-size:.8rem;">
-                    Crea y gestiona vuelos y promociones de su aerolínea.
-                  </div>
-                </div>
-              </div>
-
-              <div class="user-type-item">
-                <div class="user-type-icon bg-primary-subtle text-primary">
-                  <i class="bi bi-person-fill" aria-hidden="true"></i>
-                </div>
-                <div>
-                  <div class="fw-semibold small">Cliente / Pasajero</div>
-                  <div class="text-secondary" style="font-size:.8rem;">
-                    Busca vuelos, realiza reservas y consulta su historial.
-                  </div>
-                </div>
-              </div>
+              <ol class="steps-list" aria-label="Pasos para recuperar la contraseña">
+                <li>
+                  <div class="step-num" aria-hidden="true">1</div>
+                  <span>
+                    Ingresá el <strong>correo electrónico</strong> con el que
+                    te registraste en SkyReserva.
+                  </span>
+                </li>
+                <li>
+                  <div class="step-num" aria-hidden="true">2</div>
+                  <span>
+                    Revisá tu bandeja de entrada. Te enviaremos un
+                    <strong>enlace seguro</strong> que expira en 1 hora.
+                  </span>
+                </li>
+                <li>
+                  <div class="step-num" aria-hidden="true">3</div>
+                  <span>
+                    Hacé clic en el enlace e ingresá tu
+                    <strong>nueva contraseña</strong> (máximo 8 caracteres).
+                  </span>
+                </li>
+              </ol>
 
               <hr class="my-3"/>
 
               <div class="alert alert-light border small mb-0 p-3" role="note">
-                <i class="bi bi-info-circle text-primary me-1" aria-hidden="true"></i>¿Aún no tenés cuenta?
-                <a href="registrarse_.php" class="fw-semibold text-primary">
-                  Registrate acá
-                </a>
-                para comenzar a reservar vuelos.
+                <i class="bi bi-shield-check text-primary me-1" aria-hidden="true"></i>
+                Por seguridad, el sistema <strong>no confirma</strong> si el correo
+                está registrado o no, para proteger la privacidad de los usuarios.
               </div>
             </div>
           </div>
@@ -291,7 +281,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </div>
     </section>
   </main>
-
 
   <footer class="bg-dark text-light py-5">
     <div class="container">
@@ -318,8 +307,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <li><a href="LandUsuarioNoRegistrado.html#seccion-aerolineas">Aerolíneas</a></li>
             <li><a href="LandUsuarioNoRegistrado.html#seccion-vuelos">Vuelos</a></li>
             <li><a href="registrarse_.php">Registrarse</a></li>
-            <li><a href="login.php" aria-current="page">Iniciar Sesión</a></li>
-            <li><a href="recuperar_contrasena_.php">Recuperar Contraseña</a></li>
+            <li><a href="login.php">Iniciar Sesión</a></li>
+            <li><a href="recuperar_contrasena_.php" aria-current="page">Recuperar Contraseña</a></li>
           </ul>
         </nav>
 

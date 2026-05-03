@@ -1,65 +1,41 @@
 <!DOCTYPE html>
 <html lang="es">
-<!--
-  ╔══════════════════════════════════════════════════════════╗
-  ║  SkyReserva — Página de Inicio (Usuario No Registrado)  ║
-  ║  UTN · Facultad Regional Rosario                        ║
-  ║  Cátedra: Entornos Gráficos 2026                        ║
-  ╠══════════════════════════════════════════════════════════╣
-  ║  Estándares aplicados:                                  ║
-  ║  · HTML5 semántico (header, main, section, footer, nav) ║
-  ║  · WCAG 2.1 AA (skip-link, ARIA, contraste, focus)      ║
-  ║  · Bootstrap 5.3 — paleta y utilidades estándar         ║
-  ╚══════════════════════════════════════════════════════════╝
--->
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- SEO básico -->
+  
   <meta name="description"
         content="SkyReserva – Sistema de gestión de reservas de pasajes de avión. UTN Facultad Regional Rosario, Cátedra Entornos Gráficos 2026." />
 
   <title>SkyReserva – Inicio | Reservas de Vuelos</title>
 
-  <!-- ① Bootstrap 5.3 CSS (CDN oficial) -->
+  
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous"/>
 
-  <!-- ② Bootstrap Icons -->
+  
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
 
-  <!-- ③ Estilos propios (solo lo que Bootstrap no cubre) -->
+  
   <link rel="stylesheet" href="EstilosLandUsuarioNoRegistrado.css" type="text/css"/>
 </head>
 
 <body class="bg-light">
-  <!-- ════════════════════════════════════════════════════════
-       HEADER + NAV
-       <header> identifica la cabecera del documento.
-       <nav> con aria-label diferencia esta barra de otras
-       posibles nav del documento (p.ej., la del footer).
-  ═════════════════════════════════════════════════════════ -->
+
   <header>
     <nav
       class="navbar navbar-expand-lg navbar-dark bg-primary"
       aria-label="Navegación principal"
     >
       <div class="container">
-
-        <!-- Marca / Logotipo -->
-        <!-- aria-label extra para lectores que solo anuncian el texto visible -->
         <a
           class="navbar-brand fw-bold d-flex align-items-center gap-2"
           href="LandUsuarioNoRegistrado.html"
           aria-label="SkyReserva — Ir a la página de inicio"
         >
-          <i class="bi bi-airplane-fill" aria-hidden="true"></i>
-          SkyReserva
+          <i class="bi bi-airplane-fill" aria-hidden="true"></i>SkyReserva
         </a>
 
-        <!-- Botón hamburguesa (mobile)
-             aria-controls apunta al id del menú colapsable.
-             aria-expanded lo maneja Bootstrap automáticamente. -->
         <button
           class="navbar-toggler"
           type="button"
@@ -72,73 +48,47 @@
           <span class="navbar-toggler-icon"></span>
         </button>
 
-        <!-- Menú colapsable -->
         <div class="collapse navbar-collapse" id="menuPrincipal">
-
-          <!-- Links de navegación pública -->
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
-              <!-- aria-current="page" indica la página activa al lector de pantalla -->
               <a class="nav-link active" href="LandUsuarioNoRegistrado.html" aria-current="page">
-                <i class="bi bi-house-fill me-1" aria-hidden="true"></i>
-                Inicio
+                <i class="bi bi-house-fill me-1" aria-hidden="true"></i>Inicio
               </a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="#seccion-aerolineas">
-                <i class="bi bi-building me-1" aria-hidden="true"></i>
-                Aerolíneas
+                <i class="bi bi-building me-1" aria-hidden="true"></i>Aerolíneas
               </a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="#seccion-vuelos">
-                <i class="bi bi-airplane me-1" aria-hidden="true"></i>
-                Vuelos
+                <i class="bi bi-airplane me-1" aria-hidden="true"></i>Vuelos
               </a>
             </li>
           </ul>
 
-          <!-- Acciones de sesión -->
           <div class="d-flex gap-2" role="group" aria-label="Acciones de sesión">
             <a
               href="login.php"
               class="btn btn-outline-light btn-sm"
               aria-label="Iniciar sesión en SkyReserva"
             >
-              <i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>
-              Iniciar Sesión
+              <i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>Iniciar Sesión
             </a>
             <a
               href="registrarse_.php"
               class="btn btn-light btn-sm text-primary fw-semibold"
               aria-label="Crear una cuenta nueva en SkyReserva"
             >
-              <i class="bi bi-person-plus-fill me-1" aria-hidden="true"></i>
-              Registrarse
+              <i class="bi bi-person-plus-fill me-1" aria-hidden="true"></i>Registrarse
             </a>
           </div>
-
-        </div><!-- /.collapse -->
-      </div><!-- /.container -->
+        </div>
+      </div>
     </nav>
   </header>
 
-
-  <!-- ════════════════════════════════════════════════════════
-       MAIN — todo el contenido principal va aquí.
-       id="contenido-principal" es el destino del skip-link.
-       El atributo tabindex="-1" permite que el foco llegue
-       programáticamente sin que el elemento sea tabulable.
-  ═════════════════════════════════════════════════════════ -->
   <main id="contenido-principal" tabindex="-1">
-
-
-    <!-- ──────────────────────────────────────────────────────
-         SECCIÓN 1: HERO
-         aria-labelledby asocia la sección con su h1,
-         lo que permite a lectores de pantalla anunciar
-         "región: Tu próximo vuelo..." al entrar.
-    ─────────────────────────────────────────────────────── -->
     <section
       class="hero-section text-white bg-primary py-5"
       aria-labelledby="hero-titulo"
@@ -147,19 +97,13 @@
         <div class="row align-items-center">
           <div class="col-lg-7">
 
-            <!-- Eyebrow -->
             <p class="text-white-50 text-uppercase small fw-semibold mb-2">
-              <i class="bi bi-globe2 me-1" aria-hidden="true"></i>
-              UTN FRR · Entornos Gráficos 2026
+              <i class="bi bi-globe2 me-1" aria-hidden="true"></i>UTN FRR · Entornos Gráficos 2026
             </p>
 
-            <!--
-              h1: único en la página, describe el propósito principal.
-              id referenciado por aria-labelledby del <section>.
-            -->
             <h1 id="hero-titulo" class="display-4 fw-bold mb-3">
               Tu próximo vuelo,<br>
-              a un clic de distancia
+              a un clic de distancia.
             </h1>
 
             <p class="lead text-white-50 mb-4">
@@ -169,16 +113,13 @@
 
             <div class="d-flex gap-3 flex-wrap">
               <a href="#seccion-vuelos" class="btn btn-light btn-lg text-primary fw-semibold">
-                <i class="bi bi-search me-2" aria-hidden="true"></i>
-                Buscar Vuelos
+                <i class="bi bi-search me-2" aria-hidden="true"></i>Buscar Vuelos
               </a>
               <a href="registrarse_.php" class="btn btn-outline-light btn-lg">
-                <i class="bi bi-person-plus me-2" aria-hidden="true"></i>
-                Crear Cuenta
+                <i class="bi bi-person-plus me-2" aria-hidden="true"></i>Crear Cuenta
               </a>
             </div>
 
-            <!-- Estadísticas decorativas -->
             <ul
               class="d-flex gap-5 mt-5 pt-4 border-top border-white border-opacity-25 list-unstyled"
               role="list"
@@ -198,17 +139,11 @@
               </li>
             </ul>
 
-          </div><!-- /.col -->
-        </div><!-- /.row -->
-      </div><!-- /.container -->
-    </section><!-- /#hero -->
+          </div>
+        </div>
+      </div>
+    </section>
 
-
-    <!-- ──────────────────────────────────────────────────────
-         SECCIÓN 2: BUSCADOR DE VUELOS
-         role="search" identifica la región de búsqueda;
-         lectores de pantalla lo anuncian como "región de búsqueda".
-    ─────────────────────────────────────────────────────── -->
     <section
       class="py-5 bg-white shadow-sm"
       aria-labelledby="buscador-titulo"
@@ -217,8 +152,7 @@
       <div class="container">
 
         <h2 id="buscador-titulo" class="h5 fw-semibold text-primary mb-4">
-          <i class="bi bi-search me-2" aria-hidden="true"></i>
-          Buscar vuelos disponibles
+          <i class="bi bi-search me-2" aria-hidden="true"></i>Buscar vuelos disponibles
         </h2>
 
         <form action="#seccion-vuelos" method="get" aria-label="Formulario de búsqueda de vuelos">
@@ -227,8 +161,7 @@
             <!-- Origen -->
             <div class="col-md-3">
               <label for="busq-origen" class="form-label fw-semibold">
-                <i class="bi bi-geo me-1" aria-hidden="true"></i>
-                Origen
+                <i class="bi bi-geo me-1" aria-hidden="true"></i>Origen
               </label>
               <input
                 type="text"
@@ -240,11 +173,9 @@
               />
             </div>
 
-            <!-- Destino -->
             <div class="col-md-3">
               <label for="busq-destino" class="form-label fw-semibold">
-                <i class="bi bi-geo-fill me-1" aria-hidden="true"></i>
-                Destino
+                <i class="bi bi-geo-fill me-1" aria-hidden="true"></i>Destino
               </label>
               <input
                 type="text"
@@ -256,11 +187,9 @@
               />
             </div>
 
-            <!-- Fecha -->
             <div class="col-md-2">
               <label for="busq-fecha" class="form-label fw-semibold">
-                <i class="bi bi-calendar3 me-1" aria-hidden="true"></i>
-                Fecha de salida
+                <i class="bi bi-calendar3 me-1" aria-hidden="true"></i>Fecha de salida
               </label>
               <input
                 type="date"
@@ -270,11 +199,9 @@
               />
             </div>
 
-            <!-- Aerolínea -->
             <div class="col-md-2">
               <label for="busq-aerolinea" class="form-label fw-semibold">
-                <i class="bi bi-building me-1" aria-hidden="true"></i>
-                Aerolínea
+                <i class="bi bi-building me-1" aria-hidden="true"></i>Aerolínea
               </label>
               <select
                 id="busq-aerolinea"
@@ -289,24 +216,18 @@
               </select>
             </div>
 
-            <!-- Submit -->
             <div class="col-md-2">
               <button type="submit" class="btn btn-primary w-100">
-                <i class="bi bi-search me-1" aria-hidden="true"></i>
-                Buscar
+                <i class="bi bi-search me-1" aria-hidden="true"></i>Buscar
               </button>
             </div>
 
-          </div><!-- /.row -->
+          </div>
         </form>
 
-      </div><!-- /.container -->
-    </section><!-- /buscador -->
+      </div>
+    </section>
 
-
-    <!-- ──────────────────────────────────────────────────────
-         SECCIÓN 3: AEROLÍNEAS
-    ─────────────────────────────────────────────────────── -->
     <section
       id="seccion-aerolineas"
       class="py-5"
@@ -327,14 +248,8 @@
           </p>
         </header>
 
-        <!--
-          Lista semántica. Cada <li> contiene un <article>
-          (contenido autocontenido y reutilizable).
-          aria-label en cada article describe el ítem.
-        -->
         <ul class="row g-4 list-unstyled" role="list" aria-label="Lista de aerolíneas disponibles">
 
-          <!-- Aerolínea 1 -->
           <li class="col-sm-6 col-lg-3 fade-up" role="listitem">
             <article class="card airline-card h-100 border-0 shadow-sm" aria-label="Aerolíneas Argentinas">
               <div class="card-body d-flex flex-column p-4">
@@ -364,7 +279,6 @@
             </article>
           </li>
 
-          <!-- Aerolínea 2 -->
           <li class="col-sm-6 col-lg-3 fade-up" role="listitem" style="transition-delay:.08s">
             <article class="card airline-card h-100 border-0 shadow-sm" aria-label="LATAM Airlines">
               <div class="card-body d-flex flex-column p-4">
@@ -394,7 +308,6 @@
             </article>
           </li>
 
-          <!-- Aerolínea 3 -->
           <li class="col-sm-6 col-lg-3 fade-up" role="listitem" style="transition-delay:.16s">
             <article class="card airline-card h-100 border-0 shadow-sm" aria-label="Flybondi">
               <div class="card-body d-flex flex-column p-4">
@@ -424,7 +337,6 @@
             </article>
           </li>
 
-          <!-- Aerolínea 4 -->
           <li class="col-sm-6 col-lg-3 fade-up" role="listitem" style="transition-delay:.24s">
             <article class="card airline-card h-100 border-0 shadow-sm" aria-label="JetSmart">
               <div class="card-body d-flex flex-column p-4">
@@ -454,14 +366,10 @@
             </article>
           </li>
 
-        </ul><!-- /lista aerolíneas -->
-      </div><!-- /.container -->
-    </section><!-- /#seccion-aerolineas -->
+        </ul>
+      </div>
+    </section>
 
-
-    <!-- ──────────────────────────────────────────────────────
-         SECCIÓN 4: VUELOS DISPONIBLES
-    ─────────────────────────────────────────────────────── -->
     <section
       id="seccion-vuelos"
       class="py-5 bg-white"
@@ -480,14 +388,8 @@
           </p>
         </header>
 
-        <!--
-          Lista semántica de vuelos.
-          Cada vuelo es un <article> con aria-label descriptivo
-          que permite al lector de pantalla anunciarlo completo.
-        -->
         <ul class="list-unstyled" role="list" aria-label="Lista de vuelos disponibles">
 
-          <!-- Vuelo 1 -->
           <li class="mb-3 fade-up" role="listitem">
             <article
               class="card flight-card border-0 shadow-sm"
@@ -498,8 +400,7 @@
 
                   <div class="col-md-2">
                     <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
-                      <i class="bi bi-airplane me-1" aria-hidden="true"></i>
-                      Aer. Argentinas · 0001
+                      <i class="bi bi-airplane me-1" aria-hidden="true"></i>Aer. Argentinas · 0001
                     </span>
                   </div>
 
@@ -528,8 +429,7 @@
                       <time datetime="2026-05-15T08:30">15 May 2026 · 08:30</time>
                     </div>
                     <div class="text-success small mt-1">
-                      <i class="bi bi-people-fill me-1" aria-hidden="true"></i>
-                      32 asientos disp.
+                      <i class="bi bi-people-fill me-1" aria-hidden="true"></i>32 asientos disp.
                     </div>
                   </div>
 
@@ -541,7 +441,7 @@
 
                   <div class="col-md-2 text-end">
                     <div class="fw-bold fs-5 text-dark">
-                      <small class="text-secondary fw-normal fs-6">ARS</small> 48.500
+                      <small class="text-secondary fw-normal fs-6">ARS</small>48.500
                     </div>
                     <a
                       href="login.php"
@@ -552,12 +452,11 @@
                     </a>
                   </div>
 
-                </div><!-- /.row -->
-              </div><!-- /.card-body -->
+                </div>
+              </div>
             </article>
           </li>
 
-          <!-- Vuelo 2 -->
           <li class="mb-3 fade-up" role="listitem" style="transition-delay:.07s">
             <article
               class="card flight-card border-0 shadow-sm"
@@ -594,8 +493,7 @@
                       <time datetime="2026-05-18T14:15">18 May 2026 · 14:15</time>
                     </div>
                     <div class="text-warning small mt-1">
-                      <i class="bi bi-people-fill me-1" aria-hidden="true"></i>
-                      8 asientos disp.
+                      <i class="bi bi-people-fill me-1" aria-hidden="true"></i>8 asientos disp.
                     </div>
                   </div>
                   <div class="col-md-1 text-center">
@@ -603,7 +501,7 @@
                   </div>
                   <div class="col-md-2 text-end">
                     <div class="fw-bold fs-5 text-dark">
-                      <small class="text-secondary fw-normal fs-6">ARS</small> 124.900
+                      <small class="text-secondary fw-normal fs-6">ARS</small>124.900
                     </div>
                     <a href="login.php" class="btn btn-primary btn-sm mt-2"
                       aria-label="Reservar vuelo AEP a SCL el 18 de mayo. Iniciar sesión para continuar.">
@@ -615,7 +513,6 @@
             </article>
           </li>
 
-          <!-- Vuelo 3 -->
           <li class="mb-3 fade-up" role="listitem" style="transition-delay:.14s">
             <article
               class="card flight-card border-0 shadow-sm"
@@ -652,8 +549,7 @@
                       <time datetime="2026-05-20T11:00">20 May 2026 · 11:00</time>
                     </div>
                     <div class="text-success small mt-1">
-                      <i class="bi bi-people-fill me-1" aria-hidden="true"></i>
-                      50 asientos disp.
+                      <i class="bi bi-people-fill me-1" aria-hidden="true"></i>50 asientos disp.
                     </div>
                   </div>
                   <div class="col-md-1 text-center">
@@ -663,7 +559,7 @@
                   </div>
                   <div class="col-md-2 text-end">
                     <div class="fw-bold fs-5 text-dark">
-                      <small class="text-secondary fw-normal fs-6">ARS</small> 29.990
+                      <small class="text-secondary fw-normal fs-6">ARS</small>29.990
                     </div>
                     <a href="login.php" class="btn btn-primary btn-sm mt-2"
                       aria-label="Reservar vuelo COR a MDZ el 20 de mayo. Iniciar sesión para continuar.">
@@ -712,8 +608,7 @@
                       <time datetime="2026-05-22T16:45">22 May 2026 · 16:45</time>
                     </div>
                     <div class="text-success small mt-1">
-                      <i class="bi bi-people-fill me-1" aria-hidden="true"></i>
-                      21 asientos disp.
+                      <i class="bi bi-people-fill me-1" aria-hidden="true"></i>21 asientos disp.
                     </div>
                   </div>
                   <div class="col-md-1 text-center">
@@ -733,7 +628,7 @@
             </article>
           </li>
 
-        </ul><!-- /lista vuelos -->
+        </ul>
 
         <div class="text-center mt-3 fade-up">
           <a href="login.php" class="btn btn-outline-primary">
@@ -742,13 +637,9 @@
           </a>
         </div>
 
-      </div><!-- /.container -->
-    </section><!-- /#seccion-vuelos -->
+      </div>
+    </section>
 
-
-    <!-- ──────────────────────────────────────────────────────
-         SECCIÓN 5: CÓMO FUNCIONA
-    ─────────────────────────────────────────────────────── -->
     <section
       class="py-5"
       aria-labelledby="como-funciona-titulo"
@@ -765,7 +656,6 @@
           </h2>
         </header>
 
-        <!-- Pasos numerados como lista ordenada semántica -->
         <ol class="row g-4 list-unstyled" aria-label="Pasos para realizar una reserva">
 
           <li class="col-md-6 col-lg-3 fade-up">
@@ -822,12 +712,8 @@
 
         </ol>
       </div>
-    </section><!-- /cómo funciona -->
+    </section>
 
-
-    <!-- ──────────────────────────────────────────────────────
-         SECCIÓN 6: CTA
-    ─────────────────────────────────────────────────────── -->
     <section
       class="py-5 bg-primary text-white text-center"
       aria-labelledby="cta-titulo"
@@ -845,29 +731,18 @@
             Registrarse gratis
           </a>
           <a href="login.php" class="btn btn-outline-light btn-lg">
-            <i class="bi bi-box-arrow-in-right me-2" aria-hidden="true"></i>
-            Ya tengo cuenta
+            <i class="bi bi-box-arrow-in-right me-2" aria-hidden="true"></i>Ya tengo cuenta
           </a>
         </div>
       </div>
     </section>
 
-  </main><!-- /#contenido-principal -->
+  </main>
 
-
-  <!-- ════════════════════════════════════════════════════════
-       FOOTER con MAPA DE SITIO (requerido por la consigna)
-       Cada bloque de links es un <nav> con aria-label propio,
-       lo que permite a los lectores de pantalla anunciar la
-       región al entrar ("Navegación: Mapa del sitio").
-       Las listas <ul class="sitemap-list"> son semánticas y
-       sin decoración visual pero correctamente estructuradas.
-  ═════════════════════════════════════════════════════════ -->
   <footer class="bg-dark text-light py-5">
     <div class="container">
       <div class="row g-5">
 
-        <!-- Identidad -->
         <div class="col-lg-3 col-md-6">
           <div class="d-flex align-items-center gap-2 mb-2">
             <i class="bi bi-airplane-fill text-primary" aria-hidden="true"></i>
@@ -880,24 +755,18 @@
           </p>
         </div>
 
-        <!-- MAPA DEL SITIO (sección obligatoria de la consigna) -->
         <nav class="col-lg-3 col-md-6" aria-label="Mapa del sitio">
           <h2 class="h6 text-uppercase text-secondary small fw-semibold mb-3">
             <i class="bi bi-map me-1" aria-hidden="true"></i>Mapa del Sitio
           </h2>
-          <!--
-            <ul> con .sitemap-list (definida en styles.css):
-            list-style:none pero mantiene semántica de lista.
-            Los lectores de pantalla anuncian "lista de 7 elementos".
-          -->
+  
           <ul class="sitemap-list" role="list">
             <li><a href="LandUsuarioNoRegistrado.html">Inicio</a></li>
             <li><a href="#seccion-aerolineas">Aerolíneas</a></li>
             <li><a href="#seccion-vuelos">Vuelos</a></li>
             <li><a href="registrarse_.php">Registrarse</a></li>
             <li><a href="login.php">Iniciar Sesión</a></li>
-            <li><a href="#">Recuperar Contraseña</a></li>
-            <li><a href="#">Mapa de Sitio completo</a></li>
+            <li><a href="recuperar_contrasena_.php">Recuperar Contraseña</a></li>
           </ul>
         </nav>
 
