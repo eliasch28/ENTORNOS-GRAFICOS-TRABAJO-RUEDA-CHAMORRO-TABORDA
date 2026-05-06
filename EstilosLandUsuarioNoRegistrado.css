@@ -1,32 +1,3 @@
-/*
- * styles.css — SkyReserva · UTN FRR · Entornos Gráficos 2026
- * ─────────────────────────────────────────────────────────────
- * Este archivo SOLO contiene estilos que Bootstrap no cubre.
- * Toda la paleta y componentes usan las clases utilitarias de
- * Bootstrap 5 (bg-primary, text-secondary, btn-outline-primary…).
- * ─────────────────────────────────────────────────────────────
- */
-
-
-/* ══════════════════════════════════════════════════════════════
-   1. SKIP LINK — Accesibilidad (WCAG 2.4.1 Bypass Blocks)
-   Queda visualmente oculto hasta recibir foco con Tab.
-══════════════════════════════════════════════════════════════ */
-.skip-link {
-  position: absolute;
-  top: -100%;
-  left: 1rem;
-  z-index: 9999;
-  transition: top 0.2s;
-}
-.skip-link:focus {
-  top: 1rem;          /* aparece al presionar Tab */
-}
-
-
-/* ══════════════════════════════════════════════════════════════
-   2. NAVBAR — ajuste de alto mínimo y separador inferior
-══════════════════════════════════════════════════════════════ */
 .navbar {
   min-height: 64px;
   border-bottom: 2px solid var(--bs-primary);   /* usa token BS */
