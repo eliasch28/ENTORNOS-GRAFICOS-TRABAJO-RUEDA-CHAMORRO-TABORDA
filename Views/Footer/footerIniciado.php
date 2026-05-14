@@ -14,7 +14,7 @@
       <div class="col-lg-3 col-md-6">
         <div class="d-flex align-items-center gap-2 mb-2">
           <i class="bi bi-airplane-fill text-primary" aria-hidden="true"></i>
-          <span class="fw-bold fs-5">SkyReserva</span>
+          <span class="fw-bold fs-5">VuelaLibre</span>
         </div>
         <p class="text-secondary small">
           Sistema de gestión de reservas de pasajes de avión.<br>
@@ -35,6 +35,8 @@
           <li><a href="../Flujo Sesion/registrarse_.php">Registrarse</a></li>
           <li><a href="../Flujo Sesion/login.php">Iniciar Sesión</a></li>
           <li><a href="../Flujo Sesion/recuperar_contrasena_.php">Recuperar Contraseña</a></li>
+          <li><a href="../Flujo Sesion/sobreNosotros.php">Sobre Nosotros</a></li>
+
         </ul>
       </nav>
 
@@ -47,6 +49,7 @@
           <li><a href="../Funciones Usuario/mis_reservas.php">Mis Reservas</a></li>
           <li><a href="../Funciones Usuario/historial_compras.php">Historial de Compras</a></li>
           <li><a href="../Funciones Usuario/novedades.php">Ver Novedades</a></li>
+          <li><a href="../Funciones Usuario/promociones.php">Ver Promociones</a></li>
         </ul>
       </nav>
 
@@ -65,7 +68,7 @@
     </div>
 
     <div class="border-top border-secondary mt-5 pt-4 d-flex justify-content-between flex-wrap gap-2">
-      <small class="text-secondary">&copy; 2026 SkyReserva — Todos los derechos reservados.</small>
+      <small class="text-secondary">&copy; 2026 VuelaLibre — Todos los derechos reservados.</small>
       <small class="text-secondary">UTN FRR · Entornos Gráficos</small>
     </div>
   </div>

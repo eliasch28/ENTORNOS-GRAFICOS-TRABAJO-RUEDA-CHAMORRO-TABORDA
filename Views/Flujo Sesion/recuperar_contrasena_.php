@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description"
-        content="Recuperá tu contraseña de SkyReserva ingresando tu correo electrónico registrado." />
-  <title>Recuperar Contraseña | SkyReserva – UTN FRR</title>
+        content="Recuperá tu contraseña de VuelaLibre ingresando tu correo electrónico registrado." />
+  <title>Recuperar Contraseña | VuelaLibre – UTN FRR</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
         rel="stylesheet"
@@ -134,7 +134,7 @@
                   <div class="step-num" aria-hidden="true">1</div>
                   <span>
                     Ingresá el <strong>correo electrónico</strong> con el que
-                    te registraste en SkyReserva.
+                    te registraste en VuelaLibre.
                   </span>
                 </li>
                 <li>

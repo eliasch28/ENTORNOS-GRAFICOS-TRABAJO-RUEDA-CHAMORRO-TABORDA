@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description"
-        content="Consultá, confirmá o cancelá tus reservas de vuelos en SkyReserva." />
-  <title>Mis Reservas | SkyReserva – UTN FRR</title>
+        content="Consultá, confirmá o cancelá tus reservas de vuelos en VuelaLibre." />
+  <title>Mis Reservas | VuelaLibre – UTN FRR</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
         rel="stylesheet"

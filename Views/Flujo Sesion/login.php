@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Iniciá sesión en SkyReserva para gestionar tus reservas de vuelos." />
-  <title>Iniciar Sesión | SkyReserva – UTN FRR</title>
+  <meta name="description" content="Iniciá sesión en VuelaLibre para gestionar tus reservas de vuelos." />
+  <title>Iniciar Sesión | VuelaLibre – UTN FRR</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
         rel="stylesheet"
@@ -60,7 +60,7 @@
             <div class="text-center mb-4">
               <i class="bi bi-shield-lock text-primary" style="font-size:3rem;" aria-hidden="true"></i>
               <h1 id="login-titulo" class="h3 fw-bold mt-2">Iniciar Sesión</h1>
-              <p class="text-secondary">Ingresá con tu cuenta para acceder a SkyReserva.</p>
+              <p class="text-secondary">Ingresá con tu cuenta para acceder a VuelaLibre.</p>
             </div>
 
             <form action="login.php" method="post"

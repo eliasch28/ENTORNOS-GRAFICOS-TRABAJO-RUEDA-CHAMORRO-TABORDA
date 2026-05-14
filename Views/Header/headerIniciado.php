@@ -14,9 +14,9 @@
 
       <a class="navbar-brand fw-bold d-flex align-items-center gap-2"
          href="../LandPage/LandUsuarioNoRegistrado.php"
-         aria-label="SkyReserva — Ir a la página de inicio">
+         aria-label="VuelaLibre — Ir a la página de inicio">
         <i class="bi bi-airplane-fill" aria-hidden="true"></i>
-        SkyReserva
+        VuelaLibre
       </a>
 
       <button class="navbar-toggler" type="button"
@@ -51,6 +51,11 @@
           <li class="nav-item">
             <a class="nav-link" href="../Funciones Usuario/novedades.php">
               <i class="bi bi-megaphone me-1" aria-hidden="true"></i>Novedades
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="../Funciones Usuario/promociones.php">
+              <i class="bi bi-tag me-1" aria-hidden="true"></i>Promociones
             </a>
           </li>
         </ul>

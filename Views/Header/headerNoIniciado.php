@@ -18,9 +18,9 @@
 
       <a class="navbar-brand fw-bold d-flex align-items-center gap-2"
          href="../LandPage/LandUsuarioNoRegistrado.php"
-         aria-label="SkyReserva — Ir a la página de inicio">
+         aria-label="VuelaLibre — Ir a la página de inicio">
         <i class="bi bi-airplane-fill" aria-hidden="true"></i>
-        SkyReserva
+        VuelaLibre
       </a>
 
       <button class="navbar-toggler" type="button"
