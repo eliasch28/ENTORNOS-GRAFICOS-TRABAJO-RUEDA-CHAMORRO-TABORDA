@@ -10,7 +10,6 @@
  * usando ../ para salir de la subcarpeta del archivo que incluye.
  */
 ?>
-
 <header>
   <nav class="navbar navbar-expand-lg navbar-dark bg-primary"
        aria-label="Navegación principal">

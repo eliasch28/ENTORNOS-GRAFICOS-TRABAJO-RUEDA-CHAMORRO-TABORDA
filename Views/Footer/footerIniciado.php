@@ -3,6 +3,7 @@
  * footerIniciado.php
  * Ubicación física: Views/Footer/footerIniciado.php
  * Usado por archivos en:
+ *   Views/LandPage/          → include '../Footer/footerIniciado.php'
  *   Views/Funciones Usuario/ → include '../Footer/footerIniciado.php'
  */
 ?>
@@ -14,7 +15,7 @@
       <div class="col-lg-3 col-md-6">
         <div class="d-flex align-items-center gap-2 mb-2">
           <i class="bi bi-airplane-fill text-primary" aria-hidden="true"></i>
-          <span class="fw-bold fs-5">VuelaLibre</span>
+          <span class="fw-bold fs-5">SkyReserva</span>
         </div>
         <p class="text-secondary small">
           Sistema de gestión de reservas de pasajes de avión.<br>
@@ -29,14 +30,11 @@
           <i class="bi bi-map me-1" aria-hidden="true"></i>Mapa del Sitio
         </h2>
         <ul class="sitemap-list" role="list">
-          <li><a href="../LandPage/LandUsuarioNoRegistrado.php">Inicio</a></li>
-          <li><a href="../LandPage/LandUsuarioNoRegistrado.php#seccion-aerolineas">Aerolíneas</a></li>
-          <li><a href="../LandPage/LandUsuarioNoRegistrado.php#seccion-vuelos">Vuelos</a></li>
-          <li><a href="../Flujo Sesion/registrarse_.php">Registrarse</a></li>
-          <li><a href="../Flujo Sesion/login.php">Iniciar Sesión</a></li>
+          <li><a href="../LandPage/LandUsuarioRegistrado.php">Inicio</a></li>
+          <li><a href="../Funciones Usuario/buscar_vuelos.php">Buscar Vuelos</a></li>
+          <li><a href="../Funciones Usuario/promociones.php">Promociones</a></li>
+          <li><a href="../Funciones Usuario/novedades.php">Novedades</a></li>
           <li><a href="../Flujo Sesion/recuperar_contrasena_.php">Recuperar Contraseña</a></li>
-          <li><a href="../Flujo Sesion/sobreNosotros.php">Sobre Nosotros</a></li>
-
         </ul>
       </nav>
 
@@ -45,11 +43,9 @@
         <h2 class="h6 text-uppercase text-secondary small fw-semibold mb-3">Mi Cuenta</h2>
         <ul class="sitemap-list" role="list">
           <li><a href="../Funciones Usuario/mi_perfil.php">Mi Perfil</a></li>
-          <li><a href="../Funciones Usuario/buscar_vuelos.php">Buscar Vuelos</a></li>
           <li><a href="../Funciones Usuario/mis_reservas.php">Mis Reservas</a></li>
           <li><a href="../Funciones Usuario/historial_compras.php">Historial de Compras</a></li>
-          <li><a href="../Funciones Usuario/novedades.php">Ver Novedades</a></li>
-          <li><a href="../Funciones Usuario/promociones.php">Ver Promociones</a></li>
+          <li><a href="../Flujo Sesion/logout.php">Cerrar Sesión</a></li>
         </ul>
       </nav>
 
@@ -68,7 +64,7 @@
     </div>
 
     <div class="border-top border-secondary mt-5 pt-4 d-flex justify-content-between flex-wrap gap-2">
-      <small class="text-secondary">&copy; 2026 VuelaLibre — Todos los derechos reservados.</small>
+      <small class="text-secondary">&copy; 2026 SkyReserva — Todos los derechos reservados.</small>
       <small class="text-secondary">UTN FRR · Entornos Gráficos</small>
     </div>
   </div>

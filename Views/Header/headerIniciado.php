@@ -6,14 +6,13 @@
  *   Views/Funciones Usuario/ → include '../Header/headerIniciado.php'
  */
 ?>
-
 <header>
   <nav class="navbar navbar-expand-lg navbar-dark bg-primary"
        aria-label="Navegación principal">
     <div class="container">
 
       <a class="navbar-brand fw-bold d-flex align-items-center gap-2"
-         href="../LandPage/LandUsuarioNoRegistrado.php"
+         href="../LandPage/LandUsuarioRegistrado.php"
          aria-label="VuelaLibre — Ir a la página de inicio">
         <i class="bi bi-airplane-fill" aria-hidden="true"></i>
         VuelaLibre
@@ -29,7 +28,7 @@
       <div class="collapse navbar-collapse" id="menuPrincipal">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <a class="nav-link" href="../LandPage/LandUsuarioNoRegistrado.php">
+            <a class="nav-link" href="../LandPage/LandUsuarioRegistrado.php">
               <i class="bi bi-house-fill me-1" aria-hidden="true"></i>Inicio
             </a>
           </li>
