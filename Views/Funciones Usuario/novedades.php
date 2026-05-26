@@ -13,28 +13,7 @@
         crossorigin="anonymous"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
         rel="stylesheet"/>
-  <link rel="stylesheet" href="../LandPage/EstilosLandUsuarioNoRegistrado.css"/>
-
-  <style>
-    /* Estilos exclusivos de novedades.php */
-
-    /* Borde lateral de color según vigencia */
-    .novedad-vigente  { border-left: 4px solid var(--bs-primary) !important; }
-    .novedad-proxima  { border-left: 4px solid var(--bs-warning) !important; }
-    .novedad-expirada { border-left: 4px solid var(--bs-secondary) !important; }
-
-    /* Fechas de publicación/expiración */
-    .novedad-fechas {
-      display: flex;
-      gap: 1.5rem;
-      flex-wrap: wrap;
-      font-size: 0.8rem;
-      color: var(--bs-secondary-color);
-      margin-top: 0.75rem;
-      padding-top: 0.75rem;
-      border-top: 1px solid var(--bs-border-color);
-    }
-  </style>
+  <link rel="stylesheet" href="../../styles.css"/>
 </head>
 
 <body class="bg-light">
@@ -45,7 +24,6 @@
     <section class="py-5" aria-labelledby="novedades-titulo">
       <div class="container">
 
-        <!-- Encabezado -->
         <div class="mb-4">
           <p class="text-primary text-uppercase small fw-semibold mb-1">
             <i class="bi bi-megaphone me-1" aria-hidden="true"></i>Sistema
@@ -56,7 +34,6 @@
           </p>
         </div>
 
-        <!-- Leyenda de estados -->
         <div class="d-flex gap-3 flex-wrap mb-4 small">
           <span>
             <span class="badge bg-primary-subtle text-primary border border-primary-subtle me-1">
@@ -78,19 +55,15 @@
           </span>
         </div>
 
-
         <!--
           TODO: Esta lista se generará dinámicamente con PHP
           haciendo un SELECT a la tabla NOVEDADES
           ORDER BY fechaPublicacionNovedad DESC.
-          El modelo tiene: codNovedad, textoNovedad,
-          fechaPublicacionNovedad, fechaExpiracionNovedad.
         -->
         <ul class="list-unstyled" role="list" aria-label="Lista de novedades del sistema">
 
-          <!-- Novedad 1 — Vigente -->
           <li class="mb-4" role="listitem">
-            <article class="card border-0 shadow-sm novedad-vigente"
+            <article class="card border-0 shadow-sm novedad-estado-vigente"
                      aria-label="Novedad 0001: Mantenimiento programado — vigente">
               <div class="card-body p-4">
 
@@ -100,7 +73,7 @@
                       Cód: 0001
                     </span>
                     <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
-                      <i class="bi bi-circle-fill me-1" style="font-size:.5rem;" aria-hidden="true"></i>
+                      <i class="bi bi-circle-fill me-1 punto-estado-novedad" aria-hidden="true"></i>
                       Vigente
                     </span>
                   </div>
@@ -111,7 +84,7 @@
                   Mantenimiento programado — Aeropuerto Internacional de Rosario
                 </h2>
 
-                <p class="text-secondary mb-0" style="font-size:.92rem;">
+                <p class="text-secondary mb-0 texto-contenido-novedad">
                   Debido a tareas de mantenimiento programadas, el Aeropuerto
                   Internacional Islas Malvinas de Rosario permanecerá con operaciones
                   reducidas el próximo domingo 17 de mayo de 2026 entre las 02:00 y
@@ -120,7 +93,7 @@
                   registrado con más información.
                 </p>
 
-                <div class="novedad-fechas">
+                <div class="fechas-novedad">
                   <span>
                     <i class="bi bi-calendar-plus me-1" aria-hidden="true"></i>
                     Publicada:
@@ -137,10 +110,8 @@
             </article>
           </li>
 
-
-          <!-- Novedad 2 — Vigente -->
           <li class="mb-4" role="listitem">
-            <article class="card border-0 shadow-sm novedad-vigente"
+            <article class="card border-0 shadow-sm novedad-estado-vigente"
                      aria-label="Novedad 0002: Nueva aerolínea incorporada — vigente">
               <div class="card-body p-4">
 
@@ -150,7 +121,7 @@
                       Cód: 0002
                     </span>
                     <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
-                      <i class="bi bi-circle-fill me-1" style="font-size:.5rem;" aria-hidden="true"></i>
+                      <i class="bi bi-circle-fill me-1 punto-estado-novedad" aria-hidden="true"></i>
                       Vigente
                     </span>
                   </div>
@@ -161,15 +132,15 @@
                   Nueva aerolínea incorporada al sistema
                 </h2>
 
-                <p class="text-secondary mb-0" style="font-size:.92rem;">
+                <p class="text-secondary mb-0 texto-contenido-novedad">
                   Nos complace anunciar que Aerolíneas del Sur se incorpora a
-                  SkyReserva a partir del 10 de mayo de 2026. Ya podés buscar
+                  VuelaLibre a partir del 10 de mayo de 2026. Ya podés buscar
                   y reservar sus vuelos desde la sección
                   <a href="buscar_vuelos.php">Buscar Vuelos</a>.
                   En una primera etapa operarán rutas domésticas en la Patagonia.
                 </p>
 
-                <div class="novedad-fechas">
+                <div class="fechas-novedad">
                   <span>
                     <i class="bi bi-calendar-plus me-1" aria-hidden="true"></i>
                     Publicada:
@@ -186,10 +157,8 @@
             </article>
           </li>
 
-
-          <!-- Novedad 3 — Próxima (aún no inició) -->
           <li class="mb-4" role="listitem">
-            <article class="card border-0 shadow-sm novedad-proxima"
+            <article class="card border-0 shadow-sm novedad-estado-proxima"
                      aria-label="Novedad 0003: Actualización del sistema — próxima">
               <div class="card-body p-4">
 
@@ -199,7 +168,7 @@
                       Cód: 0003
                     </span>
                     <span class="badge bg-warning-subtle text-warning border border-warning-subtle">
-                      <i class="bi bi-circle-fill me-1" style="font-size:.5rem;" aria-hidden="true"></i>
+                      <i class="bi bi-circle-fill me-1 punto-estado-novedad" aria-hidden="true"></i>
                       Próxima
                     </span>
                   </div>
@@ -210,14 +179,14 @@
                   Actualización programada del sistema — 20 de mayo
                 </h2>
 
-                <p class="text-secondary mb-0" style="font-size:.92rem;">
+                <p class="text-secondary mb-0 texto-contenido-novedad">
                   El día 20 de mayo de 2026 entre las 00:00 y las 04:00 hs se
                   realizará una actualización de mantenimiento del sistema.
-                  Durante ese período SkyReserva no estará disponible.
+                  Durante ese período VuelaLibre no estará disponible.
                   Te recomendamos realizar tus reservas antes de ese horario.
                 </p>
 
-                <div class="novedad-fechas">
+                <div class="fechas-novedad">
                   <span>
                     <i class="bi bi-calendar-plus me-1" aria-hidden="true"></i>
                     Publicada:
@@ -234,10 +203,8 @@
             </article>
           </li>
 
-
-          <!-- Novedad 4 — Expirada -->
           <li class="mb-4" role="listitem">
-            <article class="card border-0 shadow-sm novedad-expirada"
+            <article class="card border-0 shadow-sm novedad-estado-expirada"
                      aria-label="Novedad 0004: Semana de promociones — expirada">
               <div class="card-body p-4">
 
@@ -247,7 +214,7 @@
                       Cód: 0004
                     </span>
                     <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">
-                      <i class="bi bi-circle-fill me-1" style="font-size:.5rem;" aria-hidden="true"></i>
+                      <i class="bi bi-circle-fill me-1 punto-estado-novedad" aria-hidden="true"></i>
                       Expirada
                     </span>
                   </div>
@@ -258,13 +225,13 @@
                   Semana de promociones especiales — Abril 2026
                 </h2>
 
-                <p class="text-secondary mb-0" style="font-size:.92rem;">
+                <p class="text-secondary mb-0 texto-contenido-novedad">
                   Durante la semana del 21 al 28 de abril de 2026 las aerolíneas
-                  asociadas a SkyReserva aplicaron descuentos especiales de hasta
+                  asociadas a VuelaLibre aplicaron descuentos especiales de hasta
                   el 40% en rutas seleccionadas. Esta promoción ya ha finalizado.
                 </p>
 
-                <div class="novedad-fechas">
+                <div class="fechas-novedad">
                   <span>
                     <i class="bi bi-calendar-plus me-1" aria-hidden="true"></i>
                     Publicada:
@@ -281,7 +248,7 @@
             </article>
           </li>
 
-        </ul><!-- /novedades -->
+        </ul>
 
       </div>
     </section>

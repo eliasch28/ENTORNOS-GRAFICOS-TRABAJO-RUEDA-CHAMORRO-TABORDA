@@ -12,35 +12,7 @@
         crossorigin="anonymous"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
         rel="stylesheet"/>
-  <link rel="stylesheet" href="../LandPage/EstilosLandUsuarioNoRegistrado.css"/>
-
-  <style>
-    .avatar-circle {
-      width: 80px; height: 80px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 2rem; font-weight: 700; flex-shrink: 0;
-    }
-    .profile-data-row {
-      display: flex; align-items: flex-start; gap: 0.75rem;
-      padding: 0.75rem 0;
-      border-bottom: 1px solid var(--bs-border-color);
-    }
-    .profile-data-row:last-child { border-bottom: none; padding-bottom: 0; }
-    .profile-data-label {
-      font-size: 0.78rem; text-transform: uppercase;
-      letter-spacing: 0.06em; color: var(--bs-secondary-color);
-      font-weight: 600; min-width: 110px; flex-shrink: 0;
-    }
-    .profile-data-value { font-size: 0.92rem; word-break: break-word; }
-    .form-section-title {
-      font-size: 0.78rem; text-transform: uppercase;
-      letter-spacing: 0.1em; font-weight: 600;
-      color: var(--bs-secondary-color);
-      border-bottom: 1px solid var(--bs-border-color);
-      padding-bottom: 0.4rem; margin-bottom: 1rem;
-    }
-  </style>
+  <link rel="stylesheet" href="../../styles.css"/>
 </head>
 
 <body class="bg-light">
@@ -61,12 +33,11 @@
 
         <div class="row g-4">
 
-          <!-- Columna izquierda: resumen -->
           <div class="col-lg-4">
 
             <div class="card border-0 shadow-sm p-4 mb-4">
               <div class="d-flex align-items-center gap-3 mb-4">
-                <div class="avatar-circle bg-primary text-white" aria-hidden="true">J</div>
+                <div class="avatar-circular bg-primary text-white" aria-hidden="true">J</div>
                 <div>
                   <div class="fw-bold fs-5">juan_perez</div>
                   <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
@@ -76,40 +47,39 @@
               </div>
 
               <dl aria-label="Datos del perfil">
-                <div class="profile-data-row">
-                  <dt class="profile-data-label">
+                <div class="fila-dato-perfil">
+                  <dt class="etiqueta-dato-perfil">
                     <i class="bi bi-hash me-1" aria-hidden="true"></i>Código
                   </dt>
-                  <dd class="profile-data-value mb-0">1</dd>
+                  <dd class="valor-dato-perfil mb-0">1</dd>
                 </div>
-                <div class="profile-data-row">
-                  <dt class="profile-data-label">
+                <div class="fila-dato-perfil">
+                  <dt class="etiqueta-dato-perfil">
                     <i class="bi bi-person me-1" aria-hidden="true"></i>Usuario
                   </dt>
-                  <dd class="profile-data-value mb-0">juan_perez</dd>
+                  <dd class="valor-dato-perfil mb-0">juan_perez</dd>
                 </div>
-                <div class="profile-data-row">
-                  <dt class="profile-data-label">
+                <div class="fila-dato-perfil">
+                  <dt class="etiqueta-dato-perfil">
                     <i class="bi bi-envelope me-1" aria-hidden="true"></i>Email
                   </dt>
-                  <dd class="profile-data-value mb-0">juan@correo.com</dd>
+                  <dd class="valor-dato-perfil mb-0">juan@correo.com</dd>
                 </div>
-                <div class="profile-data-row">
-                  <dt class="profile-data-label">
+                <div class="fila-dato-perfil">
+                  <dt class="etiqueta-dato-perfil">
                     <i class="bi bi-telephone me-1" aria-hidden="true"></i>Teléfono
                   </dt>
-                  <dd class="profile-data-value mb-0">+54 341 555-1234</dd>
+                  <dd class="valor-dato-perfil mb-0">+54 341 555-1234</dd>
                 </div>
               </dl>
             </div>
 
-            <!-- Accesos rápidos -->
             <div class="card border-0 shadow-sm p-4">
               <h2 class="h6 fw-bold text-primary mb-3">
                 <i class="bi bi-grid-fill me-2" aria-hidden="true"></i>Accesos rápidos
               </h2>
               <nav aria-label="Accesos rápidos del usuario">
-                <ul class="sitemap-list" role="list">
+                <ul class="lista-mapa-sitio" role="list">
                   <li>
                     <a href="buscar_vuelos.php">
                       <i class="bi bi-search me-2 text-primary" aria-hidden="true"></i>Buscar Vuelos
@@ -134,17 +104,14 @@
               </nav>
             </div>
 
-          </div><!-- /col izquierda -->
+          </div>
 
-
-          <!-- Columna derecha: formulario -->
           <div class="col-lg-8">
             <form action="mi_perfil.php" method="post"
                   class="card border-0 shadow-sm p-4"
                   aria-label="Formulario de edición de perfil">
 
-              <!-- Datos personales -->
-              <p class="form-section-title">
+              <p class="titulo-seccion-formulario">
                 <i class="bi bi-person me-1" aria-hidden="true"></i>Datos personales
               </p>
 
@@ -201,11 +168,10 @@
 
               </div>
 
-              <!-- Cambio de contraseña -->
-              <p class="form-section-title">
+              <p class="titulo-seccion-formulario">
                 <i class="bi bi-lock me-1" aria-hidden="true"></i>
                 Cambiar contraseña
-                <span class="fw-normal text-secondary" style="font-size:.85em;">
+                <span class="fw-normal text-secondary aclaracion-opcional">
                   — Opcional. Dejá los campos vacíos si no querés cambiarla.
                 </span>
               </p>
@@ -248,15 +214,15 @@
                 <button type="submit" class="btn btn-primary">
                   <i class="bi bi-floppy-fill me-2" aria-hidden="true"></i>Guardar cambios
                 </button>
-                <a href="../LandPage/LandUsuarioNoRegistrado.php" class="btn btn-outline-secondary">
+                <a href="../LandPage/LandUsuarioRegistrado.php" class="btn btn-outline-secondary">
                   <i class="bi bi-x-circle me-2" aria-hidden="true"></i>Cancelar
                 </a>
               </div>
 
             </form>
-          </div><!-- /col derecha -->
+          </div>
 
-        </div><!-- /row -->
+        </div>
       </div>
     </section>
   </main>

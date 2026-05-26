@@ -13,24 +13,7 @@
         crossorigin="anonymous"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
         rel="stylesheet"/>
-  <link rel="stylesheet" href="../LandPage/EstilosLandUsuarioNoRegistrado.css"/>
-
-  <style>
-    .filtros-card {
-      position: sticky;
-      top: 1rem;
-    }
-
-    /* Badge de asientos con colores semánticos según disponibilidad */
-    .asientos-alto  { color: var(--bs-success); }
-    .asientos-medio { color: var(--bs-warning); }
-    .asientos-bajo  { color: var(--bs-danger);  }
-
-    /* Highlight del vuelo al hacer hover */
-    .flight-card:hover {
-      border-color: var(--bs-primary) !important;
-    }
-  </style>
+  <link rel="stylesheet" href="../../styles.css"/>
 </head>
 
 <body class="bg-light">
@@ -41,7 +24,6 @@
     <section class="py-5" aria-labelledby="buscar-titulo">
       <div class="container">
 
-        <!-- Encabezado de página -->
         <div class="mb-4">
           <p class="text-primary text-uppercase small fw-semibold mb-1">
             <i class="bi bi-search me-1" aria-hidden="true"></i>Vuelos
@@ -52,26 +34,18 @@
           </p>
         </div>
 
-
         <div class="row g-4">
 
-          <!-- ── COLUMNA IZQUIERDA: Filtros ──────────────── -->
           <div class="col-lg-3">
-            <div class="card border-0 shadow-sm p-4 filtros-card">
+            <div class="card border-0 shadow-sm p-4 tarjeta-filtros">
 
               <h2 class="h6 fw-bold text-primary mb-3">
                 <i class="bi bi-funnel-fill me-2" aria-hidden="true"></i>Filtros de búsqueda
               </h2>
 
-              <!--
-                El form usa GET para que los filtros queden
-                visibles en la URL y el usuario pueda compartir
-                o volver a la búsqueda con el botón Atrás.
-              -->
               <form action="buscar_vuelos.php" method="get"
                     aria-label="Filtros de búsqueda de vuelos">
 
-                <!-- Origen -->
                 <div class="mb-3">
                   <label for="origenVuelo" class="form-label fw-semibold small">
                     <i class="bi bi-geo me-1" aria-hidden="true"></i>Origen
@@ -84,7 +58,6 @@
                          autocomplete="off"/>
                 </div>
 
-                <!-- Destino -->
                 <div class="mb-3">
                   <label for="destinoVuelo" class="form-label fw-semibold small">
                     <i class="bi bi-geo-fill me-1" aria-hidden="true"></i>Destino
@@ -97,7 +70,6 @@
                          autocomplete="off"/>
                 </div>
 
-                <!-- Fecha -->
                 <div class="mb-3">
                   <label for="fechaSalidaVuelo" class="form-label fw-semibold small">
                     <i class="bi bi-calendar3 me-1" aria-hidden="true"></i>Fecha de salida
@@ -108,7 +80,6 @@
                          value="<?= htmlspecialchars($_GET['fechaSalidaVuelo'] ?? '') ?>"/>
                 </div>
 
-                <!-- Aerolínea -->
                 <div class="mb-4">
                   <label for="codAerolinea" class="form-label fw-semibold small">
                     <i class="bi bi-building me-1" aria-hidden="true"></i>Aerolínea
@@ -141,64 +112,55 @@
 
               </form>
             </div>
-          </div><!-- /col filtros -->
+          </div>
 
-
-          <!-- ── COLUMNA DERECHA: Resultados ─────────────── -->
           <div class="col-lg-9">
 
-            <!-- Contador de resultados -->
             <div class="d-flex justify-content-between align-items-center mb-3">
               <p class="text-secondary small mb-0">
-                <!-- TODO: reemplazar con conteo real desde la BD -->
                 Mostrando <strong>4</strong> vuelos disponibles
               </p>
             </div>
 
-            <!-- Lista de vuelos -->
             <!--
               TODO: Esta sección se generará dinámicamente con PHP
               haciendo un SELECT a la tabla VUELOS con los filtros
-              ingresados por el usuario. Por ahora se muestran
-              datos de ejemplo que representan el modelo de datos.
+              ingresados por el usuario.
             -->
             <ul class="list-unstyled" role="list" aria-label="Vuelos encontrados">
 
-              <!-- Vuelo 1 -->
               <li class="mb-3" role="listitem">
-                <article class="card flight-card border border-2 border-transparent shadow-sm"
+                <article class="card tarjeta-vuelo border border-2 border-transparent shadow-sm"
                          aria-label="Vuelo 0001: Rosario a Buenos Aires, 15 de mayo 2026, ARS 48.500">
                   <div class="card-body p-4">
                     <div class="row align-items-center g-3">
 
-                      <!-- Aerolínea + código -->
                       <div class="col-12 col-md-2">
                         <div class="d-flex flex-column gap-1">
                           <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
                             <i class="bi bi-airplane me-1" aria-hidden="true"></i>
                             Cód: 0001
                           </span>
-                          <small class="text-secondary fw-semibold" style="font-size:.75rem;">
+                          <small class="text-secondary texto-nombre-aerolinea">
                             Aer. Argentinas
                           </small>
                         </div>
                       </div>
 
-                      <!-- Ruta -->
                       <div class="col-12 col-md-4">
                         <div class="d-flex align-items-center">
                           <div class="text-center">
-                            <div class="iata-code text-dark fw-bold">ROS</div>
-                            <small class="text-secondary text-uppercase" style="font-size:.7rem;">
+                            <div class="codigo-iata text-dark fw-bold">ROS</div>
+                            <small class="text-secondary text-uppercase texto-ciudad-ruta">
                               Rosario
                             </small>
                           </div>
-                          <div class="route-line" aria-hidden="true"></div>
+                          <div class="linea-ruta" aria-hidden="true"></div>
                           <i class="bi bi-airplane-fill text-primary mx-2" aria-hidden="true"></i>
-                          <div class="route-line" aria-hidden="true"></div>
+                          <div class="linea-ruta" aria-hidden="true"></div>
                           <div class="text-center">
-                            <div class="iata-code text-dark fw-bold">EZE</div>
-                            <small class="text-secondary text-uppercase" style="font-size:.7rem;">
+                            <div class="codigo-iata text-dark fw-bold">EZE</div>
+                            <small class="text-secondary text-uppercase texto-ciudad-ruta">
                               Buenos Aires
                             </small>
                           </div>
@@ -208,22 +170,20 @@
                         </small>
                       </div>
 
-                      <!-- Fecha y hora -->
                       <div class="col-6 col-md-2 text-center">
                         <div class="text-secondary small">
                           <i class="bi bi-calendar3 me-1" aria-hidden="true"></i>
                           <time datetime="2026-05-15T08:30">15 May 2026</time>
                         </div>
                         <div class="fw-semibold small">08:30 hs</div>
-                        <div class="asientos-alto small mt-1">
+                        <div class="asientos-disponibles-alto small mt-1">
                           <i class="bi bi-people-fill me-1" aria-hidden="true"></i>32 asientos
                         </div>
                       </div>
 
-                      <!-- Precio y promo -->
                       <div class="col-6 col-md-2 text-center">
                         <div class="fw-bold fs-5 text-dark">
-                          <small class="text-secondary fw-normal" style="font-size:.7rem;">ARS</small>
+                          <small class="text-secondary fw-normal texto-moneda">ARS</small>
                           48.500
                         </div>
                         <span class="badge bg-success-subtle text-success border border-success-subtle mt-1">
@@ -231,7 +191,6 @@
                         </span>
                       </div>
 
-                      <!-- CTA -->
                       <div class="col-12 col-md-2 text-md-end">
                         <a href="reservar_vuelo.php?codVuelo=0001"
                            class="btn btn-primary w-100"
@@ -246,9 +205,8 @@
                 </article>
               </li>
 
-              <!-- Vuelo 2 -->
               <li class="mb-3" role="listitem">
-                <article class="card flight-card border border-2 border-transparent shadow-sm"
+                <article class="card tarjeta-vuelo border border-2 border-transparent shadow-sm"
                          aria-label="Vuelo 0002: Buenos Aires a Santiago, 18 de mayo 2026, ARS 124.900">
                   <div class="card-body p-4">
                     <div class="row align-items-center g-3">
@@ -257,7 +215,7 @@
                           <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
                             <i class="bi bi-airplane me-1" aria-hidden="true"></i>Cód: 0002
                           </span>
-                          <small class="text-secondary fw-semibold" style="font-size:.75rem;">
+                          <small class="text-secondary texto-nombre-aerolinea">
                             LATAM Airlines
                           </small>
                         </div>
@@ -265,15 +223,15 @@
                       <div class="col-12 col-md-4">
                         <div class="d-flex align-items-center">
                           <div class="text-center">
-                            <div class="iata-code text-dark fw-bold">AEP</div>
-                            <small class="text-secondary text-uppercase" style="font-size:.7rem;">Bs. Aires</small>
+                            <div class="codigo-iata text-dark fw-bold">AEP</div>
+                            <small class="text-secondary text-uppercase texto-ciudad-ruta">Bs. Aires</small>
                           </div>
-                          <div class="route-line" aria-hidden="true"></div>
+                          <div class="linea-ruta" aria-hidden="true"></div>
                           <i class="bi bi-airplane-fill text-primary mx-2" aria-hidden="true"></i>
-                          <div class="route-line" aria-hidden="true"></div>
+                          <div class="linea-ruta" aria-hidden="true"></div>
                           <div class="text-center">
-                            <div class="iata-code text-dark fw-bold">SCL</div>
-                            <small class="text-secondary text-uppercase" style="font-size:.7rem;">Santiago</small>
+                            <div class="codigo-iata text-dark fw-bold">SCL</div>
+                            <small class="text-secondary text-uppercase texto-ciudad-ruta">Santiago</small>
                           </div>
                         </div>
                         <small class="text-secondary d-block mt-1">
@@ -286,16 +244,16 @@
                           <time datetime="2026-05-18T14:15">18 May 2026</time>
                         </div>
                         <div class="fw-semibold small">14:15 hs</div>
-                        <div class="asientos-medio small mt-1">
+                        <div class="asientos-disponibles-medio small mt-1">
                           <i class="bi bi-people-fill me-1" aria-hidden="true"></i>8 asientos
                         </div>
                       </div>
                       <div class="col-6 col-md-2 text-center">
                         <div class="fw-bold fs-5 text-dark">
-                          <small class="text-secondary fw-normal" style="font-size:.7rem;">ARS</small>
+                          <small class="text-secondary fw-normal texto-moneda">ARS</small>
                           124.900
                         </div>
-                        <small class="text-secondary" style="font-size:.75rem;">Sin promo activa</small>
+                        <small class="text-secondary texto-sin-promo">Sin promo activa</small>
                       </div>
                       <div class="col-12 col-md-2 text-md-end">
                         <a href="reservar_vuelo.php?codVuelo=0002"
@@ -309,9 +267,8 @@
                 </article>
               </li>
 
-              <!-- Vuelo 3 -->
               <li class="mb-3" role="listitem">
-                <article class="card flight-card border border-2 border-transparent shadow-sm"
+                <article class="card tarjeta-vuelo border border-2 border-transparent shadow-sm"
                          aria-label="Vuelo 0003: Córdoba a Mendoza, 20 de mayo 2026, ARS 29.990">
                   <div class="card-body p-4">
                     <div class="row align-items-center g-3">
@@ -320,21 +277,21 @@
                           <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
                             <i class="bi bi-airplane me-1" aria-hidden="true"></i>Cód: 0003
                           </span>
-                          <small class="text-secondary fw-semibold" style="font-size:.75rem;">Flybondi</small>
+                          <small class="text-secondary texto-nombre-aerolinea">Flybondi</small>
                         </div>
                       </div>
                       <div class="col-12 col-md-4">
                         <div class="d-flex align-items-center">
                           <div class="text-center">
-                            <div class="iata-code text-dark fw-bold">COR</div>
-                            <small class="text-secondary text-uppercase" style="font-size:.7rem;">Córdoba</small>
+                            <div class="codigo-iata text-dark fw-bold">COR</div>
+                            <small class="text-secondary text-uppercase texto-ciudad-ruta">Córdoba</small>
                           </div>
-                          <div class="route-line" aria-hidden="true"></div>
+                          <div class="linea-ruta" aria-hidden="true"></div>
                           <i class="bi bi-airplane-fill text-primary mx-2" aria-hidden="true"></i>
-                          <div class="route-line" aria-hidden="true"></div>
+                          <div class="linea-ruta" aria-hidden="true"></div>
                           <div class="text-center">
-                            <div class="iata-code text-dark fw-bold">MDZ</div>
-                            <small class="text-secondary text-uppercase" style="font-size:.7rem;">Mendoza</small>
+                            <div class="codigo-iata text-dark fw-bold">MDZ</div>
+                            <small class="text-secondary text-uppercase texto-ciudad-ruta">Mendoza</small>
                           </div>
                         </div>
                         <small class="text-secondary d-block mt-1">
@@ -347,13 +304,13 @@
                           <time datetime="2026-05-20T11:00">20 May 2026</time>
                         </div>
                         <div class="fw-semibold small">11:00 hs</div>
-                        <div class="asientos-alto small mt-1">
+                        <div class="asientos-disponibles-alto small mt-1">
                           <i class="bi bi-people-fill me-1" aria-hidden="true"></i>50 asientos
                         </div>
                       </div>
                       <div class="col-6 col-md-2 text-center">
                         <div class="fw-bold fs-5 text-dark">
-                          <small class="text-secondary fw-normal" style="font-size:.7rem;">ARS</small>
+                          <small class="text-secondary fw-normal texto-moneda">ARS</small>
                           29.990
                         </div>
                         <span class="badge bg-success-subtle text-success border border-success-subtle mt-1">
@@ -372,9 +329,8 @@
                 </article>
               </li>
 
-              <!-- Vuelo 4 -->
               <li class="mb-3" role="listitem">
-                <article class="card flight-card border border-2 border-transparent shadow-sm"
+                <article class="card tarjeta-vuelo border border-2 border-transparent shadow-sm"
                          aria-label="Vuelo 0004: Iguazú a Bariloche, 22 de mayo 2026, ARS 55.750">
                   <div class="card-body p-4">
                     <div class="row align-items-center g-3">
@@ -383,21 +339,21 @@
                           <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
                             <i class="bi bi-airplane me-1" aria-hidden="true"></i>Cód: 0004
                           </span>
-                          <small class="text-secondary fw-semibold" style="font-size:.75rem;">JetSmart</small>
+                          <small class="text-secondary texto-nombre-aerolinea">JetSmart</small>
                         </div>
                       </div>
                       <div class="col-12 col-md-4">
                         <div class="d-flex align-items-center">
                           <div class="text-center">
-                            <div class="iata-code text-dark fw-bold">IGR</div>
-                            <small class="text-secondary text-uppercase" style="font-size:.7rem;">Iguazú</small>
+                            <div class="codigo-iata text-dark fw-bold">IGR</div>
+                            <small class="text-secondary text-uppercase texto-ciudad-ruta">Iguazú</small>
                           </div>
-                          <div class="route-line" aria-hidden="true"></div>
+                          <div class="linea-ruta" aria-hidden="true"></div>
                           <i class="bi bi-airplane-fill text-primary mx-2" aria-hidden="true"></i>
-                          <div class="route-line" aria-hidden="true"></div>
+                          <div class="linea-ruta" aria-hidden="true"></div>
                           <div class="text-center">
-                            <div class="iata-code text-dark fw-bold">BRC</div>
-                            <small class="text-secondary text-uppercase" style="font-size:.7rem;">Bariloche</small>
+                            <div class="codigo-iata text-dark fw-bold">BRC</div>
+                            <small class="text-secondary text-uppercase texto-ciudad-ruta">Bariloche</small>
                           </div>
                         </div>
                         <small class="text-secondary d-block mt-1">
@@ -410,16 +366,16 @@
                           <time datetime="2026-05-22T16:45">22 May 2026</time>
                         </div>
                         <div class="fw-semibold small">16:45 hs</div>
-                        <div class="asientos-alto small mt-1">
+                        <div class="asientos-disponibles-alto small mt-1">
                           <i class="bi bi-people-fill me-1" aria-hidden="true"></i>21 asientos
                         </div>
                       </div>
                       <div class="col-6 col-md-2 text-center">
                         <div class="fw-bold fs-5 text-dark">
-                          <small class="text-secondary fw-normal" style="font-size:.7rem;">ARS</small>
+                          <small class="text-secondary fw-normal texto-moneda">ARS</small>
                           55.750
                         </div>
-                        <small class="text-secondary" style="font-size:.75rem;">Sin promo activa</small>
+                        <small class="text-secondary texto-sin-promo">Sin promo activa</small>
                       </div>
                       <div class="col-12 col-md-2 text-md-end">
                         <a href="reservar_vuelo.php?codVuelo=0004"
@@ -433,13 +389,13 @@
                 </article>
               </li>
 
-            </ul><!-- /lista vuelos -->
+            </ul>
 
-          </div><!-- /col resultados -->
+          </div>
 
-        </div><!-- /row -->
+        </div>
 
-      </div><!-- /container -->
+      </div>
     </section>
   </main>
 

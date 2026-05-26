@@ -13,29 +13,7 @@
         crossorigin="anonymous"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
         rel="stylesheet"/>
-  <link rel="stylesheet" href="../LandPage/EstilosLandUsuarioNoRegistrado.css"/>
-
-  <style>
-    /* Estilos exclusivos de mis_reservas.php */
-
-    /* Borde lateral de color según estado de la reserva */
-    .reserva-pendiente  { border-left: 4px solid var(--bs-warning) !important; }
-    .reserva-confirmada { border-left: 4px solid var(--bs-success) !important; }
-    .reserva-cancelada  { border-left: 4px solid var(--bs-secondary) !important; }
-
-    /* Fila de detalle dentro de cada reserva */
-    .detalle-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.45rem 0;
-      border-bottom: 1px solid var(--bs-border-color);
-      font-size: 0.88rem;
-    }
-    .detalle-row:last-child { border-bottom: none; }
-    .detalle-label { color: var(--bs-secondary-color); }
-    .detalle-valor { font-weight: 600; }
-  </style>
+  <link rel="stylesheet" href="../../styles.css"/>
 </head>
 
 <body class="bg-light">
@@ -46,7 +24,6 @@
     <section class="py-5" aria-labelledby="reservas-titulo">
       <div class="container">
 
-        <!-- Encabezado -->
         <div class="mb-4">
           <p class="text-primary text-uppercase small fw-semibold mb-1">
             <i class="bi bi-calendar2-check me-1" aria-hidden="true"></i>Mi cuenta
@@ -57,7 +34,6 @@
           </p>
         </div>
 
-        <!-- Filtro de estado -->
         <div class="card border-0 shadow-sm p-3 mb-4">
           <form action="mis_reservas.php" method="get"
                 class="d-flex align-items-center gap-3 flex-wrap"
@@ -72,24 +48,19 @@
               <option value="cancelada"  <?= (($_GET['estado'] ?? '') === 'cancelada')  ? 'selected' : '' ?>>Cancelada</option>
             </select>
             <button type="submit" class="btn btn-primary btn-sm">Filtrar</button>
-            <a href="mis_reservas.php" class="btn btn-outline-secondary btn-sm">Ver todas</a>
+            <a href="mis_reservas.php" class="btn btn-outline-secondary btn-sm">Ver todas las reservas</a>
           </form>
         </div>
-
 
         <!--
           TODO: Esta lista se generará dinámicamente con PHP
           haciendo un SELECT a la tabla RESERVAS donde
           codUsuario = $_SESSION['codUsuario'].
-          Por ahora se muestran datos de ejemplo que representan
-          los tres estados posibles: pendiente, confirmada, cancelada.
         -->
         <ul class="list-unstyled" role="list" aria-label="Lista de mis reservas">
 
-
-          <!-- Reserva 1 — Pendiente de pago -->
           <li class="mb-4" role="listitem">
-            <article class="card border-0 shadow-sm reserva-pendiente"
+            <article class="card border-0 shadow-sm reserva-estado-pendiente"
                      aria-label="Reserva 0001: Rosario a Buenos Aires, pendiente de pago">
               <div class="card-body p-4">
 
@@ -112,18 +83,17 @@
 
                 <div class="row g-3">
 
-                  <!-- Datos del vuelo -->
                   <div class="col-md-5">
                     <div class="d-flex align-items-center mb-2">
                       <div class="text-center">
-                        <div class="iata-code text-dark fw-bold">ROS</div>
+                        <div class="codigo-iata text-dark fw-bold">ROS</div>
                         <small class="text-secondary text-uppercase">Rosario</small>
                       </div>
-                      <div class="route-line mx-3" aria-hidden="true"></div>
+                      <div class="linea-ruta mx-3" aria-hidden="true"></div>
                       <i class="bi bi-airplane-fill text-primary mx-1" aria-hidden="true"></i>
-                      <div class="route-line mx-3" aria-hidden="true"></div>
+                      <div class="linea-ruta mx-3" aria-hidden="true"></div>
                       <div class="text-center">
-                        <div class="iata-code text-dark fw-bold">EZE</div>
+                        <div class="codigo-iata text-dark fw-bold">EZE</div>
                         <small class="text-secondary text-uppercase">Buenos Aires</small>
                       </div>
                     </div>
@@ -134,35 +104,28 @@
                     </small>
                   </div>
 
-                  <!-- Detalles económicos -->
                   <div class="col-md-4">
                     <dl class="mb-0">
-                      <div class="detalle-row">
-                        <dt class="detalle-label">Aerolínea</dt>
-                        <dd class="detalle-valor mb-0">Aer. Argentinas</dd>
+                      <div class="fila-detalle">
+                        <dt class="etiqueta-detalle">Aerolínea</dt>
+                        <dd class="valor-detalle mb-0">Aer. Argentinas</dd>
                       </div>
-                      <div class="detalle-row">
-                        <dt class="detalle-label">Promoción</dt>
+                      <div class="fila-detalle">
+                        <dt class="etiqueta-detalle">Promoción</dt>
                         <dd class="mb-0">
                           <span class="badge bg-success-subtle text-success border border-success-subtle">
                             15% OFF
                           </span>
                         </dd>
                       </div>
-                      <div class="detalle-row">
-                        <dt class="detalle-label">Total</dt>
-                        <dd class="detalle-valor mb-0 text-dark">ARS 48.500</dd>
+                      <div class="fila-detalle">
+                        <dt class="etiqueta-detalle">Total</dt>
+                        <dd class="valor-detalle mb-0 text-dark">ARS 48.500</dd>
                       </div>
                     </dl>
                   </div>
 
-                  <!-- Acciones -->
                   <div class="col-md-3 d-flex flex-column gap-2 justify-content-center">
-                    <!--
-                      Confirmar = pasar estado a "confirmada" (simula el pago).
-                      TODO: Integrar con pasarela de pago real.
-                      La acción envía el codReserva por POST.
-                    -->
                     <form action="mis_reservas.php" method="post">
                       <input type="hidden" name="accion" value="confirmar"/>
                       <input type="hidden" name="codReserva" value="0001"/>
@@ -171,11 +134,6 @@
                         Confirmar / Pagar
                       </button>
                     </form>
-                    <!--
-                      Cancelar = pasar estado a "cancelada".
-                      Solo disponible hasta 72 hs antes del vuelo (Regla de Negocio #13).
-                      TODO: Validar fecha en el servidor antes de cancelar.
-                    -->
                     <form action="mis_reservas.php" method="post">
                       <input type="hidden" name="accion" value="cancelar"/>
                       <input type="hidden" name="codReserva" value="0001"/>
@@ -186,7 +144,7 @@
                     </form>
                   </div>
 
-                </div><!-- /row -->
+                </div>
 
                 <div class="alert alert-warning py-2 mt-3 mb-0 small" role="note">
                   <i class="bi bi-info-circle me-1" aria-hidden="true"></i>
@@ -198,10 +156,8 @@
             </article>
           </li>
 
-
-          <!-- Reserva 2 — Confirmada -->
           <li class="mb-4" role="listitem">
-            <article class="card border-0 shadow-sm reserva-confirmada"
+            <article class="card border-0 shadow-sm reserva-estado-confirmada"
                      aria-label="Reserva 0002: Córdoba a Mendoza, confirmada">
               <div class="card-body p-4">
 
@@ -227,14 +183,14 @@
                   <div class="col-md-5">
                     <div class="d-flex align-items-center mb-2">
                       <div class="text-center">
-                        <div class="iata-code text-dark fw-bold">COR</div>
+                        <div class="codigo-iata text-dark fw-bold">COR</div>
                         <small class="text-secondary text-uppercase">Córdoba</small>
                       </div>
-                      <div class="route-line mx-3" aria-hidden="true"></div>
+                      <div class="linea-ruta mx-3" aria-hidden="true"></div>
                       <i class="bi bi-airplane-fill text-primary mx-1" aria-hidden="true"></i>
-                      <div class="route-line mx-3" aria-hidden="true"></div>
+                      <div class="linea-ruta mx-3" aria-hidden="true"></div>
                       <div class="text-center">
-                        <div class="iata-code text-dark fw-bold">MDZ</div>
+                        <div class="codigo-iata text-dark fw-bold">MDZ</div>
                         <small class="text-secondary text-uppercase">Mendoza</small>
                       </div>
                     </div>
@@ -247,27 +203,26 @@
 
                   <div class="col-md-4">
                     <dl class="mb-0">
-                      <div class="detalle-row">
-                        <dt class="detalle-label">Aerolínea</dt>
-                        <dd class="detalle-valor mb-0">Flybondi</dd>
+                      <div class="fila-detalle">
+                        <dt class="etiqueta-detalle">Aerolínea</dt>
+                        <dd class="valor-detalle mb-0">Flybondi</dd>
                       </div>
-                      <div class="detalle-row">
-                        <dt class="detalle-label">Promoción</dt>
+                      <div class="fila-detalle">
+                        <dt class="etiqueta-detalle">Promoción</dt>
                         <dd class="mb-0">
                           <span class="badge bg-success-subtle text-success border border-success-subtle">
                             30% OFF
                           </span>
                         </dd>
                       </div>
-                      <div class="detalle-row">
-                        <dt class="detalle-label">Total pagado</dt>
-                        <dd class="detalle-valor mb-0 text-dark">ARS 29.990</dd>
+                      <div class="fila-detalle">
+                        <dt class="etiqueta-detalle">Total pagado</dt>
+                        <dd class="valor-detalle mb-0 text-dark">ARS 29.990</dd>
                       </div>
                     </dl>
                   </div>
 
                   <div class="col-md-3 d-flex flex-column gap-2 justify-content-center">
-                    <!-- Reserva confirmada: solo se puede cancelar -->
                     <form action="mis_reservas.php" method="post">
                       <input type="hidden" name="accion" value="cancelar"/>
                       <input type="hidden" name="codReserva" value="0002"/>
@@ -290,10 +245,8 @@
             </article>
           </li>
 
-
-          <!-- Reserva 3 — Cancelada -->
           <li class="mb-4" role="listitem">
-            <article class="card border-0 shadow-sm reserva-cancelada"
+            <article class="card border-0 shadow-sm reserva-estado-cancelada"
                      aria-label="Reserva 0003: Buenos Aires a Santiago, cancelada">
               <div class="card-body p-4">
 
@@ -319,14 +272,14 @@
                   <div class="col-md-5">
                     <div class="d-flex align-items-center mb-2">
                       <div class="text-center">
-                        <div class="iata-code text-secondary fw-bold">AEP</div>
+                        <div class="codigo-iata text-secondary fw-bold">AEP</div>
                         <small class="text-secondary text-uppercase">Bs. Aires</small>
                       </div>
-                      <div class="route-line mx-3" aria-hidden="true"></div>
+                      <div class="linea-ruta mx-3" aria-hidden="true"></div>
                       <i class="bi bi-airplane-fill text-secondary mx-1" aria-hidden="true"></i>
-                      <div class="route-line mx-3" aria-hidden="true"></div>
+                      <div class="linea-ruta mx-3" aria-hidden="true"></div>
                       <div class="text-center">
-                        <div class="iata-code text-secondary fw-bold">SCL</div>
+                        <div class="codigo-iata text-secondary fw-bold">SCL</div>
                         <small class="text-secondary text-uppercase">Santiago</small>
                       </div>
                     </div>
@@ -339,22 +292,21 @@
 
                   <div class="col-md-4">
                     <dl class="mb-0">
-                      <div class="detalle-row">
-                        <dt class="detalle-label">Aerolínea</dt>
-                        <dd class="detalle-valor mb-0 text-secondary">LATAM Airlines</dd>
+                      <div class="fila-detalle">
+                        <dt class="etiqueta-detalle">Aerolínea</dt>
+                        <dd class="valor-detalle mb-0 text-secondary">LATAM Airlines</dd>
                       </div>
-                      <div class="detalle-row">
-                        <dt class="detalle-label">Promoción</dt>
+                      <div class="fila-detalle">
+                        <dt class="etiqueta-detalle">Promoción</dt>
                         <dd class="mb-0 text-secondary">Sin promo activa</dd>
                       </div>
-                      <div class="detalle-row">
-                        <dt class="detalle-label">Total</dt>
-                        <dd class="detalle-valor mb-0 text-secondary">ARS 124.900</dd>
+                      <div class="fila-detalle">
+                        <dt class="etiqueta-detalle">Total</dt>
+                        <dd class="valor-detalle mb-0 text-secondary">ARS 124.900</dd>
                       </div>
                     </dl>
                   </div>
 
-                  <!-- Sin acciones disponibles para reservas canceladas -->
                   <div class="col-md-3 d-flex align-items-center justify-content-center">
                     <p class="text-secondary small text-center mb-0">
                       <i class="bi bi-slash-circle me-1" aria-hidden="true"></i>
@@ -368,7 +320,7 @@
             </article>
           </li>
 
-        </ul><!-- /lista reservas -->
+        </ul>
 
       </div>
     </section>

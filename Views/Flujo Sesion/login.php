@@ -12,37 +12,7 @@
         crossorigin="anonymous"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
         rel="stylesheet"/>
-  <link rel="stylesheet" href="../LandPage/EstilosLandUsuarioNoRegistrado.css"/>
-
-  <style>
-    .divider-text {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      color: var(--bs-secondary-color);
-      font-size: 0.85rem;
-    }
-    .divider-text::before,
-    .divider-text::after {
-      content: '';
-      flex: 1;
-      border-top: 1px solid var(--bs-border-color);
-    }
-    .user-type-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 0.75rem;
-      padding: 0.75rem 0;
-      border-bottom: 1px solid var(--bs-border-color);
-    }
-    .user-type-item:last-child { border-bottom: none; padding-bottom: 0; }
-    .user-type-icon {
-      width: 36px; height: 36px;
-      border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1rem; flex-shrink: 0;
-    }
-  </style>
+  <link rel="stylesheet" href="../../styles.css"/>
 </head>
 
 <body class="bg-light">
@@ -54,11 +24,10 @@
       <div class="container">
         <div class="row justify-content-center g-4">
 
-          <!-- Formulario -->
           <div class="col-md-8 col-lg-5">
 
             <div class="text-center mb-4">
-              <i class="bi bi-shield-lock text-primary" style="font-size:3rem;" aria-hidden="true"></i>
+              <i class="bi bi-shield-lock text-primary icono-seccion" aria-hidden="true"></i>
               <h1 id="login-titulo" class="h3 fw-bold mt-2">Iniciar Sesión</h1>
               <p class="text-secondary">Ingresá con tu cuenta para acceder a VuelaLibre.</p>
             </div>
@@ -105,7 +74,7 @@
                 <i class="bi bi-box-arrow-in-right me-2" aria-hidden="true"></i>Ingresar
               </button>
 
-              <div class="my-4 divider-text">¿No tenés cuenta?</div>
+              <div class="my-4 separador-texto">¿No tenés cuenta?</div>
 
               <a href="registrarse_.php" class="btn btn-outline-secondary w-100">
                 <i class="bi bi-person-plus me-2" aria-hidden="true"></i>Crear una cuenta nueva
@@ -114,7 +83,6 @@
             </form>
           </div>
 
-          <!-- Panel informativo -->
           <div class="col-lg-4 d-none d-lg-block">
             <div class="card border-0 shadow-sm p-4 h-100">
 
@@ -125,37 +93,37 @@
                 Cada perfil tiene acceso a distintas funciones del sistema.
               </p>
 
-              <div class="user-type-item">
-                <div class="user-type-icon bg-danger-subtle text-danger">
+              <div class="item-tipo-usuario">
+                <div class="icono-tipo-usuario bg-danger-subtle text-danger">
                   <i class="bi bi-gear-fill" aria-hidden="true"></i>
                 </div>
                 <div>
                   <div class="fw-semibold small">Administrador</div>
-                  <div class="text-secondary" style="font-size:.8rem;">
+                  <div class="text-secondary texto-tipo-usuario">
                     Gestiona aerolíneas, aprueba promociones y genera reportes.
                   </div>
                 </div>
               </div>
 
-              <div class="user-type-item">
-                <div class="user-type-icon bg-warning-subtle text-warning">
+              <div class="item-tipo-usuario">
+                <div class="icono-tipo-usuario bg-warning-subtle text-warning">
                   <i class="bi bi-building-fill" aria-hidden="true"></i>
                 </div>
                 <div>
-                  <div class="fw-semibold small">CEO de Aerolínea</div>
-                  <div class="text-secondary" style="font-size:.8rem;">
+                  <div class="fw-semibold small"><abbr title="Director Ejecutivo">CEO</abbr> de Aerolínea</div>
+                  <div class="text-secondary texto-tipo-usuario">
                     Crea y gestiona vuelos y promociones de su aerolínea.
                   </div>
                 </div>
               </div>
 
-              <div class="user-type-item">
-                <div class="user-type-icon bg-primary-subtle text-primary">
+              <div class="item-tipo-usuario">
+                <div class="icono-tipo-usuario bg-primary-subtle text-primary">
                   <i class="bi bi-person-fill" aria-hidden="true"></i>
                 </div>
                 <div>
                   <div class="fw-semibold small">Cliente / Pasajero</div>
-                  <div class="text-secondary" style="font-size:.8rem;">
+                  <div class="text-secondary texto-tipo-usuario">
                     Busca vuelos, realiza reservas y consulta su historial.
                   </div>
                 </div>

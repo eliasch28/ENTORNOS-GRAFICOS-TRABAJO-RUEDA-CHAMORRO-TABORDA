@@ -13,49 +13,7 @@
         crossorigin="anonymous"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
         rel="stylesheet"/>
-  <link rel="stylesheet" href="../LandPage/EstilosLandUsuarioNoRegistrado.css"/>
-
-  <style>
-    .divider-text {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      color: var(--bs-secondary-color);
-      font-size: 0.85rem;
-    }
-    .divider-text::before,
-    .divider-text::after {
-      content: '';
-      flex: 1;
-      border-top: 1px solid var(--bs-border-color);
-    }
-    .steps-list {
-      list-style: none;
-      padding-left: 0;
-      margin-bottom: 0;
-    }
-    .steps-list li {
-      display: flex;
-      align-items: flex-start;
-      gap: 0.75rem;
-      padding: 0.65rem 0;
-      border-bottom: 1px solid var(--bs-border-color);
-      font-size: 0.88rem;
-      color: var(--bs-secondary-color);
-    }
-    .steps-list li:last-child { border-bottom: none; padding-bottom: 0; }
-    .step-num {
-      width: 24px; height: 24px;
-      border-radius: 50%;
-      background-color: var(--bs-primary);
-      color: #fff;
-      font-size: 0.75rem;
-      font-weight: 700;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-      margin-top: 1px;
-    }
-  </style>
+  <link rel="stylesheet" href="../../styles.css"/>
 </head>
 
 <body class="bg-light">
@@ -67,11 +25,10 @@
       <div class="container">
         <div class="row justify-content-center g-4">
 
-          <!-- Formulario -->
           <div class="col-md-8 col-lg-5">
 
             <div class="text-center mb-4">
-              <i class="bi bi-key text-primary" style="font-size:3rem;" aria-hidden="true"></i>
+              <i class="bi bi-key text-primary icono-seccion" aria-hidden="true"></i>
               <h1 id="recuperar-titulo" class="h3 fw-bold mt-2">Recuperar contraseña</h1>
               <p class="text-secondary">
                 Ingresá tu correo electrónico registrado y te enviaremos
@@ -108,7 +65,7 @@
                 Enviar enlace de recuperación
               </button>
 
-              <div class="my-4 divider-text">¿Recordaste tu contraseña?</div>
+              <div class="my-4 separador-texto">¿Recordaste tu contraseña?</div>
 
               <a href="login.php" class="btn btn-outline-secondary w-100">
                 <i class="bi bi-box-arrow-in-right me-2" aria-hidden="true"></i>
@@ -118,7 +75,6 @@
             </form>
           </div>
 
-          <!-- Panel informativo -->
           <div class="col-lg-4 d-none d-lg-block">
             <div class="card border-0 shadow-sm p-4 h-100">
 
@@ -129,23 +85,23 @@
                 El proceso de recuperación tiene tres pasos simples.
               </p>
 
-              <ol class="steps-list" aria-label="Pasos para recuperar la contraseña">
+              <ol class="lista-pasos-recuperacion" aria-label="Pasos para recuperar la contraseña">
                 <li>
-                  <div class="step-num" aria-hidden="true">1</div>
+                  <div class="numero-paso" aria-hidden="true">1</div>
                   <span>
                     Ingresá el <strong>correo electrónico</strong> con el que
                     te registraste en VuelaLibre.
                   </span>
                 </li>
                 <li>
-                  <div class="step-num" aria-hidden="true">2</div>
+                  <div class="numero-paso" aria-hidden="true">2</div>
                   <span>
                     Revisá tu bandeja de entrada. Te enviaremos un
                     <strong>enlace seguro</strong> que expira en 1 hora.
                   </span>
                 </li>
                 <li>
-                  <div class="step-num" aria-hidden="true">3</div>
+                  <div class="numero-paso" aria-hidden="true">3</div>
                   <span>
                     Hacé clic en el enlace e ingresá tu
                     <strong>nueva contraseña</strong> (máximo 8 caracteres).
