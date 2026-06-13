@@ -1,3 +1,49 @@
+<?php
+include '../../config/conexion.php';
+session_start();
+
+if (isset($_SESSION['codUsuario'])) {
+    $check = mysqli_query($link, "SELECT codUsuario FROM USUARIOS WHERE codUsuario = " . $_SESSION['codUsuario']);
+    if (mysqli_num_rows($check) > 0) {
+        header('Location: ../LandPage/LandUsuarioRegistrado.php');
+        exit;
+    } else {
+        session_destroy();
+    }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $nombreUsuario = trim($_POST['nombreUsuario']);
+    $claveUsuario  = $_POST['claveUsuario'];
+
+    $query = "SELECT * FROM USUARIOS WHERE nombreUsuario = '$nombreUsuario'";
+    $resultado = mysqli_query($link, $query);
+
+    if ($resultado && mysqli_num_rows($resultado) === 1) {
+        $usuario = mysqli_fetch_assoc($resultado);
+
+        if (md5($claveUsuario) === $usuario['claveUsuario']) {
+            $_SESSION['codUsuario']    = $usuario['codUsuario'];
+            $_SESSION['nombreUsuario'] = $usuario['nombreUsuario'];
+            $_SESSION['tipoUsuario']   = $usuario['tipoUsuario'];
+
+            if ($usuario['tipoUsuario'] === 'administrador') {
+                header('Location: ../LandPage/LandUsuarioRegistrado.php');
+            } elseif ($usuario['tipoUsuario'] === 'aerolinea') {
+                header('Location: ../LandPage/LandUsuarioRegistrado.php');
+            } else {
+                header('Location: ../LandPage/LandUsuarioRegistrado.php');
+            }
+            exit;
+        } else {
+            $error = "Contraseña incorrecta.";
+        }
+    } else {
+        $error = "Usuario no encontrado.";
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -32,6 +78,18 @@
               <p class="text-secondary">Ingresá con tu cuenta para acceder a VuelaLibre.</p>
             </div>
 
+            <?php if (isset($_GET['registro'])): ?>
+                <div class="alert alert-success" role="alert">
+                    <i class="bi bi-check-circle me-2"></i>¡Cuenta creada con éxito! Ya podés iniciar sesión.
+                </div>
+            <?php endif; ?>
+
+            <?php if (!empty($error)): ?>
+                <div class="alert alert-danger" role="alert">
+                    <i class="bi bi-exclamation-triangle me-2"></i><?= $error ?>
+                </div>
+            <?php endif; ?>
+            
             <form action="login.php" method="post"
                   class="card border-0 shadow-sm p-4 p-md-5"
                   aria-label="Formulario de inicio de sesión">
@@ -82,65 +140,6 @@
 
             </form>
           </div>
-
-          <div class="col-lg-4 d-none d-lg-block">
-            <div class="card border-0 shadow-sm p-4 h-100">
-
-              <h2 class="h6 fw-bold text-primary mb-1">
-                <i class="bi bi-people-fill me-2" aria-hidden="true"></i>Tipos de usuario
-              </h2>
-              <p class="text-secondary small mb-3">
-                Cada perfil tiene acceso a distintas funciones del sistema.
-              </p>
-
-              <div class="item-tipo-usuario">
-                <div class="icono-tipo-usuario bg-danger-subtle text-danger">
-                  <i class="bi bi-gear-fill" aria-hidden="true"></i>
-                </div>
-                <div>
-                  <div class="fw-semibold small">Administrador</div>
-                  <div class="text-secondary texto-tipo-usuario">
-                    Gestiona aerolíneas, aprueba promociones y genera reportes.
-                  </div>
-                </div>
-              </div>
-
-              <div class="item-tipo-usuario">
-                <div class="icono-tipo-usuario bg-warning-subtle text-warning">
-                  <i class="bi bi-building-fill" aria-hidden="true"></i>
-                </div>
-                <div>
-                  <div class="fw-semibold small"><abbr title="Director Ejecutivo">CEO</abbr> de Aerolínea</div>
-                  <div class="text-secondary texto-tipo-usuario">
-                    Crea y gestiona vuelos y promociones de su aerolínea.
-                  </div>
-                </div>
-              </div>
-
-              <div class="item-tipo-usuario">
-                <div class="icono-tipo-usuario bg-primary-subtle text-primary">
-                  <i class="bi bi-person-fill" aria-hidden="true"></i>
-                </div>
-                <div>
-                  <div class="fw-semibold small">Cliente / Pasajero</div>
-                  <div class="text-secondary texto-tipo-usuario">
-                    Busca vuelos, realiza reservas y consulta su historial.
-                  </div>
-                </div>
-              </div>
-
-              <hr class="my-3"/>
-
-              <div class="alert alert-light border small mb-0 p-3" role="note">
-                <i class="bi bi-info-circle text-primary me-1" aria-hidden="true"></i>
-                ¿Aún no tenés cuenta?
-                <a href="registrarse_.php" class="fw-semibold text-primary">Registrate acá</a>
-                para comenzar a reservar vuelos.
-              </div>
-
-            </div>
-          </div>
-
         </div>
       </div>
     </section>

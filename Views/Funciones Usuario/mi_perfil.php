@@ -1,3 +1,45 @@
+<?php
+include '../../config/conexion.php';
+session_start();
+if (!isset($_SESSION['codUsuario'])) {
+    header('Location: ../Flujo Sesion/login.php');
+    exit;
+}
+
+$cod = $_SESSION['codUsuario'];
+$resultado = mysqli_query($link, "SELECT * FROM USUARIOS WHERE codUsuario = $cod");
+$usuario = mysqli_fetch_assoc($resultado);
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $emailUsuario    = trim($_POST['emailUsuario']);
+    $telefonoUsuario = trim($_POST['telefonoUsuario']);
+    $claveActual     = $_POST['claveActual'];
+    $claveNueva      = $_POST['claveNueva'];
+
+    $checkEmail = mysqli_query($link, "SELECT codUsuario FROM USUARIOS WHERE emailUsuario = '$emailUsuario' AND codUsuario != $cod");
+    if (mysqli_num_rows($checkEmail) > 0) {
+        $error = "El correo electrónico ya está en uso por otro usuario.";
+    } else {
+        $query = "UPDATE USUARIOS SET emailUsuario = '$emailUsuario', telefonoUsuario = '$telefonoUsuario' WHERE codUsuario = $cod";
+
+        if (!empty($claveActual) && !empty($claveNueva)) {
+            if (md5($claveActual) !== $usuario['claveUsuario']) {
+                $error = "La contraseña actual es incorrecta.";
+            } else {
+                $query = "UPDATE USUARIOS SET emailUsuario = '$emailUsuario', telefonoUsuario = '$telefonoUsuario', claveUsuario = '" . md5($claveNueva) . "' WHERE codUsuario = $cod";
+            }
+        }
+
+        if (!isset($error)) {
+            mysqli_query($link, $query);
+            $resultado = mysqli_query($link, "SELECT * FROM USUARIOS WHERE codUsuario = $cod");
+            $usuario = mysqli_fetch_assoc($resultado);
+            $exito = "Perfil actualizado correctamente.";
+        }
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -37,41 +79,39 @@
 
             <div class="card border-0 shadow-sm p-4 mb-4">
               <div class="d-flex align-items-center gap-3 mb-4">
-                <div class="avatar-circular bg-primary text-white" aria-hidden="true">J</div>
+                <div class="avatar-circular bg-primary text-white" aria-hidden="true"><?= strtoupper(substr($usuario['nombreUsuario'], 0, 1)) ?></div>
                 <div>
-                  <div class="fw-bold fs-5">juan_perez</div>
+                  <div class="fw-bold fs-5"><?= $usuario['nombreUsuario'] ?></div>
                   <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
-                    Cliente / Pasajero
+                    <?= ucfirst($usuario['tipoUsuario']) ?>
                   </span>
                 </div>
               </div>
 
-              <dl aria-label="Datos del perfil">
-                <div class="fila-dato-perfil">
-                  <dt class="etiqueta-dato-perfil">
-                    <i class="bi bi-hash me-1" aria-hidden="true"></i>Código
-                  </dt>
-                  <dd class="valor-dato-perfil mb-0">1</dd>
-                </div>
-                <div class="fila-dato-perfil">
-                  <dt class="etiqueta-dato-perfil">
-                    <i class="bi bi-person me-1" aria-hidden="true"></i>Usuario
-                  </dt>
-                  <dd class="valor-dato-perfil mb-0">juan_perez</dd>
-                </div>
-                <div class="fila-dato-perfil">
-                  <dt class="etiqueta-dato-perfil">
-                    <i class="bi bi-envelope me-1" aria-hidden="true"></i>Email
-                  </dt>
-                  <dd class="valor-dato-perfil mb-0">juan@correo.com</dd>
-                </div>
-                <div class="fila-dato-perfil">
-                  <dt class="etiqueta-dato-perfil">
-                    <i class="bi bi-telephone me-1" aria-hidden="true"></i>Teléfono
-                  </dt>
-                  <dd class="valor-dato-perfil mb-0">+54 341 555-1234</dd>
-                </div>
-              </dl>
+              <div class="fila-dato-perfil">
+                <span class="etiqueta-dato-perfil">
+                  <i class="bi bi-hash me-1" aria-hidden="true"></i>Código
+                </span>
+                <span class="valor-dato-perfil"><?= $usuario['codUsuario'] ?></span>
+              </div>
+              <div class="fila-dato-perfil">
+                <span class="etiqueta-dato-perfil">
+                  <i class="bi bi-person me-1" aria-hidden="true"></i>Usuario
+                </span>
+                <span class="valor-dato-perfil"><?= $usuario['nombreUsuario'] ?></span>
+              </div>
+              <div class="fila-dato-perfil">
+                <span class="etiqueta-dato-perfil">
+                  <i class="bi bi-envelope me-1" aria-hidden="true"></i>Email
+                </span>
+                <span class="valor-dato-perfil"><?= $usuario['emailUsuario'] ?></span>
+              </div>
+              <div class="fila-dato-perfil">
+                <span class="etiqueta-dato-perfil">
+                  <i class="bi bi-telephone me-1" aria-hidden="true"></i>Teléfono
+                </span>
+                <span class="valor-dato-perfil"><?= $usuario['telefonoUsuario'] ?? 'No especificado' ?></span>
+              </div>
             </div>
 
             <div class="card border-0 shadow-sm p-4">
@@ -107,6 +147,15 @@
           </div>
 
           <div class="col-lg-8">
+
+            <?php if (!empty($exito)): ?>
+                <div class="alert alert-success"><i class="bi bi-check-circle me-2"></i><?= $exito ?></div>
+            <?php endif; ?>
+            
+            <?php if (!empty($error)): ?>
+                <div class="alert alert-danger"><i class="bi bi-exclamation-triangle me-2"></i><?= $error ?></div>
+            <?php endif; ?>
+
             <form action="mi_perfil.php" method="post"
                   class="card border-0 shadow-sm p-4"
                   aria-label="Formulario de edición de perfil">
@@ -122,7 +171,7 @@
                     Nombre de usuario
                   </label>
                   <input type="text" id="nombreUsuario" class="form-control"
-                         value="juan_perez" readonly aria-readonly="true"
+                         value="<?= $usuario['nombreUsuario'] ?>" readonly aria-readonly="true"
                          aria-describedby="nombreUsuario-nota"/>
                   <div id="nombreUsuario-nota" class="form-text">
                     <i class="bi bi-lock me-1" aria-hidden="true"></i>
@@ -135,7 +184,7 @@
                     Tipo de usuario
                   </label>
                   <input type="text" id="tipoUsuario" class="form-control"
-                         value="Cliente / Pasajero" readonly aria-readonly="true"/>
+                         value="<?= ucfirst($usuario['tipoUsuario']) ?>" readonly aria-readonly="true"/>
                   <div class="form-text">
                     <i class="bi bi-lock me-1" aria-hidden="true"></i>
                     El tipo es asignado por el sistema.
@@ -149,7 +198,7 @@
                     <span class="text-danger" aria-hidden="true">*</span>
                   </label>
                   <input type="email" id="emailUsuario" name="emailUsuario"
-                         class="form-control" value="juan@correo.com"
+                         class="form-control" value="<?= $usuario['emailUsuario'] ?>"
                          required autocomplete="email"
                          aria-required="true" maxlength="100"/>
                 </div>
@@ -161,7 +210,7 @@
                     <span class="text-danger" aria-hidden="true">*</span>
                   </label>
                   <input type="tel" id="telefonoUsuario" name="telefonoUsuario"
-                         class="form-control" value="+54 341 555-1234"
+                         class="form-control" value="<?= $usuario['telefonoUsuario'] ?? '' ?>"
                          required autocomplete="tel"
                          aria-required="true" maxlength="20"/>
                 </div>

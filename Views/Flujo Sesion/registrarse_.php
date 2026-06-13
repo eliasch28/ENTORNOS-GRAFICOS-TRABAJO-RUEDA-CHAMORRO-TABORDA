@@ -1,3 +1,46 @@
+<?php
+include '../../config/conexion.php';
+session_start();
+
+if (isset($_SESSION['codUsuario'])) {
+    $check = mysqli_query($link, "SELECT codUsuario FROM USUARIOS WHERE codUsuario = " . $_SESSION['codUsuario']);
+    if (mysqli_num_rows($check) > 0) {
+        header('Location: ../LandPage/LandUsuarioRegistrado.php');
+        exit;
+    } else {
+        session_destroy();
+    }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $nombreUsuario  = trim($_POST['nombreUsuario']);
+    $claveUsuario   = md5($_POST['claveUsuario']);
+    $tipoUsuario    = $_POST['tipoUsuario'];
+    $emailUsuario   = trim($_POST['emailUsuario']);
+    $telefonoUsuario = trim($_POST['telefonoUsuario']);
+
+    // Verificar si el nombre de usuario ya existe
+    $checkUser = mysqli_query($link, "SELECT codUsuario FROM USUARIOS WHERE nombreUsuario = '$nombreUsuario'");
+    $checkEmail = mysqli_query($link, "SELECT codUsuario FROM USUARIOS WHERE emailUsuario = '$emailUsuario'");
+
+    if (mysqli_num_rows($checkUser) > 0) {
+        $error = "El nombre de usuario ya está en uso.";
+    } elseif (mysqli_num_rows($checkEmail) > 0) {
+        $error = "El correo electrónico ya está registrado.";
+    } else {
+        $query = "INSERT INTO USUARIOS (nombreUsuario, claveUsuario, tipoUsuario, emailUsuario, telefonoUsuario, verificado)
+                  VALUES ('$nombreUsuario', '$claveUsuario', '$tipoUsuario', '$emailUsuario', '$telefonoUsuario', 1)";
+
+        if (mysqli_query($link, $query)) {
+            header('Location: login.php?registro=1');
+            exit;
+        } else {
+            $error = "Error al registrar el usuario. Intentá de nuevo.";
+        }
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -30,6 +73,12 @@
               <h1 id="registro-titulo" class="h3 fw-bold mt-2">Crear una cuenta</h1>
               <p class="text-secondary">Completá el formulario para registrarte en VuelaLibre.</p>
             </div>
+
+            <?php if (!empty($error)): ?>
+                <div class="alert alert-danger" role="alert">
+                    <i class="bi bi-exclamation-triangle me-2"></i><?= $error ?>
+                </div>
+            <?php endif; ?>
 
             <form action="registrarse_.php" method="post"
                   class="card border-0 shadow-sm p-4 p-md-5"

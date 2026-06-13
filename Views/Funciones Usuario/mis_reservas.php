@@ -1,3 +1,12 @@
+<?php
+include '../../config/conexion.php';
+session_start();
+if (!isset($_SESSION['codUsuario'])) {
+    header('Location: ../Flujo Sesion/login.php');
+    exit;
+}
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>

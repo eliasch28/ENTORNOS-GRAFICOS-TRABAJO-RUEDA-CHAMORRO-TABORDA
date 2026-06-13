@@ -1,3 +1,12 @@
+<?php
+include '../../config/conexion.php';
+session_start();
+if (!isset($_SESSION['codUsuario'])) {
+    header('Location: ../Flujo Sesion/login.php');
+    exit;
+}
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -32,13 +41,8 @@
               <i class="bi bi-person-check-fill me-1" aria-hidden="true"></i>
               Sesión iniciada
             </p>
-            <!--
-              TODO: Reemplazar "juan_perez" por
-              <?= htmlspecialchars($_SESSION['nombreUsuario']) ?>
-              cuando se integre la autenticación con BD.
-            -->
             <h1 id="hero-titulo" class="display-5 fw-bold mb-2">
-              ¡Bienvenido, juan_perez!
+              ¡Bienvenido, <?= htmlspecialchars($_SESSION['nombreUsuario']) ?>!
             </h1>
             <p class="lead text-white-50 mb-4">
               ¿A dónde volamos hoy? Buscá tu próximo vuelo o gestioná tus reservas.
