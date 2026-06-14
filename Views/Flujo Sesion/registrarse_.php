@@ -1,0 +1,223 @@
+<?php
+include '../../config/conexion.php';
+session_start();
+
+if (isset($_SESSION['codUsuario'])) {
+    $check = mysqli_query($link, "SELECT codUsuario FROM USUARIOS WHERE codUsuario = " . $_SESSION['codUsuario']);
+    if (mysqli_num_rows($check) > 0) {
+        header('Location: ../LandPage/LandUsuarioRegistrado.php');
+        exit;
+    } else {
+        session_destroy();
+    }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $nombreUsuario  = trim($_POST['nombreUsuario']);
+    $claveUsuario   = md5($_POST['claveUsuario']);
+    $tipoUsuario    = $_POST['tipoUsuario'];
+    $emailUsuario   = trim($_POST['emailUsuario']);
+    $telefonoUsuario = trim($_POST['telefonoUsuario']);
+
+    // Verificar si el nombre de usuario ya existe
+    $checkUser = mysqli_query($link, "SELECT codUsuario FROM USUARIOS WHERE nombreUsuario = '$nombreUsuario'");
+    $checkEmail = mysqli_query($link, "SELECT codUsuario FROM USUARIOS WHERE emailUsuario = '$emailUsuario'");
+
+    if (mysqli_num_rows($checkUser) > 0) {
+        $error = "El nombre de usuario ya está en uso.";
+    } elseif (mysqli_num_rows($checkEmail) > 0) {
+        $error = "El correo electrónico ya está registrado.";
+    } else {
+        $query = "INSERT INTO USUARIOS (nombreUsuario, claveUsuario, tipoUsuario, emailUsuario, telefonoUsuario, verificado)
+                  VALUES ('$nombreUsuario', '$claveUsuario', '$tipoUsuario', '$emailUsuario', '$telefonoUsuario', 1)";
+
+        if (mysqli_query($link, $query)) {
+            header('Location: login.php?registro=1');
+            exit;
+        } else {
+            $error = "Error al registrar el usuario. Intentá de nuevo.";
+        }
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Creá tu cuenta en VuelaLibre para buscar y reservar vuelos." />
+  <title>Registrarse | VuelaLibre – UTN FRR</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+        crossorigin="anonymous"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+        rel="stylesheet"/>
+  <link rel="stylesheet" href="../../styles.css"/>
+</head>
+
+<body class="bg-light">
+
+  <?php include '../Header/headerNoIniciado.php'; ?>
+
+  <main id="contenido-principal" tabindex="-1">
+    <section class="py-5" aria-labelledby="registro-titulo">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-md-8 col-lg-6">
+
+            <div class="text-center mb-4">
+              <i class="bi bi-person-circle text-primary icono-seccion" aria-hidden="true"></i>
+              <h1 id="registro-titulo" class="h3 fw-bold mt-2">Crear una cuenta</h1>
+              <p class="text-secondary">Completá el formulario para registrarte en VuelaLibre.</p>
+            </div>
+
+            <?php if (!empty($error)): ?>
+                <div class="alert alert-danger" role="alert">
+                    <i class="bi bi-exclamation-triangle me-2"></i><?= $error ?>
+                </div>
+            <?php endif; ?>
+
+            <form action="registrarse_.php" method="post"
+                  class="card border-0 shadow-sm p-4 p-md-5"
+                  aria-label="Formulario de registro de nuevo usuario">
+
+              <div class="mb-3">
+                <label for="nombreUsuario" class="form-label fw-semibold">
+                  <i class="bi bi-person me-1" aria-hidden="true"></i>
+                  Nombre de usuario
+                  <span class="text-danger" aria-hidden="true">*</span>
+                </label>
+                <input type="text"
+                       id="nombreUsuario" name="nombreUsuario"
+                       class="form-control"
+                       placeholder="Ej: juan_perez"
+                       required autofocus
+                       autocomplete="username"
+                       aria-required="true"
+                       aria-describedby="nombreUsuario-ayuda"
+                       maxlength="100"/>
+                <div id="nombreUsuario-ayuda" class="form-text">Máximo 100 caracteres.</div>
+              </div>
+
+              <div class="mb-3">
+                <label for="claveUsuario" class="form-label fw-semibold">
+                  <i class="bi bi-lock me-1" aria-hidden="true"></i>
+                  Contraseña
+                  <span class="text-danger" aria-hidden="true">*</span>
+                </label>
+                <input type="password"
+                       id="claveUsuario" name="claveUsuario"
+                       class="form-control"
+                       placeholder="Máximo 8 caracteres"
+                       required
+                       autocomplete="new-password"
+                       aria-required="true"
+                       aria-describedby="claveUsuario-ayuda"
+                       pattern=".{1,8}"
+                       title="La contraseña debe tener entre 1 y 8 caracteres"
+                       maxlength="8"/>
+                <div id="claveUsuario-ayuda" class="form-text">
+                  Máximo 8 caracteres (modelo de datos de la cátedra).
+                </div>
+              </div>
+
+              <fieldset class="mb-3">
+                <legend class="form-label fw-semibold mb-2">
+                  <i class="bi bi-person-badge me-1" aria-hidden="true"></i>
+                  Tipo de usuario
+                  <span class="text-danger" aria-hidden="true">*</span>
+                </legend>
+                <div class="row g-3">
+                  <div class="col-6">
+                    <label class="tarjeta-tipo-usuario d-flex flex-column align-items-center p-3 text-center w-100"
+                           for="tipo-usuario">
+                      <i class="bi bi-person-fill text-primary fs-2 mb-2" aria-hidden="true"></i>
+                      <span class="fw-semibold">Cliente / Pasajero</span>
+                      <small class="text-secondary mt-1">Buscá y reservá vuelos</small>
+                      <input type="radio" id="tipo-usuario" name="tipoUsuario"
+                             value="usuario" class="visually-hidden" required/>
+                    </label>
+                  </div>
+                  <div class="col-6">
+                    <label class="tarjeta-tipo-usuario d-flex flex-column align-items-center p-3 text-center w-100"
+                           for="tipo-aerolinea">
+                      <i class="bi bi-building-fill text-primary fs-2 mb-2" aria-hidden="true"></i>
+                      <span class="fw-semibold"><abbr title="Director Ejecutivo">CEO</abbr> de Aerolínea</span>
+                      <small class="text-secondary mt-1">Gestión de vuelos y promociones</small>
+                      <input type="radio" id="tipo-aerolinea" name="tipoUsuario"
+                             value="aerolinea" class="visually-hidden"/>
+                    </label>
+                  </div>
+                </div>
+                <div class="alert alert-warning py-2 mt-3 mb-0 small" role="note">
+                  <i class="bi bi-info-circle me-1" aria-hidden="true"></i>
+                  Los registros de <strong><abbr title="Director Ejecutivo">CEO</abbr> de Aerolínea</strong> requieren
+                  aprobación del Administrador.
+                </div>
+              </fieldset>
+
+              <div class="mb-3">
+                <label for="emailUsuario" class="form-label fw-semibold">
+                  <i class="bi bi-envelope me-1" aria-hidden="true"></i>
+                  Correo electrónico
+                  <span class="text-danger" aria-hidden="true">*</span>
+                </label>
+                <input type="email"
+                       id="emailUsuario" name="emailUsuario"
+                       class="form-control"
+                       placeholder="ejemplo@correo.com"
+                       required
+                       autocomplete="email"
+                       aria-required="true"
+                       aria-describedby="emailUsuario-ayuda"
+                       maxlength="100"/>
+                <div id="emailUsuario-ayuda" class="form-text">
+                  Los Clientes recibirán un enlace de validación en esta dirección.
+                </div>
+              </div>
+
+              <div class="mb-4">
+                <label for="telefonoUsuario" class="form-label fw-semibold">
+                  <i class="bi bi-telephone me-1" aria-hidden="true"></i>
+                  Teléfono
+                  <span class="text-danger" aria-hidden="true">*</span>
+                </label>
+                <input type="tel"
+                       id="telefonoUsuario" name="telefonoUsuario"
+                       class="form-control"
+                       placeholder="Ej: +54 341 555-1234"
+                       required
+                       autocomplete="tel"
+                       aria-required="true"
+                       maxlength="20"/>
+              </div>
+
+              <p class="text-secondary small mb-3">
+                <span class="text-danger" aria-hidden="true">*</span> Todos los campos son obligatorios.
+              </p>
+
+              <button type="submit" class="btn btn-primary w-100 btn-lg">
+                <i class="bi bi-person-check-fill me-2" aria-hidden="true"></i>Crear cuenta
+              </button>
+
+              <div class="my-4 separador-texto">¿Ya tenés cuenta?</div>
+
+              <a href="login.php" class="btn btn-outline-secondary w-100">
+                <i class="bi bi-box-arrow-in-right me-2" aria-hidden="true"></i>Iniciar Sesión
+              </a>
+
+            </form>
+
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <?php include '../Footer/footerNoIniciado.php'; ?>
+
+</body>
+</html>
