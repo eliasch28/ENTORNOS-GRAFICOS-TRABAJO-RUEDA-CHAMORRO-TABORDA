@@ -7,3 +7,428 @@ input::-webkit-inner-spin-button {
 input[type=number] {
   -moz-appearance: textfield;
 }
+/* ══════════════════════════════════════════════════════════
+   styles.css — VuelaLibre
+   Estilos centralizados del proyecto. Todas las clases en español.
+   UTN FRR · Cátedra Entornos Gráficos 2026
+══════════════════════════════════════════════════════════ */
+
+/* ── NAVEGACIÓN ─────────────────────────────────────────── */
+.navbar {
+  min-height: 64px;
+  border-bottom: 2px solid var(--bs-primary);
+}
+
+/* ── SECCIÓN PORTADA (hero) ─────────────────────────────── */
+.seccion-portada {
+  min-height: 88vh;
+  display: flex;
+  align-items: center;
+}
+
+.portada-registrado {
+  padding: 3rem 0;
+}
+
+/* ── TARJETAS DE AEROLÍNEA ──────────────────────────────── */
+.tarjeta-aerolinea {
+  height: 100%;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.tarjeta-aerolinea:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+.tarjeta-aerolinea .icono-aerolinea {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+/* ── TARJETA DE VUELO ───────────────────────────────────── */
+.tarjeta-vuelo {
+  transition: box-shadow 0.2s ease;
+}
+.tarjeta-vuelo:hover {
+  box-shadow: 0 6px 20px rgba(13, 110, 253, 0.15);
+  border-color: var(--bs-primary) !important;
+}
+
+/* ── VISUALIZACIÓN DE RUTA IATA ─────────────────────────── */
+.codigo-iata {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.linea-ruta {
+  flex: 1;
+  border-top: 2px dashed var(--bs-border-color);
+  margin: 0 0.75rem;
+  position: relative;
+  top: -0.9rem;
+}
+
+/* ── CÍRCULO NUMERADO GENÉRICO ──────────────────────────── */
+.numero-paso-circular {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+/* ── PIE DE PÁGINA ──────────────────────────────────────── */
+footer {
+  border-top: 3px solid var(--bs-primary);
+}
+
+/* ── LISTA MAPA DEL SITIO ───────────────────────────────── */
+.lista-mapa-sitio {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 0;
+}
+.lista-mapa-sitio li + li {
+  margin-top: 0.4rem;
+}
+.lista-mapa-sitio a {
+  text-decoration: none;
+  color: #adb5bd !important;
+  font-size: 0.9rem;
+}
+.lista-mapa-sitio a:hover,
+.lista-mapa-sitio a:focus {
+  color: var(--bs-primary) !important;
+  text-decoration: underline;
+}
+
+/* ── ANIMACIÓN DE ENTRADA ───────────────────────────────── */
+.animar-subida {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.animar-subida.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── TARJETAS DE ACCESO RÁPIDO ──────────────────────────── */
+.tarjeta-acceso {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  text-decoration: none;
+  display: block;
+  height: 100%;
+}
+.tarjeta-acceso:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+}
+.icono-acceso {
+  font-size: 2rem;
+  line-height: 1;
+  margin-bottom: 0.75rem;
+}
+
+/* ── FILAS DE DETALLE ───────────────────────────────────── */
+.fila-detalle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid var(--bs-border-color);
+  font-size: 0.88rem;
+}
+.fila-detalle:last-child { border-bottom: none; }
+.etiqueta-detalle { color: var(--bs-secondary-color); }
+.valor-detalle { font-weight: 600; }
+
+/* ── SEPARADOR DE TEXTO (divisor con línea) ─────────────── */
+.separador-texto {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--bs-secondary-color);
+  font-size: 0.85rem;
+}
+.separador-texto::before,
+.separador-texto::after {
+  content: '';
+  flex: 1;
+  border-top: 1px solid var(--bs-border-color);
+}
+
+/* ── ÍTEMS DE TIPO DE USUARIO ───────────────────────────── */
+.item-tipo-usuario {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--bs-border-color);
+}
+.item-tipo-usuario:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.icono-tipo-usuario {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+/* ── TARJETA SELECCIONABLE DE TIPO DE USUARIO ───────────── */
+.tarjeta-tipo-usuario {
+  cursor: pointer;
+  border: 2px solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius);
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+.tarjeta-tipo-usuario:hover {
+  border-color: var(--bs-primary);
+  background-color: var(--bs-primary-bg-subtle);
+}
+.tarjeta-tipo-usuario:has(input[type="radio"]:checked) {
+  border-color: var(--bs-primary);
+  background-color: var(--bs-primary-bg-subtle);
+}
+
+/* ── LISTA DE PASOS (recuperar contraseña) ──────────────── */
+.lista-pasos-recuperacion {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 0;
+}
+.lista-pasos-recuperacion li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--bs-border-color);
+  font-size: 0.88rem;
+  color: var(--bs-secondary-color);
+}
+.lista-pasos-recuperacion li:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.numero-paso {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: var(--bs-primary);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* ── TARJETA DE FILTROS ─────────────────────────────────── */
+.tarjeta-filtros {
+  position: sticky;
+  top: 1rem;
+}
+
+/* ── INDICADOR DE ASIENTOS DISPONIBLES ─────────────────── */
+.asientos-disponibles-alto  { color: var(--bs-success); }
+.asientos-disponibles-medio { color: var(--bs-warning); }
+.asientos-disponibles-bajo  { color: var(--bs-danger);  }
+
+/* ── ESTADO DE RESERVAS ─────────────────────────────────── */
+.reserva-estado-pendiente  { border-left: 4px solid var(--bs-warning)   !important; }
+.reserva-estado-confirmada { border-left: 4px solid var(--bs-success)   !important; }
+.reserva-estado-cancelada  { border-left: 4px solid var(--bs-secondary) !important; }
+
+/* ── TARJETA DE COMPRA ──────────────────────────────────── */
+.tarjeta-compra {
+  border-left: 4px solid var(--bs-success) !important;
+}
+
+/* ── CAJA DE ESTADÍSTICA ─────────────────────────────────── */
+.caja-estadistica {
+  border-radius: var(--bs-border-radius);
+  padding: 1rem 1.25rem;
+}
+.etiqueta-estadistica {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+}
+
+/* ── AVATAR CIRCULAR ─────────────────────────────────────── */
+.avatar-circular {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ── FILAS DE DATOS DE PERFIL ────────────────────────────── */
+.fila-dato-perfil {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--bs-border-color);
+}
+.fila-dato-perfil:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.etiqueta-dato-perfil {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--bs-secondary-color);
+  font-weight: 600;
+  min-width: 110px;
+  flex-shrink: 0;
+}
+.valor-dato-perfil {
+  font-size: 0.92rem;
+  word-break: break-word;
+}
+
+/* ── TÍTULO DE SECCIÓN DE FORMULARIO ────────────────────── */
+.titulo-seccion-formulario {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+  color: var(--bs-secondary-color);
+  border-bottom: 1px solid var(--bs-border-color);
+  padding-bottom: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+/* ── ESTADO DE NOVEDADES ─────────────────────────────────── */
+.novedad-estado-vigente  { border-left: 4px solid var(--bs-primary)   !important; }
+.novedad-estado-proxima  { border-left: 4px solid var(--bs-warning)   !important; }
+.novedad-estado-expirada { border-left: 4px solid var(--bs-secondary) !important; }
+
+.fechas-novedad {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+  color: var(--bs-secondary-color);
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--bs-border-color);
+}
+
+/* ── TARJETA DE PROMOCIÓN ────────────────────────────────── */
+.tarjeta-promocion {
+  border-left: 4px solid var(--bs-success) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.tarjeta-promocion:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* ── INSIGNIA DE DESCUENTO ───────────────────────────────── */
+.insignia-descuento {
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* ── INDICADOR DE PASOS DE RESERVA ──────────────────────── */
+.elemento-paso {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  flex: 1;
+  position: relative;
+}
+.elemento-paso:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 18px;
+  left: calc(50% + 18px);
+  width: calc(100% - 36px);
+  height: 2px;
+  background-color: var(--bs-border-color);
+}
+.elemento-paso.activo::after { background-color: var(--bs-primary); }
+
+.circulo-paso {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  border: 2px solid var(--bs-border-color);
+  background: #fff;
+  color: var(--bs-secondary-color);
+  z-index: 1;
+}
+.elemento-paso.activo .circulo-paso {
+  border-color: var(--bs-primary);
+  background: var(--bs-primary);
+  color: #fff;
+}
+.elemento-paso.completado .circulo-paso {
+  border-color: var(--bs-success);
+  background: var(--bs-success);
+  color: #fff;
+}
+
+.etiqueta-paso {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--bs-secondary-color);
+  text-align: center;
+}
+.elemento-paso.activo .etiqueta-paso {
+  color: var(--bs-primary);
+  font-weight: 600;
+}
+
+/* ── TARJETA DE RESUMEN DE VUELO ─────────────────────────── */
+.tarjeta-resumen-vuelo {
+  border-left: 4px solid var(--bs-primary);
+}
+
+/* ── BOTÓN ACTIVO DE CATEGORÍA ───────────────────────────── */
+.boton-categoria.active {
+  background-color: var(--bs-primary);
+  color: #fff;
+  border-color: var(--bs-primary);
+}
+
+/* ── TAMAÑOS DE TEXTO AUXILIARES ─────────────────────────── */
+.icono-seccion         { font-size: 3rem; }
+.icono-grande-tarjeta  { font-size: 2rem; }
+.texto-tipo-usuario    { font-size: 0.8rem; }
+.texto-ciudad-ruta     { font-size: 0.7rem; }
+.texto-nombre-aerolinea { font-size: 0.75rem; font-weight: 600; }
+.texto-moneda          { font-size: 0.7rem; }
+.texto-sin-promo       { font-size: 0.75rem; }
+.texto-descuento-ahorro { font-size: 0.75rem; }
+.texto-contenido-novedad { font-size: 0.92rem; }
+.punto-estado-novedad  { font-size: 0.5rem; }
+.aclaracion-opcional   { font-size: 0.85em; }
