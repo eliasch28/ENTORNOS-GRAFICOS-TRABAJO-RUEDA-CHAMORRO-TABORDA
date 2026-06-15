@@ -1,6 +1,26 @@
-<?php include '../Navbar/index.html'; ?>
+<?php
+include '../../config/conexion.php';
+session_start();
+if (!isset($_SESSION['codUsuario'])) {
+    header('Location: ../Flujo Sesion/login.php');
+    exit;
+}
+?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestión de Novedades | VuelaLibre – UTN FRR</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="../../styles.css"/>
+</head>
+<body class="bg-light">
 
-<main class="container my-5">
+<?php include '../Header/header.php'; ?>
+
+<main id="contenido-principal" tabindex="-1" class="container my-5">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h2">Gestión de Novedades</h1>
     <a href="novedades-create.php" class="btn btn-primary">+ Nueva Novedad</a>
@@ -29,12 +49,9 @@
               <td><span class="badge bg-success">Activa</span></td>
               <td class="text-end">
                 <a href="novedades-mod.php?id=101" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i> Editar</a>
-                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalEliminarNovedad">
-                  <i class="bi bi-trash"></i> Eliminar
-                </button>
+                <button type="button" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i> Eliminar</button>
               </td>
             </tr>
-
             <tr>
               <th scope="row">100</th>
               <td class="text-muted">Mantenimiento programado del servidor</td>
@@ -43,16 +60,14 @@
               <td><span class="badge bg-secondary">Caducada</span></td>
               <td class="text-end">
                 <a href="novedades-mod.php?id=100" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i> Editar</a>
-                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalEliminarNovedad">
-                  <i class="bi bi-trash"></i> Eliminar
-                </button>
+                <button type="button" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i> Eliminar</button>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <nav aria-label="Navegación de páginas de novedades" class="mt-4">
+      <nav aria-label="Paginación" class="mt-4">
         <ul class="pagination justify-content-center mb-0">
           <li class="page-item disabled"><a class="page-link" href="#" tabindex="-1" aria-disabled="true">Anterior</a></li>
           <li class="page-item active" aria-current="page"><a class="page-link" href="#">1</a></li>
@@ -60,30 +75,11 @@
           <li class="page-item"><a class="page-link" href="#">Siguiente</a></li>
         </ul>
       </nav>
-
     </div>
   </div>
 </main>
 
-<div class="modal fade" id="modalEliminarNovedad" tabindex="-1" aria-labelledby="modalEliminarNovedadLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header bg-danger text-white">
-        <h5 class="modal-title" id="modalEliminarNovedadLabel">Confirmar Eliminación</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        ¿Estás seguro de que deseas eliminar esta novedad? Los pasajeros ya no podrán verla.
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <form action="novedades-delete.php" method="POST">
-          <input type="hidden" name="id_novedad" value="101">
-          <button type="submit" class="btn btn-danger">Sí, eliminar</button>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
+<?php include '../Footer/footer.php'; ?>
 
-<?php include '../Footer/index.html'; ?>
+</body>
+</html>

@@ -1,3 +1,4 @@
+﻿<?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -17,13 +18,6 @@
 </head>
 
 <?php
-/*
- * ayuda.php
- * Accesible para usuarios registrados y no registrados.
- * TODO: Reemplazar $sesionIniciada por verificación real de sesión:
- * if (!empty($_SESSION['codUsuario']))
- */
-$sesionIniciada = false;
 
 /* ── Categoría seleccionada vía GET ───────────────────────── */
 $categoriaActual = $_GET['categoria'] ?? 'todas';
@@ -103,11 +97,7 @@ $categorias = [
 
 <body class="bg-light">
 
-  <?php if ($sesionIniciada): ?>
-    <?php include '../Header/headerIniciado.php'; ?>
-  <?php else: ?>
-    <?php include '../Header/headerNoIniciado.php'; ?>
-  <?php endif; ?>
+  <?php include '../Header/header.php'; ?>
 
   <main id="contenido-principal" tabindex="-1">
     <section class="py-5" aria-labelledby="ayuda-titulo">
@@ -338,11 +328,8 @@ $categorias = [
     </section>
   </main>
 
-  <?php if ($sesionIniciada): ?>
-    <?php include '../Footer/footerIniciado.php'; ?>
-  <?php else: ?>
-    <?php include '../Footer/footerNoIniciado.php'; ?>
-  <?php endif; ?>
+  <?php include '../Footer/footer.php'; ?>
 
 </body>
 </html>
+

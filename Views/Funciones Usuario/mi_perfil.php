@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 include '../../config/conexion.php';
 session_start();
 if (!isset($_SESSION['codUsuario'])) {
@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <body class="bg-light">
 
-  <?php include '../Header/headerIniciado.php'; ?>
+  <?php include '../Header/header.php'; ?>
 
   <main id="contenido-principal" tabindex="-1">
     <section class="py-5" aria-labelledby="perfil-titulo">
@@ -276,7 +276,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </section>
   </main>
 
-  <?php include '../Footer/footerIniciado.php'; ?>
+  <?php include '../Footer/footer.php'; ?>
 
 </body>
 </html>
+

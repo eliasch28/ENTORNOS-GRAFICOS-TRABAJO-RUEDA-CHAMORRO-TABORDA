@@ -1,3 +1,4 @@
+﻿<?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -16,27 +17,9 @@
   <link rel="stylesheet" href="../../styles.css"/>
 </head>
 
-<?php
-/*
- * sobre_nosotros.php
- * Ubicación física: Views/General/sobre_nosotros.php
- *
- * Esta página es accesible tanto para usuarios registrados
- * como no registrados. Detectamos el header a incluir según
- * si existe sesión iniciada.
- * TODO: Cuando se integre la sesión, reemplazar la condición
- * por: if (!empty($_SESSION['codUsuario']))
- */
-$sesionIniciada = false; // TODO: cambiar por verificación real de sesión
-?>
-
 <body class="bg-light">
 
-  <?php if ($sesionIniciada): ?>
-    <?php include '../Header/headerIniciado.php'; ?>
-  <?php else: ?>
-    <?php include '../Header/headerNoIniciado.php'; ?>
-  <?php endif; ?>
+  <?php include '../Header/header.php'; ?>
 
   <main id="contenido-principal" tabindex="-1">
     <section class="py-5" aria-labelledby="nosotros-titulo">
@@ -244,11 +227,8 @@ $sesionIniciada = false; // TODO: cambiar por verificación real de sesión
     </section>
   </main>
 
-  <?php if ($sesionIniciada): ?>
-    <?php include '../Footer/footerIniciado.php'; ?>
-  <?php else: ?>
-    <?php include '../Footer/footerNoIniciado.php'; ?>
-  <?php endif; ?>
+  <?php include '../Footer/footer.php'; ?>
 
 </body>
 </html>
+

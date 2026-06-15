@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 include '../../config/conexion.php';
 session_start();
 
@@ -28,14 +28,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (mysqli_num_rows($checkEmail) > 0) {
         $error = "El correo electrónico ya está registrado.";
     } else {
-        $query = "INSERT INTO USUARIOS (nombreUsuario, claveUsuario, tipoUsuario, emailUsuario, telefonoUsuario, verificado)
-                  VALUES ('$nombreUsuario', '$claveUsuario', '$tipoUsuario', '$emailUsuario', '$telefonoUsuario', 1)";
+        $verificado = ($tipoUsuario === 'ceo de aerolinea') ? 0 : 1;
+        $query = "INSERT INTO USUARIOS (nombreUsuario, claveUsuario, tipoUsuario, emailUsuario, telefonoUsuario, verificado) 
+        VALUES ('$nombreUsuario', '$claveUsuario', '$tipoUsuario', '$emailUsuario', '$telefonoUsuario', $verificado)";
 
         if (mysqli_query($link, $query)) {
-            header('Location: login.php?registro=1');
+            if ($tipoUsuario === 'ceo de aerolinea') {
+                header('Location: login.php?pendiente=1');
+            } else {
+                header('Location: login.php?registro=1');
+            }
             exit;
-        } else {
-            $error = "Error al registrar el usuario. Intentá de nuevo.";
         }
     }
 }
@@ -60,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <body class="bg-light">
 
-  <?php include '../Header/headerNoIniciado.php'; ?>
+  <?php include '../Header/header.php'; ?>
 
   <main id="contenido-principal" tabindex="-1">
     <section class="py-5" aria-labelledby="registro-titulo">
@@ -148,7 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                       <span class="fw-semibold"><abbr title="Director Ejecutivo">CEO</abbr> de Aerolínea</span>
                       <small class="text-secondary mt-1">Gestión de vuelos y promociones</small>
                       <input type="radio" id="tipo-aerolinea" name="tipoUsuario"
-                             value="aerolinea" class="visually-hidden"/>
+                             value="ceo de aerolinea" class="visually-hidden"/>
                     </label>
                   </div>
                 </div>
@@ -217,7 +220,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </section>
   </main>
 
-  <?php include '../Footer/footerNoIniciado.php'; ?>
+  <?php include '../Footer/footer.php'; ?>
 
 </body>
 </html>
+

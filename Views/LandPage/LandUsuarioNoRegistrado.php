@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -18,7 +18,7 @@
 
 <body class="bg-light">
 
-  <?php include '../Header/headerNoIniciado.php'; ?>
+  <?php include '../Header/header.php'; ?>
 
   <main id="contenido-principal" tabindex="-1">
 
@@ -311,7 +311,8 @@
 
   </main>
 
-  <?php include '../Footer/footerNoIniciado.php'; ?>
+  <?php include '../Footer/footer.php'; ?>
 
 </body>
 </html>
+

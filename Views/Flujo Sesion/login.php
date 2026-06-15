@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 include '../../config/conexion.php';
 session_start();
 
@@ -16,25 +16,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nombreUsuario = trim($_POST['nombreUsuario']);
     $claveUsuario  = $_POST['claveUsuario'];
 
-    $query = "SELECT * FROM USUARIOS WHERE nombreUsuario = '$nombreUsuario'";
+    $query = "SELECT * FROM USUARIOS WHERE BINARY nombreUsuario = '$nombreUsuario'";
     $resultado = mysqli_query($link, $query);
 
     if ($resultado && mysqli_num_rows($resultado) === 1) {
         $usuario = mysqli_fetch_assoc($resultado);
 
         if (md5($claveUsuario) === $usuario['claveUsuario']) {
-            $_SESSION['codUsuario']    = $usuario['codUsuario'];
-            $_SESSION['nombreUsuario'] = $usuario['nombreUsuario'];
-            $_SESSION['tipoUsuario']   = $usuario['tipoUsuario'];
-
-            if ($usuario['tipoUsuario'] === 'administrador') {
-                header('Location: ../LandPage/LandUsuarioRegistrado.php');
-            } elseif ($usuario['tipoUsuario'] === 'aerolinea') {
-                header('Location: ../LandPage/LandUsuarioRegistrado.php');
+            if ($usuario['verificado'] == 0) {
+                $error = "Tu cuenta está pendiente de aprobación por el Administrador.";
             } else {
+                $_SESSION['codUsuario']    = $usuario['codUsuario'];
+                $_SESSION['nombreUsuario'] = $usuario['nombreUsuario'];
+                $_SESSION['tipoUsuario']   = $usuario['tipoUsuario'];
                 header('Location: ../LandPage/LandUsuarioRegistrado.php');
+                exit;
             }
-            exit;
         } else {
             $error = "Contraseña incorrecta.";
         }
@@ -63,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <body class="bg-light">
 
-  <?php include '../Header/headerNoIniciado.php'; ?>
+  <?php include '../Header/header.php'; ?>
 
   <main id="contenido-principal" tabindex="-1">
     <section class="py-5" aria-labelledby="login-titulo">
@@ -81,6 +78,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php if (isset($_GET['registro'])): ?>
                 <div class="alert alert-success" role="alert">
                     <i class="bi bi-check-circle me-2"></i>¡Cuenta creada con éxito! Ya podés iniciar sesión.
+                </div>
+            <?php endif; ?>
+
+            <?php if (isset($_GET['pendiente'])): ?>
+                <div class="alert alert-warning" role="alert">
+                    <i class="bi bi-hourglass-split me-2"></i>Tu solicitud fue enviada. Aguardá la aprobación del Administrador para poder iniciar sesión.
                 </div>
             <?php endif; ?>
 
@@ -145,7 +148,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </section>
   </main>
 
-  <?php include '../Footer/footerNoIniciado.php'; ?>
+  <?php include '../Footer/footer.php'; ?>
 
 </body>
 </html>
+

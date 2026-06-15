@@ -1,4 +1,4 @@
-<?php include '../../config/conexion.php'; ?>
+﻿<?php include '../../config/conexion.php'; ?>
 
 <!DOCTYPE html>
 <html lang="es">
@@ -20,7 +20,7 @@
 
 <body class="bg-light">
 
-  <?php include '../Header/headerNoIniciado.php'; ?>
+  <?php include '../Header/header.php'; ?>
 
   <main id="contenido-principal" tabindex="-1">
     <section class="py-5" aria-labelledby="recuperar-titulo">
@@ -127,7 +127,8 @@
     </section>
   </main>
 
-  <?php include '../Footer/footerNoIniciado.php'; ?>
+  <?php include '../Footer/footer.php'; ?>
 
 </body>
 </html>
+

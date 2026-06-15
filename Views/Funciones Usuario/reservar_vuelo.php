@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 include '../../config/conexion.php';
 session_start();
 if (!isset($_SESSION['codUsuario'])) {
@@ -27,7 +27,7 @@ if (!isset($_SESSION['codUsuario'])) {
 
 <body class="bg-light">
 
-  <?php include '../Header/headerIniciado.php'; ?>
+  <?php include '../Header/header.php'; ?>
 
   <main id="contenido-principal" tabindex="-1">
     <section class="py-5" aria-labelledby="reservar-titulo">
@@ -270,7 +270,8 @@ if (!isset($_SESSION['codUsuario'])) {
     </section>
   </main>
 
-  <?php include '../Footer/footerIniciado.php'; ?>
+  <?php include '../Footer/footer.php'; ?>
 
 </body>
 </html>
+
