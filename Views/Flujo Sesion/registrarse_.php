@@ -3,62 +3,83 @@ include '../../config/conexion.php';
 session_start();
 
 if (isset($_SESSION['codUsuario'])) {
-    $check = mysqli_query($link, "SELECT codUsuario FROM USUARIOS WHERE codUsuario = " . $_SESSION['codUsuario']);
-    if (mysqli_num_rows($check) > 0) {
-        header('Location: ../LandPage/LandUsuarioRegistrado.php');
-        exit;
-    } else {
-        session_destroy();
-    }
+  $check = mysqli_query($link, "SELECT codUsuario FROM USUARIOS WHERE codUsuario = " . $_SESSION['codUsuario']);
+  if (mysqli_num_rows($check) > 0) {
+    header('Location: ../LandPage/LandUsuarioRegistrado.php');
+    exit;
+  } else {
+    session_destroy();
+  }
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $nombreUsuario  = trim($_POST['nombreUsuario']);
-    $claveUsuario   = md5($_POST['claveUsuario']);
-    $tipoUsuario    = $_POST['tipoUsuario'];
-    $emailUsuario   = trim($_POST['emailUsuario']);
-    $telefonoUsuario = trim($_POST['telefonoUsuario']);
+  $nombreUsuario = trim($_POST['nombreUsuario']);
+  $claveUsuario = md5($_POST['claveUsuario']);
+  $tipoUsuario = $_POST['tipoUsuario'];
+  $emailUsuario = trim($_POST['emailUsuario']);
+  $telefonoUsuario = trim($_POST['telefonoUsuario']);
+  $codigoIATA = isset($_POST['codigoIATA']) ? strtoupper(trim($_POST['codigoIATA'])) : '';
+  $codAerolinea = null;
 
-    // Verificar si el nombre de usuario ya existe
-    $checkUser = mysqli_query($link, "SELECT codUsuario FROM USUARIOS WHERE nombreUsuario = '$nombreUsuario'");
-    $checkEmail = mysqli_query($link, "SELECT codUsuario FROM USUARIOS WHERE emailUsuario = '$emailUsuario'");
+  // Verificar si el nombre de usuario ya existe
+  $checkUser = mysqli_query($link, "SELECT codUsuario FROM USUARIOS WHERE nombreUsuario = '$nombreUsuario'");
+  $checkEmail = mysqli_query($link, "SELECT codUsuario FROM USUARIOS WHERE emailUsuario = '$emailUsuario'");
 
-    if (mysqli_num_rows($checkUser) > 0) {
-        $error = "El nombre de usuario ya está en uso.";
-    } elseif (mysqli_num_rows($checkEmail) > 0) {
-        $error = "El correo electrónico ya está registrado.";
+  if (mysqli_num_rows($checkUser) > 0) {
+    $error = "El nombre de usuario ya está en uso.";
+  } elseif (mysqli_num_rows($checkEmail) > 0) {
+    $error = "El correo electrónico ya está registrado.";
+  } elseif ($tipoUsuario === 'ceo de aerolinea') {
+    if ($codigoIATA === '') {
+      $error = "Debés ingresar el código IATA de la aerolínea.";
     } else {
-        $verificado = ($tipoUsuario === 'ceo de aerolinea') ? 0 : 1;
-        $query = "INSERT INTO USUARIOS (nombreUsuario, claveUsuario, tipoUsuario, emailUsuario, telefonoUsuario, verificado) 
-        VALUES ('$nombreUsuario', '$claveUsuario', '$tipoUsuario', '$emailUsuario', '$telefonoUsuario', $verificado)";
-
-        if (mysqli_query($link, $query)) {
-            if ($tipoUsuario === 'ceo de aerolinea') {
-                header('Location: login.php?pendiente=1');
-            } else {
-                header('Location: login.php?registro=1');
-            }
-            exit;
-        }
+      $codigoIATA_esc = mysqli_real_escape_string($link, $codigoIATA);
+      $checkAerolinea = mysqli_query($link, "SELECT codAerolinea FROM AEROLINEAS WHERE codigoIATA = '$codigoIATA_esc'");
+      if (mysqli_num_rows($checkAerolinea) === 0) {
+        $error = "No existe una aerolínea registrada con el código IATA ingresado.";
+      } else {
+        $rowAerolinea = mysqli_fetch_assoc($checkAerolinea);
+        $codAerolinea = $rowAerolinea['codAerolinea'];
+      }
     }
+  }
+
+  if (empty($error)) {
+    $verificado = ($tipoUsuario === 'ceo de aerolinea') ? 0 : 1;
+
+    if ($codAerolinea !== null) {
+      $query = "INSERT INTO USUARIOS (nombreUsuario, claveUsuario, tipoUsuario, emailUsuario, telefonoUsuario, verificado, codAerolinea)
+            VALUES ('$nombreUsuario', '$claveUsuario', '$tipoUsuario', '$emailUsuario', '$telefonoUsuario', $verificado, $codAerolinea)";
+    } else {
+      $query = "INSERT INTO USUARIOS (nombreUsuario, claveUsuario, tipoUsuario, emailUsuario, telefonoUsuario, verificado)
+            VALUES ('$nombreUsuario', '$claveUsuario', '$tipoUsuario', '$emailUsuario', '$telefonoUsuario', $verificado)";
+    }
+
+    if (mysqli_query($link, $query)) {
+      if ($tipoUsuario === 'ceo de aerolinea') {
+        header('Location: login.php?pendiente=1');
+      } else {
+        header('Location: login.php?registro=1');
+      }
+      exit;
+    }
+  }
 }
 ?>
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Creá tu cuenta en VuelaLibre para buscar y reservar vuelos." />
   <title>Registrarse | VuelaLibre – UTN FRR</title>
 
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
-        crossorigin="anonymous"/>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-        rel="stylesheet"/>
-  <link rel="stylesheet" href="../../styles.css"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="../../styles.css" />
 </head>
 
 <body class="bg-light">
@@ -78,14 +99,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <?php if (!empty($error)): ?>
-                <div class="alert alert-danger" role="alert">
-                    <i class="bi bi-exclamation-triangle me-2"></i><?= $error ?>
-                </div>
+              <div class="alert alert-danger" role="alert">
+                <i class="bi bi-exclamation-triangle me-2"></i><?= $error ?>
+              </div>
             <?php endif; ?>
 
-            <form action="registrarse_.php" method="post"
-                  class="card border-0 shadow-sm p-4 p-md-5"
-                  aria-label="Formulario de registro de nuevo usuario">
+            <form action="registrarse_.php" method="post" class="card border-0 shadow-sm p-4 p-md-5"
+              aria-label="Formulario de registro de nuevo usuario">
 
               <div class="mb-3">
                 <label for="nombreUsuario" class="form-label fw-semibold">
@@ -93,15 +113,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                   Nombre de usuario
                   <span class="text-danger" aria-hidden="true">*</span>
                 </label>
-                <input type="text"
-                       id="nombreUsuario" name="nombreUsuario"
-                       class="form-control"
-                       placeholder="Ej: juan_perez"
-                       required autofocus
-                       autocomplete="username"
-                       aria-required="true"
-                       aria-describedby="nombreUsuario-ayuda"
-                       maxlength="100"/>
+                <input type="text" id="nombreUsuario" name="nombreUsuario" class="form-control"
+                  placeholder="Ej: juan_perez" required autofocus autocomplete="username" aria-required="true"
+                  aria-describedby="nombreUsuario-ayuda" maxlength="100" />
                 <div id="nombreUsuario-ayuda" class="form-text">Máximo 100 caracteres.</div>
               </div>
 
@@ -111,19 +125,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                   Contraseña
                   <span class="text-danger" aria-hidden="true">*</span>
                 </label>
-                <input type="password"
-                       id="claveUsuario" name="claveUsuario"
-                       class="form-control"
-                       placeholder="Máximo 8 caracteres"
-                       required
-                       autocomplete="new-password"
-                       aria-required="true"
-                       aria-describedby="claveUsuario-ayuda"
-                       pattern=".{1,8}"
-                       title="La contraseña debe tener entre 1 y 8 caracteres"
-                       maxlength="8"/>
+                <input type="password" id="claveUsuario" name="claveUsuario" class="form-control"
+                  placeholder="Máximo 8 caracteres" required autocomplete="new-password" aria-required="true"
+                  aria-describedby="claveUsuario-ayuda" pattern=".{1,8}"
+                  title="La contraseña debe tener entre 1 y 8 caracteres" maxlength="8" />
                 <div id="claveUsuario-ayuda" class="form-text">
-                  Máximo 8 caracteres (modelo de datos de la cátedra).
+                  Máximo 8 caracteres.
                 </div>
               </div>
 
@@ -136,23 +143,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="row g-3">
                   <div class="col-6">
                     <label class="tarjeta-tipo-usuario d-flex flex-column align-items-center p-3 text-center w-100"
-                           for="tipo-usuario">
+                      for="tipo-usuario">
                       <i class="bi bi-person-fill text-primary fs-2 mb-2" aria-hidden="true"></i>
                       <span class="fw-semibold">Cliente / Pasajero</span>
                       <small class="text-secondary mt-1">Buscá y reservá vuelos</small>
-                      <input type="radio" id="tipo-usuario" name="tipoUsuario"
-                             value="usuario" class="visually-hidden" required/>
+                      <input type="radio" id="tipo-usuario" name="tipoUsuario" value="usuario" class="visually-hidden"
+                        required <?= (($_POST['tipoUsuario'] ?? 'usuario') === 'usuario') ? 'checked' : '' ?> />
                     </label>
                   </div>
                   <div class="col-6">
                     <label class="tarjeta-tipo-usuario d-flex flex-column align-items-center p-3 text-center w-100"
-                           for="tipo-aerolinea">
+                      for="tipo-aerolinea">
                       <i class="bi bi-building-fill text-primary fs-2 mb-2" aria-hidden="true"></i>
                       <span class="fw-semibold"><abbr title="Director Ejecutivo">CEO</abbr> de Aerolínea</span>
                       <small class="text-secondary mt-1">Gestión de vuelos y promociones</small>
-                      <input type="radio" id="tipo-aerolinea" name="tipoUsuario"
-                             value="ceo de aerolinea" class="visually-hidden"/>
+                      <input type="radio" id="tipo-aerolinea" name="tipoUsuario" value="ceo de aerolinea"
+                        class="visually-hidden" <?= (($_POST['tipoUsuario'] ?? '') === 'ceo de aerolinea') ? 'checked' : '' ?> />
                     </label>
+                  </div>
+                </div>
+
+                <div id="campo-codigo-iata" class="mb-3" hidden>
+                  <label for="codigoIATA" class="form-label fw-semibold">
+                    <i class="bi bi-airplane me-1" aria-hidden="true"></i>
+                    Código IATA de la aerolínea
+                    <span class="text-danger" aria-hidden="true">*</span>
+                  </label>
+                  <input type="text" id="codigoIATA" name="codigoIATA" class="form-control text-uppercase"
+                    placeholder="Ej: AR" maxlength="3" pattern="[A-Za-z]{2,3}"
+                    title="Ingresá un código IATA de 2 o 3 letras" autocomplete="off"
+                    aria-describedby="codigoIATA-ayuda"
+                    value="<?= htmlspecialchars($_POST['codigoIATA'] ?? '', ENT_QUOTES, 'UTF-8') ?>" />
+                  <div id="codigoIATA-ayuda" class="form-text">
+                    Código de 2 o 3 letras asignado por la IATA a la aerolínea.
                   </div>
                 </div>
                 <div class="alert alert-warning py-2 mt-3 mb-0 small" role="note">
@@ -168,15 +191,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                   Correo electrónico
                   <span class="text-danger" aria-hidden="true">*</span>
                 </label>
-                <input type="email"
-                       id="emailUsuario" name="emailUsuario"
-                       class="form-control"
-                       placeholder="ejemplo@correo.com"
-                       required
-                       autocomplete="email"
-                       aria-required="true"
-                       aria-describedby="emailUsuario-ayuda"
-                       maxlength="100"/>
+                <input type="email" id="emailUsuario" name="emailUsuario" class="form-control"
+                  placeholder="ejemplo@correo.com" required autocomplete="email" aria-required="true"
+                  aria-describedby="emailUsuario-ayuda" maxlength="100" />
                 <div id="emailUsuario-ayuda" class="form-text">
                   Los Clientes recibirán un enlace de validación en esta dirección.
                 </div>
@@ -188,14 +205,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                   Teléfono
                   <span class="text-danger" aria-hidden="true">*</span>
                 </label>
-                <input type="tel"
-                       id="telefonoUsuario" name="telefonoUsuario"
-                       class="form-control"
-                       placeholder="Ej: +54 341 555-1234"
-                       required
-                       autocomplete="tel"
-                       aria-required="true"
-                       maxlength="20"/>
+                <input type="tel" id="telefonoUsuario" name="telefonoUsuario" class="form-control"
+                  placeholder="Ej: +54 341 555-1234" required autocomplete="tel" aria-required="true" maxlength="20" />
               </div>
 
               <p class="text-secondary small mb-3">
@@ -222,6 +233,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   <?php include '../Footer/footer.php'; ?>
 
-</body>
-</html>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const tipoUsuario = document.getElementById('tipo-usuario');
+      const tipoAerolinea = document.getElementById('tipo-aerolinea');
+      const campoIata = document.getElementById('campo-codigo-iata');
+      const inputIata = document.getElementById('codigoIATA');
 
+      function actualizarCampoIata() {
+        const esCeo = tipoAerolinea.checked;
+        campoIata.hidden = !esCeo;
+        inputIata.required = esCeo;
+        if (!esCeo) {
+          inputIata.value = '';
+        }
+      }
+
+      tipoUsuario.addEventListener('change', actualizarCampoIata);
+      tipoAerolinea.addEventListener('change', actualizarCampoIata);
+      actualizarCampoIata();
+    });
+  </script>
+
+</body>
+
+</html>
