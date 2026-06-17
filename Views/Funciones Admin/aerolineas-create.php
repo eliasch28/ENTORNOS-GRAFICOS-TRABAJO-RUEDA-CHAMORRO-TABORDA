@@ -11,7 +11,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $descripcionAerolinea = trim($_POST['descripcionAerolinea'] ?? '');
   $codigoPais           = strtoupper(trim($_POST['codigoPais'] ?? ''));
 
-  // Validaciones del lado del servidor
   if ($nombreAerolinea === '') {
     $error = 'El nombre de la aerolínea es obligatorio.';
   } elseif ($codigoIATA === '') {
@@ -29,7 +28,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   } elseif (mb_strlen($descripcionAerolinea) > 200) {
     $error = 'La descripción no puede superar los 200 caracteres.';
   } else {
-    // Verificar que no exista otra aerolínea con el mismo código IATA
     $nombreEsc   = mysqli_real_escape_string($link, $nombreAerolinea);
     $iataEsc     = mysqli_real_escape_string($link, $codigoIATA);
     $descEsc     = mysqli_real_escape_string($link, $descripcionAerolinea);
@@ -44,7 +42,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
       if (mysqli_query($link, $query)) {
         $exito = 'La aerolínea se registró correctamente.';
-        // Limpiar campos del formulario después del alta exitosa
         $nombreAerolinea = $codigoIATA = $descripcionAerolinea = $codigoPais = '';
       } else {
         $error = 'Ocurrió un error al registrar la aerolínea. Intentalo nuevamente.';

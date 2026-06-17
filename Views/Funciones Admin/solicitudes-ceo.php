@@ -5,7 +5,6 @@ require_once '../../config/requiere_admin.php';
 $mensajeExito = '';
 $mensajeError = '';
 
-// Gestión de acciones de aprobación / rechazo
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $codUsuario = isset($_POST['codUsuario']) ? (int) $_POST['codUsuario'] : 0;
   $accion     = $_POST['accion'] ?? '';
@@ -17,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 WHERE codUsuario = $codUsuario 
                   AND tipoUsuario = 'ceo de aerolinea' 
                   AND verificado = 0";
-    } else { // rechazar
+    } else {
       $query = "DELETE FROM USUARIOS 
                 WHERE codUsuario = $codUsuario 
                   AND tipoUsuario = 'ceo de aerolinea' 
@@ -38,7 +37,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 }
 
-// Listado de CEOs pendientes de aprobación
 $sqlSolicitudes = "SELECT 
                       u.codUsuario,
                       u.nombreUsuario,
@@ -168,22 +166,22 @@ $solicitudesResult = mysqli_query($link, $sqlSolicitudes);
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
       const modalEl = document.getElementById('modalConfirmacion');
       const modalConfirmacion = new bootstrap.Modal(modalEl);
       const textoEl = document.getElementById('modalConfirmacionTexto');
       const aceptarBtn = document.getElementById('modalConfirmacionAceptar');
       let formIdPendiente = null;
 
-      document.querySelectorAll('[data-confirm-form-id]').forEach(function (btn) {
-        btn.addEventListener('click', function () {
+      document.querySelectorAll('[data-confirm-form-id]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
           formIdPendiente = btn.getAttribute('data-confirm-form-id');
           textoEl.textContent = btn.getAttribute('data-confirm-text') || '¿Confirmás?';
           modalConfirmacion.show();
         });
       });
 
-      aceptarBtn.addEventListener('click', function () {
+      aceptarBtn.addEventListener('click', function() {
         if (!formIdPendiente) return;
         const form = document.getElementById(formIdPendiente);
         if (form) form.submit();

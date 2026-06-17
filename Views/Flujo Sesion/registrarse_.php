@@ -21,7 +21,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $codigoIATA = isset($_POST['codigoIATA']) ? strtoupper(trim($_POST['codigoIATA'])) : '';
   $codAerolinea = null;
 
-  // Verificar si el nombre de usuario ya existe
   $checkUser = mysqli_query($link, "SELECT codUsuario FROM USUARIOS WHERE nombreUsuario = '$nombreUsuario'");
   $checkEmail = mysqli_query($link, "SELECT codUsuario FROM USUARIOS WHERE emailUsuario = '$emailUsuario'");
 
@@ -234,7 +233,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <?php include '../Footer/footer.php'; ?>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
       const tipoUsuario = document.getElementById('tipo-usuario');
       const tipoAerolinea = document.getElementById('tipo-aerolinea');
       const campoIata = document.getElementById('campo-codigo-iata');
