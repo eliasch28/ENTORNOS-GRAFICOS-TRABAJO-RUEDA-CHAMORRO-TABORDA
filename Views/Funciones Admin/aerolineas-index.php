@@ -2,6 +2,25 @@
 include '../../config/conexion.php';
 require_once '../../config/requiere_admin.php';
 
+$mensajeExito = '';
+$mensajeError = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  $codAerolinea = isset($_POST['codAerolinea']) ? (int) $_POST['codAerolinea'] : 0;
+
+  if ($codAerolinea > 0) {
+    $query = "DELETE FROM AEROLINEAS WHERE codAerolinea = $codAerolinea";
+
+    if (mysqli_query($link, $query) && mysqli_affected_rows($link) > 0) {
+      $mensajeExito = 'La aerolínea fue eliminada correctamente.';
+    } else {
+      $mensajeError = 'No se pudo eliminar la aerolínea. Es posible que tenga datos asociados.';
+    }
+  } else {
+    $mensajeError = 'Solicitud inválida.';
+  }
+}
+
 $porPagina = 10;
 $paginaActual = isset($_GET['pagina']) ? max(1, (int) $_GET['pagina']) : 1;
 $offset = ($paginaActual - 1) * $porPagina;
@@ -24,7 +43,8 @@ $resAerolineas = mysqli_query($link, $sqlAerolineas);
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gestión de Aerolíneas | VuelaLibre – UTN FRR</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="../../styles.css" />
 </head>
@@ -41,6 +61,19 @@ $resAerolineas = mysqli_query($link, $sqlAerolineas);
 
     <div class="card shadow-sm">
       <div class="card-body">
+
+        <?php if (!empty($mensajeError)): ?>
+          <div class="alert alert-danger d-flex align-items-start" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2" aria-hidden="true"></i>
+            <div><?= htmlspecialchars($mensajeError, ENT_QUOTES, 'UTF-8') ?></div>
+          </div>
+        <?php elseif (!empty($mensajeExito)): ?>
+          <div class="alert alert-success d-flex align-items-start" role="status">
+            <i class="bi bi-check-circle-fill me-2" aria-hidden="true"></i>
+            <div><?= htmlspecialchars($mensajeExito, ENT_QUOTES, 'UTF-8') ?></div>
+          </div>
+        <?php endif; ?>
+
         <div class="table-responsive rounded">
           <table class="table table-striped table-hover align-middle">
             <thead class="table-dark">
@@ -61,16 +94,25 @@ $resAerolineas = mysqli_query($link, $sqlAerolineas);
                     <td><?= htmlspecialchars($row['nombreAerolinea'], ENT_QUOTES, 'UTF-8') ?></td>
                     <td><?= htmlspecialchars($row['codigoIATA'] ?? '—', ENT_QUOTES, 'UTF-8') ?></td>
                     <td><?= htmlspecialchars($row['codPais'] ?? '—', ENT_QUOTES, 'UTF-8') ?></td>
-                    <td class="text-truncate" style="max-width: 260px;" title="<?= htmlspecialchars($row['descripcionAerolinea'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                    <td class="text-truncate" style="max-width: 260px;"
+                      title="<?= htmlspecialchars($row['descripcionAerolinea'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
                       <?= htmlspecialchars($row['descripcionAerolinea'] ?? '—', ENT_QUOTES, 'UTF-8') ?>
                     </td>
                     <td class="text-end">
-                      <a href="aerolineas-mod.php?id=<?= (int) $row['codAerolinea'] ?>" class="btn btn-sm btn-outline-secondary">
+                      <a href="aerolineas-mod.php?id=<?= (int) $row['codAerolinea'] ?>"
+                        class="btn btn-sm btn-outline-secondary">
                         <i class="bi bi-pencil" aria-hidden="true"></i> Editar
                       </a>
-                      <button type="button" class="btn btn-sm btn-outline-danger">
-                        <i class="bi bi-trash" aria-hidden="true"></i> Eliminar
-                      </button>
+                      <!-- Form oculto para el DELETE -->
+                      <form action="aerolineas-index.php?pagina=<?= $paginaActual ?>" method="POST" class="d-inline"
+                        id="form-eliminar-<?= (int) $row['codAerolinea'] ?>">
+                        <input type="hidden" name="codAerolinea" value="<?= (int) $row['codAerolinea'] ?>">
+                        <button type="button" class="btn btn-sm btn-outline-danger"
+                          data-confirm-form-id="form-eliminar-<?= (int) $row['codAerolinea'] ?>"
+                          data-confirm-text="¿Eliminár la aerolínea «<?= htmlspecialchars($row['nombreAerolinea'], ENT_QUOTES, 'UTF-8') ?>»? Esta acción no se puede deshacer.">
+                          <i class="bi bi-trash" aria-hidden="true"></i> Eliminar
+                        </button>
+                      </form>
                     </td>
                   </tr>
                 <?php endwhile; ?>
@@ -103,9 +145,62 @@ $resAerolineas = mysqli_query($link, $sqlAerolineas);
             </ul>
           </nav>
         <?php endif; ?>
+
       </div>
     </div>
   </main>
+
+  <!-- Modal reutilizable para confirmar eliminación -->
+  <div class="modal fade" id="modalConfirmacion" tabindex="-1" aria-labelledby="modalConfirmacionLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalConfirmacionLabel">Confirmar eliminación</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <div id="modalConfirmacionTexto" class="text-muted">¿Confirmás?</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-danger" id="modalConfirmacionAceptar">
+            <i class="bi bi-trash me-1" aria-hidden="true"></i>Eliminar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmFJ3d7CMK4xBqwJoKD21vBbVxy" crossorigin="anonymous"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const modalEl = document.getElementById('modalConfirmacion');
+      const modalConfirmacion = new bootstrap.Modal(modalEl);
+      const textoEl = document.getElementById('modalConfirmacionTexto');
+      const aceptarBtn = document.getElementById('modalConfirmacionAceptar');
+      let formIdPendiente = null;
+
+      document.querySelectorAll('[data-confirm-form-id]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          formIdPendiente = btn.getAttribute('data-confirm-form-id');
+          textoEl.textContent = btn.getAttribute('data-confirm-text') || '¿Confirmás?';
+          modalConfirmacion.show();
+        });
+      });
+
+      aceptarBtn.addEventListener('click', function () {
+        if (!formIdPendiente) return;
+        const form = document.getElementById(formIdPendiente);
+        if (form) form.submit();
+      });
+
+      modalEl.addEventListener('hidden.bs.modal', function () {
+        formIdPendiente = null;
+      });
+    });
+  </script>
 
   <?php include '../Footer/footer.php'; ?>
 
