@@ -1,6 +1,57 @@
 ﻿<?php
 include '../../config/conexion.php';
 session_start();
+
+// Aerolíneas para el filtro
+$sqlAero = "SELECT codAerolinea, nombreAerolinea FROM AEROLINEAS ORDER BY nombreAerolinea ASC";
+$resAero = mysqli_query($link, $sqlAero);
+$aerolineas = [];
+if ($resAero) {
+    while ($a = mysqli_fetch_assoc($resAero)) {
+        $aerolineas[] = $a;
+    }
+}
+
+// Parámetros de filtro
+$origenInput  = trim($_GET['origenVuelo']      ?? '');
+$destinoInput = trim($_GET['destinoVuelo']     ?? '');
+$fechaInput   = trim($_GET['fechaSalidaVuelo'] ?? '');
+$codAeroInput = isset($_GET['codAerolinea']) ? (int)$_GET['codAerolinea'] : 0;
+
+// WHERE dinámico
+$conds = ["v.asientosDisponibles > 0", "v.fechaSalidaVuelo >= CURDATE()"];
+if ($origenInput !== '') {
+    $e = mysqli_real_escape_string($link, $origenInput);
+    $conds[] = "v.origenVuelo LIKE '%$e%'";
+}
+if ($destinoInput !== '') {
+    $e = mysqli_real_escape_string($link, $destinoInput);
+    $conds[] = "v.destinoVuelo LIKE '%$e%'";
+}
+if ($fechaInput !== '') {
+    $e = mysqli_real_escape_string($link, $fechaInput);
+    $conds[] = "v.fechaSalidaVuelo = '$e'";
+}
+if ($codAeroInput > 0) {
+    $conds[] = "v.codAerolinea = $codAeroInput";
+}
+$whereStr = implode(' AND ', $conds);
+
+$sqlVuelos = "SELECT v.codVuelo, v.origenVuelo, v.destinoVuelo,
+                     v.fechaSalidaVuelo, v.horaSalidaVuelo,
+                     v.precioVuelo, v.asientosDisponibles,
+                     a.codAerolinea, a.nombreAerolinea,
+                     p.descuentoPromocion
+              FROM VUELOS v
+              JOIN AEROLINEAS a ON v.codAerolinea = a.codAerolinea
+              LEFT JOIN PROMOCIONES p
+                ON p.codAerolinea = v.codAerolinea
+               AND p.estadoPromocion = 'aprobada'
+              WHERE $whereStr
+              ORDER BY v.fechaSalidaVuelo ASC, v.horaSalidaVuelo ASC";
+
+$resVuelos   = mysqli_query($link, $sqlVuelos);
+$totalVuelos = $resVuelos ? mysqli_num_rows($resVuelos) : 0;
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -91,18 +142,12 @@ session_start();
                   <select id="codAerolinea" name="codAerolinea"
                           class="form-select form-select-sm">
                     <option value="">Todas las aerolíneas</option>
-                    <option value="1" <?= (($_GET['codAerolinea'] ?? '') == '1') ? 'selected' : '' ?>>
-                      Aerolíneas Argentinas
+                    <?php foreach ($aerolineas as $aero): ?>
+                    <option value="<?= (int)$aero['codAerolinea'] ?>"
+                            <?= $codAeroInput === (int)$aero['codAerolinea'] ? 'selected' : '' ?>>
+                      <?= htmlspecialchars($aero['nombreAerolinea'], ENT_QUOTES, 'UTF-8') ?>
                     </option>
-                    <option value="2" <?= (($_GET['codAerolinea'] ?? '') == '2') ? 'selected' : '' ?>>
-                      LATAM Airlines
-                    </option>
-                    <option value="3" <?= (($_GET['codAerolinea'] ?? '') == '3') ? 'selected' : '' ?>>
-                      Flybondi
-                    </option>
-                    <option value="4" <?= (($_GET['codAerolinea'] ?? '') == '4') ? 'selected' : '' ?>>
-                      JetSmart
-                    </option>
+                    <?php endforeach; ?>
                   </select>
                 </div>
 
@@ -122,276 +167,115 @@ session_start();
 
             <div class="d-flex justify-content-between align-items-center mb-3">
               <p class="text-secondary small mb-0">
-                Mostrando <strong>4</strong> vuelos disponibles
+                Mostrando <strong><?= $totalVuelos ?></strong>
+                  vuelo<?= $totalVuelos !== 1 ? 's' : '' ?> disponible<?= $totalVuelos !== 1 ? 's' : '' ?>
               </p>
             </div>
 
-            <!--
-              TODO: Esta sección se generará dinámicamente con PHP
-              haciendo un SELECT a la tabla VUELOS con los filtros
-              ingresados por el usuario.
-            -->
             <ul class="list-unstyled" role="list" aria-label="Vuelos encontrados">
 
-              <li class="mb-3" role="listitem">
-                <article class="card tarjeta-vuelo border border-2 border-transparent shadow-sm"
-                         aria-label="Vuelo 0001: Rosario a Buenos Aires, 15 de mayo 2026, ARS 48.500">
-                  <div class="card-body p-4">
-                    <div class="row align-items-center g-3">
+              <?php if ($totalVuelos > 0): ?>
+                <?php while ($v = mysqli_fetch_assoc($resVuelos)):
+                  $codFmt     = str_pad((string)$v['codVuelo'], 4, '0', STR_PAD_LEFT);
+                  $origenCod  = mb_strtoupper(mb_substr($v['origenVuelo'],  0, 3));
+                  $destinoCod = mb_strtoupper(mb_substr($v['destinoVuelo'], 0, 3));
+                  $descuento  = (float)($v['descuentoPromocion'] ?? 0);
+                  $precioBase = (float)$v['precioVuelo'];
+                  $precioFinal = $descuento > 0 ? $precioBase * (1 - $descuento / 100) : $precioBase;
+                  $asientos   = (int)$v['asientosDisponibles'];
+                  $claseAsientos = $asientos > 20 ? 'asientos-disponibles-alto'
+                                 : ($asientos >  5 ? 'asientos-disponibles-medio'
+                                                   : 'asientos-disponibles-bajo');
+                  $fechaFmt   = date('j M Y', strtotime($v['fechaSalidaVuelo']));
+                  $horaFmt    = substr($v['horaSalidaVuelo'], 0, 5);
+                ?>
+                <li class="mb-3" role="listitem">
+                  <article class="card tarjeta-vuelo border border-2 border-transparent shadow-sm"
+                           aria-label="Vuelo <?= $codFmt ?>: <?= htmlspecialchars($v['origenVuelo'], ENT_QUOTES, 'UTF-8') ?> a <?= htmlspecialchars($v['destinoVuelo'], ENT_QUOTES, 'UTF-8') ?>, <?= $fechaFmt ?>">
+                    <div class="card-body p-4">
+                      <div class="row align-items-center g-3">
 
-                      <div class="col-12 col-md-2">
-                        <div class="d-flex flex-column gap-1">
-                          <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
-                            <i class="bi bi-airplane me-1" aria-hidden="true"></i>
-                            Cód: 0001
-                          </span>
-                          <small class="text-secondary texto-nombre-aerolinea">
-                            Aer. Argentinas
-                          </small>
-                        </div>
-                      </div>
-
-                      <div class="col-12 col-md-4">
-                        <div class="d-flex align-items-center">
-                          <div class="text-center">
-                            <div class="codigo-iata text-dark fw-bold">ROS</div>
-                            <small class="text-secondary text-uppercase texto-ciudad-ruta">
-                              Rosario
-                            </small>
-                          </div>
-                          <div class="linea-ruta" aria-hidden="true"></div>
-                          <i class="bi bi-airplane-fill text-primary mx-2" aria-hidden="true"></i>
-                          <div class="linea-ruta" aria-hidden="true"></div>
-                          <div class="text-center">
-                            <div class="codigo-iata text-dark fw-bold">EZE</div>
-                            <small class="text-secondary text-uppercase texto-ciudad-ruta">
-                              Buenos Aires
+                        <div class="col-12 col-md-2">
+                          <div class="d-flex flex-column gap-1">
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                              <i class="bi bi-airplane me-1" aria-hidden="true"></i>
+                              Cód: <?= $codFmt ?>
+                            </span>
+                            <small class="text-secondary texto-nombre-aerolinea">
+                              <?= htmlspecialchars($v['nombreAerolinea'], ENT_QUOTES, 'UTF-8') ?>
                             </small>
                           </div>
                         </div>
-                        <small class="text-secondary d-block mt-1">
-                          <i class="bi bi-clock me-1" aria-hidden="true"></i>2h 10min · Directo
-                        </small>
-                      </div>
 
-                      <div class="col-6 col-md-2 text-center">
-                        <div class="text-secondary small">
-                          <i class="bi bi-calendar3 me-1" aria-hidden="true"></i>
-                          <time datetime="2026-05-15T08:30">15 May 2026</time>
-                        </div>
-                        <div class="fw-semibold small">08:30 hs</div>
-                        <div class="asientos-disponibles-alto small mt-1">
-                          <i class="bi bi-people-fill me-1" aria-hidden="true"></i>32 asientos
-                        </div>
-                      </div>
-
-                      <div class="col-6 col-md-2 text-center">
-                        <div class="fw-bold fs-5 text-dark">
-                          <small class="text-secondary fw-normal texto-moneda">ARS</small>
-                          48.500
-                        </div>
-                        <span class="badge bg-success-subtle text-success border border-success-subtle mt-1">
-                          <i class="bi bi-tag-fill me-1" aria-hidden="true"></i>15% OFF
-                        </span>
-                      </div>
-
-                      <div class="col-12 col-md-2 text-md-end">
-                        <a href="reservar_vuelo.php?codVuelo=0001"
-                           class="btn btn-primary w-100"
-                           aria-label="Reservar vuelo ROS a EZE el 15 de mayo">
-                          <i class="bi bi-calendar2-check me-1" aria-hidden="true"></i>
-                          Reservar
-                        </a>
-                      </div>
-
-                    </div>
-                  </div>
-                </article>
-              </li>
-
-              <li class="mb-3" role="listitem">
-                <article class="card tarjeta-vuelo border border-2 border-transparent shadow-sm"
-                         aria-label="Vuelo 0002: Buenos Aires a Santiago, 18 de mayo 2026, ARS 124.900">
-                  <div class="card-body p-4">
-                    <div class="row align-items-center g-3">
-                      <div class="col-12 col-md-2">
-                        <div class="d-flex flex-column gap-1">
-                          <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
-                            <i class="bi bi-airplane me-1" aria-hidden="true"></i>Cód: 0002
-                          </span>
-                          <small class="text-secondary texto-nombre-aerolinea">
-                            LATAM Airlines
-                          </small>
-                        </div>
-                      </div>
-                      <div class="col-12 col-md-4">
-                        <div class="d-flex align-items-center">
-                          <div class="text-center">
-                            <div class="codigo-iata text-dark fw-bold">AEP</div>
-                            <small class="text-secondary text-uppercase texto-ciudad-ruta">Bs. Aires</small>
-                          </div>
-                          <div class="linea-ruta" aria-hidden="true"></div>
-                          <i class="bi bi-airplane-fill text-primary mx-2" aria-hidden="true"></i>
-                          <div class="linea-ruta" aria-hidden="true"></div>
-                          <div class="text-center">
-                            <div class="codigo-iata text-dark fw-bold">SCL</div>
-                            <small class="text-secondary text-uppercase texto-ciudad-ruta">Santiago</small>
+                        <div class="col-12 col-md-4">
+                          <div class="d-flex align-items-center">
+                            <div class="text-center">
+                              <div class="codigo-iata text-dark fw-bold"><?= $origenCod ?></div>
+                              <small class="text-secondary text-uppercase texto-ciudad-ruta">
+                                <?= htmlspecialchars($v['origenVuelo'], ENT_QUOTES, 'UTF-8') ?>
+                              </small>
+                            </div>
+                            <div class="linea-ruta" aria-hidden="true"></div>
+                            <i class="bi bi-airplane-fill text-primary mx-2" aria-hidden="true"></i>
+                            <div class="linea-ruta" aria-hidden="true"></div>
+                            <div class="text-center">
+                              <div class="codigo-iata text-dark fw-bold"><?= $destinoCod ?></div>
+                              <small class="text-secondary text-uppercase texto-ciudad-ruta">
+                                <?= htmlspecialchars($v['destinoVuelo'], ENT_QUOTES, 'UTF-8') ?>
+                              </small>
+                            </div>
                           </div>
                         </div>
-                        <small class="text-secondary d-block mt-1">
-                          <i class="bi bi-clock me-1" aria-hidden="true"></i>3h 50min · Directo
-                        </small>
-                      </div>
-                      <div class="col-6 col-md-2 text-center">
-                        <div class="text-secondary small">
-                          <i class="bi bi-calendar3 me-1" aria-hidden="true"></i>
-                          <time datetime="2026-05-18T14:15">18 May 2026</time>
+
+                        <div class="col-6 col-md-2 text-center">
+                          <div class="text-secondary small">
+                            <i class="bi bi-calendar3 me-1" aria-hidden="true"></i>
+                            <time datetime="<?= htmlspecialchars($v['fechaSalidaVuelo'], ENT_QUOTES, 'UTF-8') ?>T<?= $horaFmt ?>">
+                              <?= $fechaFmt ?>
+                            </time>
+                          </div>
+                          <div class="fw-semibold small"><?= $horaFmt ?> hs</div>
+                          <div class="<?= $claseAsientos ?> small mt-1">
+                            <i class="bi bi-people-fill me-1" aria-hidden="true"></i><?= $asientos ?> asientos
+                          </div>
                         </div>
-                        <div class="fw-semibold small">14:15 hs</div>
-                        <div class="asientos-disponibles-medio small mt-1">
-                          <i class="bi bi-people-fill me-1" aria-hidden="true"></i>8 asientos
+
+                        <div class="col-6 col-md-2 text-center">
+                          <div class="fw-bold fs-5 text-dark">
+                            <small class="text-secondary fw-normal texto-moneda">ARS</small>
+                            <?= number_format($precioFinal, 0, ',', '.') ?>
+                          </div>
+                          <?php if ($descuento > 0): ?>
+                            <span class="badge bg-success-subtle text-success border border-success-subtle mt-1">
+                              <i class="bi bi-tag-fill me-1" aria-hidden="true"></i><?= (int)$descuento ?>% OFF
+                            </span>
+                          <?php else: ?>
+                            <small class="text-secondary texto-sin-promo">Sin promo activa</small>
+                          <?php endif; ?>
                         </div>
-                      </div>
-                      <div class="col-6 col-md-2 text-center">
-                        <div class="fw-bold fs-5 text-dark">
-                          <small class="text-secondary fw-normal texto-moneda">ARS</small>
-                          124.900
+
+                        <div class="col-12 col-md-2 text-md-end">
+                          <a href="reservar_vuelo.php?codVuelo=<?= (int)$v['codVuelo'] ?>"
+                             class="btn btn-primary w-100"
+                             aria-label="Reservar vuelo <?= $origenCod ?> a <?= $destinoCod ?> el <?= $fechaFmt ?>">
+                            <i class="bi bi-calendar2-check me-1" aria-hidden="true"></i>
+                            Reservar
+                          </a>
                         </div>
-                        <small class="text-secondary texto-sin-promo">Sin promo activa</small>
-                      </div>
-                      <div class="col-12 col-md-2 text-md-end">
-                        <a href="reservar_vuelo.php?codVuelo=0002"
-                           class="btn btn-primary w-100"
-                           aria-label="Reservar vuelo AEP a SCL el 18 de mayo">
-                          <i class="bi bi-calendar2-check me-1" aria-hidden="true"></i>Reservar
-                        </a>
+
                       </div>
                     </div>
+                  </article>
+                </li>
+                <?php endwhile; ?>
+              <?php else: ?>
+                <li role="listitem">
+                  <div class="alert alert-info" role="status">
+                    <i class="bi bi-info-circle me-2" aria-hidden="true"></i>
+                    No se encontraron vuelos disponibles con los filtros seleccionados.
                   </div>
-                </article>
-              </li>
-
-              <li class="mb-3" role="listitem">
-                <article class="card tarjeta-vuelo border border-2 border-transparent shadow-sm"
-                         aria-label="Vuelo 0003: Córdoba a Mendoza, 20 de mayo 2026, ARS 29.990">
-                  <div class="card-body p-4">
-                    <div class="row align-items-center g-3">
-                      <div class="col-12 col-md-2">
-                        <div class="d-flex flex-column gap-1">
-                          <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
-                            <i class="bi bi-airplane me-1" aria-hidden="true"></i>Cód: 0003
-                          </span>
-                          <small class="text-secondary texto-nombre-aerolinea">Flybondi</small>
-                        </div>
-                      </div>
-                      <div class="col-12 col-md-4">
-                        <div class="d-flex align-items-center">
-                          <div class="text-center">
-                            <div class="codigo-iata text-dark fw-bold">COR</div>
-                            <small class="text-secondary text-uppercase texto-ciudad-ruta">Córdoba</small>
-                          </div>
-                          <div class="linea-ruta" aria-hidden="true"></div>
-                          <i class="bi bi-airplane-fill text-primary mx-2" aria-hidden="true"></i>
-                          <div class="linea-ruta" aria-hidden="true"></div>
-                          <div class="text-center">
-                            <div class="codigo-iata text-dark fw-bold">MDZ</div>
-                            <small class="text-secondary text-uppercase texto-ciudad-ruta">Mendoza</small>
-                          </div>
-                        </div>
-                        <small class="text-secondary d-block mt-1">
-                          <i class="bi bi-clock me-1" aria-hidden="true"></i>1h 45min · Directo
-                        </small>
-                      </div>
-                      <div class="col-6 col-md-2 text-center">
-                        <div class="text-secondary small">
-                          <i class="bi bi-calendar3 me-1" aria-hidden="true"></i>
-                          <time datetime="2026-05-20T11:00">20 May 2026</time>
-                        </div>
-                        <div class="fw-semibold small">11:00 hs</div>
-                        <div class="asientos-disponibles-alto small mt-1">
-                          <i class="bi bi-people-fill me-1" aria-hidden="true"></i>50 asientos
-                        </div>
-                      </div>
-                      <div class="col-6 col-md-2 text-center">
-                        <div class="fw-bold fs-5 text-dark">
-                          <small class="text-secondary fw-normal texto-moneda">ARS</small>
-                          29.990
-                        </div>
-                        <span class="badge bg-success-subtle text-success border border-success-subtle mt-1">
-                          <i class="bi bi-tag-fill me-1" aria-hidden="true"></i>30% OFF
-                        </span>
-                      </div>
-                      <div class="col-12 col-md-2 text-md-end">
-                        <a href="reservar_vuelo.php?codVuelo=0003"
-                           class="btn btn-primary w-100"
-                           aria-label="Reservar vuelo COR a MDZ el 20 de mayo">
-                          <i class="bi bi-calendar2-check me-1" aria-hidden="true"></i>Reservar
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                </article>
-              </li>
-
-              <li class="mb-3" role="listitem">
-                <article class="card tarjeta-vuelo border border-2 border-transparent shadow-sm"
-                         aria-label="Vuelo 0004: Iguazú a Bariloche, 22 de mayo 2026, ARS 55.750">
-                  <div class="card-body p-4">
-                    <div class="row align-items-center g-3">
-                      <div class="col-12 col-md-2">
-                        <div class="d-flex flex-column gap-1">
-                          <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
-                            <i class="bi bi-airplane me-1" aria-hidden="true"></i>Cód: 0004
-                          </span>
-                          <small class="text-secondary texto-nombre-aerolinea">JetSmart</small>
-                        </div>
-                      </div>
-                      <div class="col-12 col-md-4">
-                        <div class="d-flex align-items-center">
-                          <div class="text-center">
-                            <div class="codigo-iata text-dark fw-bold">IGR</div>
-                            <small class="text-secondary text-uppercase texto-ciudad-ruta">Iguazú</small>
-                          </div>
-                          <div class="linea-ruta" aria-hidden="true"></div>
-                          <i class="bi bi-airplane-fill text-primary mx-2" aria-hidden="true"></i>
-                          <div class="linea-ruta" aria-hidden="true"></div>
-                          <div class="text-center">
-                            <div class="codigo-iata text-dark fw-bold">BRC</div>
-                            <small class="text-secondary text-uppercase texto-ciudad-ruta">Bariloche</small>
-                          </div>
-                        </div>
-                        <small class="text-secondary d-block mt-1">
-                          <i class="bi bi-clock me-1" aria-hidden="true"></i>2h 30min · Directo
-                        </small>
-                      </div>
-                      <div class="col-6 col-md-2 text-center">
-                        <div class="text-secondary small">
-                          <i class="bi bi-calendar3 me-1" aria-hidden="true"></i>
-                          <time datetime="2026-05-22T16:45">22 May 2026</time>
-                        </div>
-                        <div class="fw-semibold small">16:45 hs</div>
-                        <div class="asientos-disponibles-alto small mt-1">
-                          <i class="bi bi-people-fill me-1" aria-hidden="true"></i>21 asientos
-                        </div>
-                      </div>
-                      <div class="col-6 col-md-2 text-center">
-                        <div class="fw-bold fs-5 text-dark">
-                          <small class="text-secondary fw-normal texto-moneda">ARS</small>
-                          55.750
-                        </div>
-                        <small class="text-secondary texto-sin-promo">Sin promo activa</small>
-                      </div>
-                      <div class="col-12 col-md-2 text-md-end">
-                        <a href="reservar_vuelo.php?codVuelo=0004"
-                           class="btn btn-primary w-100"
-                           aria-label="Reservar vuelo IGR a BRC el 22 de mayo">
-                          <i class="bi bi-calendar2-check me-1" aria-hidden="true"></i>Reservar
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                </article>
-              </li>
+                </li>
+              <?php endif; ?>
 
             </ul>
 

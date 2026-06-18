@@ -5,6 +5,80 @@ if (!isset($_SESSION['codUsuario'])) {
     header('Location: ../Flujo Sesion/login.php');
     exit;
 }
+
+$mensajeError = '';
+$codUsuario   = (int)$_SESSION['codUsuario'];
+
+// Datos completos del usuario (email y teléfono no están en sesión)
+$sqlUser = "SELECT nombreUsuario, emailUsuario, telefonoUsuario
+            FROM USUARIOS WHERE codUsuario = $codUsuario";
+$resUser = mysqli_query($link, $sqlUser);
+$usuario = mysqli_fetch_assoc($resUser);
+
+// Manejo del POST: confirmar reserva
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $codVuelo = isset($_POST['codVuelo']) ? (int)$_POST['codVuelo'] : 0;
+    if ($codVuelo > 0) {
+        // Verificar que el vuelo sigue con asientos disponibles
+        $sqlCheck = "SELECT codVuelo, asientosDisponibles FROM VUELOS
+                     WHERE codVuelo = $codVuelo AND asientosDisponibles > 0
+                     AND fechaSalidaVuelo >= CURDATE()";
+        $resCheck = mysqli_query($link, $sqlCheck);
+        if ($resCheck && mysqli_num_rows($resCheck) > 0) {
+            $fechaHoy = date('Y-m-d');
+            $sqlIns = "INSERT INTO RESERVAS (codUsuario, codVuelo, fechaReserva, estadoReserva)
+                       VALUES ($codUsuario, $codVuelo, '$fechaHoy', 'pendiente de pago')";
+            if (mysqli_query($link, $sqlIns)) {
+                mysqli_query($link, "UPDATE VUELOS SET asientosDisponibles = asientosDisponibles - 1
+                                     WHERE codVuelo = $codVuelo AND asientosDisponibles > 0");
+                header('Location: mis_reservas.php?reservaCreada=1');
+                exit;
+            } else {
+                $mensajeError = 'No se pudo crear la reserva. Intentá de nuevo.';
+            }
+        } else {
+            $mensajeError = 'El vuelo ya no tiene asientos disponibles o ha salido.';
+        }
+    } else {
+        $mensajeError = 'Vuelo inválido.';
+    }
+}
+
+// Cargar datos del vuelo desde GET
+$codVueloGet = isset($_GET['codVuelo']) ? (int)$_GET['codVuelo'] : 0;
+$vuelo = null;
+if ($codVueloGet > 0) {
+    $sqlVuelo = "SELECT v.codVuelo, v.origenVuelo, v.destinoVuelo,
+                        v.fechaSalidaVuelo, v.horaSalidaVuelo,
+                        v.precioVuelo, v.asientosDisponibles,
+                        a.nombreAerolinea,
+                        p.descuentoPromocion
+                 FROM VUELOS v
+                 JOIN AEROLINEAS a ON v.codAerolinea = a.codAerolinea
+                 LEFT JOIN PROMOCIONES p
+                   ON p.codAerolinea = v.codAerolinea
+                  AND p.estadoPromocion = 'aprobada'
+                 WHERE v.codVuelo = $codVueloGet
+                   AND v.asientosDisponibles > 0
+                   AND v.fechaSalidaVuelo >= CURDATE()";
+    $resVuelo = mysqli_query($link, $sqlVuelo);
+    $vuelo = $resVuelo ? mysqli_fetch_assoc($resVuelo) : null;
+}
+
+if (!$vuelo) {
+    header('Location: buscar_vuelos.php?error=vuelo_no_disponible');
+    exit;
+}
+
+$codFmt      = str_pad((string)$vuelo['codVuelo'], 4, '0', STR_PAD_LEFT);
+$origenCod   = mb_strtoupper(mb_substr($vuelo['origenVuelo'],  0, 3));
+$destinoCod  = mb_strtoupper(mb_substr($vuelo['destinoVuelo'], 0, 3));
+$descuento   = (float)($vuelo['descuentoPromocion'] ?? 0);
+$precioBase  = (float)$vuelo['precioVuelo'];
+$precioFinal = $descuento > 0 ? $precioBase * (1 - $descuento / 100) : $precioBase;
+$ahorro      = $precioBase - $precioFinal;
+$fechaFmt    = date('j \d\e F \d\e Y', strtotime($vuelo['fechaSalidaVuelo']));
+$horaFmt     = substr($vuelo['horaSalidaVuelo'], 0, 5);
 ?>
 
 <!DOCTYPE html>
@@ -65,11 +139,13 @@ if (!isset($_SESSION['codUsuario'])) {
 
           <div class="col-lg-7">
 
-            <!--
-              TODO: Los datos de este card se poblarán dinámicamente
-              con PHP haciendo un SELECT a la tabla VUELOS usando el
-              codVuelo recibido por GET ($_GET['codVuelo']).
-            -->
+                <?php if (!empty($mensajeError)): ?>
+            <div class="alert alert-danger mb-4" role="alert">
+              <i class="bi bi-exclamation-triangle me-2" aria-hidden="true"></i>
+              <?= htmlspecialchars($mensajeError, ENT_QUOTES, 'UTF-8') ?>
+            </div>
+            <?php endif; ?>
+
             <div class="card border-0 shadow-sm tarjeta-resumen-vuelo mb-4">
               <div class="card-body p-4">
 
@@ -79,21 +155,25 @@ if (!isset($_SESSION['codUsuario'])) {
                     Detalle del vuelo
                   </h2>
                   <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
-                    Cód: <?= htmlspecialchars($_GET['codVuelo'] ?? '0001') ?>
+                    Cód: <?= $codFmt ?>
                   </span>
                 </div>
 
                 <div class="d-flex align-items-center justify-content-center py-3 mb-3">
                   <div class="text-center">
-                    <div class="codigo-iata text-dark fw-bold">ROS</div>
-                    <small class="text-secondary text-uppercase">Rosario</small>
+                    <div class="codigo-iata text-dark fw-bold"><?= $origenCod ?></div>
+                    <small class="text-secondary text-uppercase">
+                      <?= htmlspecialchars($vuelo['origenVuelo'], ENT_QUOTES, 'UTF-8') ?>
+                    </small>
                   </div>
                   <div class="linea-ruta mx-3" aria-hidden="true"></div>
                   <i class="bi bi-airplane-fill text-primary fs-4 mx-2" aria-hidden="true"></i>
                   <div class="linea-ruta mx-3" aria-hidden="true"></div>
                   <div class="text-center">
-                    <div class="codigo-iata text-dark fw-bold">EZE</div>
-                    <small class="text-secondary text-uppercase">Buenos Aires</small>
+                    <div class="codigo-iata text-dark fw-bold"><?= $destinoCod ?></div>
+                    <small class="text-secondary text-uppercase">
+                      <?= htmlspecialchars($vuelo['destinoVuelo'], ENT_QUOTES, 'UTF-8') ?>
+                    </small>
                   </div>
                 </div>
 
@@ -102,36 +182,40 @@ if (!isset($_SESSION['codUsuario'])) {
                     <dt class="etiqueta-detalle">
                       <i class="bi bi-building me-1" aria-hidden="true"></i>Aerolínea
                     </dt>
-                    <dd class="valor-detalle mb-0">Aerolíneas Argentinas</dd>
+                    <dd class="valor-detalle mb-0">
+                      <?= htmlspecialchars($vuelo['nombreAerolinea'], ENT_QUOTES, 'UTF-8') ?>
+                    </dd>
                   </div>
                   <div class="fila-detalle">
                     <dt class="etiqueta-detalle">
                       <i class="bi bi-calendar3 me-1" aria-hidden="true"></i>Fecha de salida
                     </dt>
                     <dd class="valor-detalle mb-0">
-                      <time datetime="2026-05-15T08:30">15 de mayo de 2026 · 08:30 hs</time>
+                      <time datetime="<?= htmlspecialchars($vuelo['fechaSalidaVuelo'], ENT_QUOTES, 'UTF-8') ?>T<?= $horaFmt ?>">
+                        <?= $fechaFmt ?> · <?= $horaFmt ?> hs
+                      </time>
                     </dd>
-                  </div>
-                  <div class="fila-detalle">
-                    <dt class="etiqueta-detalle">
-                      <i class="bi bi-clock me-1" aria-hidden="true"></i>Duración
-                    </dt>
-                    <dd class="valor-detalle mb-0">2h 10min · Vuelo directo</dd>
                   </div>
                   <div class="fila-detalle">
                     <dt class="etiqueta-detalle">
                       <i class="bi bi-people-fill me-1" aria-hidden="true"></i>Asientos disponibles
                     </dt>
-                    <dd class="valor-detalle mb-0 text-success">32 asientos</dd>
+                    <dd class="valor-detalle mb-0 text-success">
+                      <?= (int)$vuelo['asientosDisponibles'] ?> asientos
+                    </dd>
                   </div>
                   <div class="fila-detalle">
                     <dt class="etiqueta-detalle">
                       <i class="bi bi-tag-fill me-1" aria-hidden="true"></i>Promoción aplicada
                     </dt>
                     <dd class="mb-0">
-                      <span class="badge bg-success-subtle text-success border border-success-subtle">
-                        15% de descuento
-                      </span>
+                      <?php if ($descuento > 0): ?>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle">
+                          <?= (int)$descuento ?>% de descuento
+                        </span>
+                      <?php else: ?>
+                        <span class="text-secondary small">Sin promo activa</span>
+                      <?php endif; ?>
                     </dd>
                   </div>
                 </dl>
@@ -147,28 +231,30 @@ if (!isset($_SESSION['codUsuario'])) {
                   Datos del pasajero
                 </h2>
 
-                <!--
-                  TODO: Estos datos se obtendrán de $_SESSION una vez
-                  integrada la autenticación con BD.
-                -->
                 <dl>
                   <div class="fila-detalle">
                     <dt class="etiqueta-detalle">
                       <i class="bi bi-person me-1" aria-hidden="true"></i>Usuario
                     </dt>
-                    <dd class="valor-detalle mb-0">juan_perez</dd>
+                    <dd class="valor-detalle mb-0">
+                      <?= htmlspecialchars($usuario['nombreUsuario'] ?? '', ENT_QUOTES, 'UTF-8') ?>
+                    </dd>
                   </div>
                   <div class="fila-detalle">
                     <dt class="etiqueta-detalle">
                       <i class="bi bi-envelope me-1" aria-hidden="true"></i>Email
                     </dt>
-                    <dd class="valor-detalle mb-0">juan@correo.com</dd>
+                    <dd class="valor-detalle mb-0">
+                      <?= htmlspecialchars($usuario['emailUsuario'] ?? '—', ENT_QUOTES, 'UTF-8') ?>
+                    </dd>
                   </div>
                   <div class="fila-detalle">
                     <dt class="etiqueta-detalle">
                       <i class="bi bi-telephone me-1" aria-hidden="true"></i>Teléfono
                     </dt>
-                    <dd class="valor-detalle mb-0">+54 341 555-1234</dd>
+                    <dd class="valor-detalle mb-0">
+                      <?= htmlspecialchars($usuario['telefonoUsuario'] ?? '—', ENT_QUOTES, 'UTF-8') ?>
+                    </dd>
                   </div>
                 </dl>
 
@@ -193,15 +279,17 @@ if (!isset($_SESSION['codUsuario'])) {
 
                 <div class="fila-detalle">
                   <span class="etiqueta-detalle">Precio base</span>
-                  <span>ARS 57.059</span>
+                  <span>ARS <?= number_format($precioBase, 0, ',', '.') ?></span>
                 </div>
+                <?php if ($descuento > 0): ?>
                 <div class="fila-detalle">
-                  <span class="etiqueta-detalle">Descuento (15%)</span>
-                  <span class="text-success">- ARS 8.559</span>
+                  <span class="etiqueta-detalle">Descuento (<?= (int)$descuento ?>%)</span>
+                  <span class="text-success">- ARS <?= number_format($ahorro, 0, ',', '.') ?></span>
                 </div>
+                <?php endif; ?>
                 <div class="fila-detalle">
                   <span class="fw-bold">Total a pagar</span>
-                  <span class="fw-bold fs-5 text-dark">ARS 48.500</span>
+                  <span class="fw-bold fs-5 text-dark">ARS <?= number_format($precioFinal, 0, ',', '.') ?></span>
                 </div>
 
                 <div class="alert alert-info small py-2 mt-3 mb-0" role="note">
@@ -214,18 +302,12 @@ if (!isset($_SESSION['codUsuario'])) {
               </div>
             </div>
 
-            <!--
-              El codVuelo viaja como campo oculto para no depender
-              del GET (que el usuario podría modificar).
-              TODO: En etapa de integración con BD, este form insertará
-              un registro en RESERVAS y decrementará asientosDisponibles.
-            -->
             <form action="reservar_vuelo.php" method="post"
                   class="card border-0 shadow-sm p-4"
                   aria-label="Formulario de confirmación de reserva">
 
               <input type="hidden" name="codVuelo"
-                     value="<?= htmlspecialchars($_GET['codVuelo'] ?? '0001') ?>"/>
+                     value="<?= (int)$vuelo['codVuelo'] ?>"/>
 
               <h2 class="h6 fw-bold mb-3">
                 <i class="bi bi-check2-circle me-2 text-primary" aria-hidden="true"></i>

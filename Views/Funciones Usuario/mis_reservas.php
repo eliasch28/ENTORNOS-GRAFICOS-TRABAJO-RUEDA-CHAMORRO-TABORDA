@@ -5,6 +5,74 @@ if (!isset($_SESSION['codUsuario'])) {
     header('Location: ../Flujo Sesion/login.php');
     exit;
 }
+
+$codUsuario   = (int)$_SESSION['codUsuario'];
+$mensajeExito = '';
+$mensajeError = '';
+
+// Acciones POST: confirmar o cancelar
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $accion     = $_POST['accion']     ?? '';
+    $codReserva = isset($_POST['codReserva']) ? (int)$_POST['codReserva'] : 0;
+
+    if ($codReserva > 0) {
+        // Verificar que la reserva pertenece al usuario
+        $sqlRes = "SELECT r.codReserva, r.estadoReserva,
+                          v.fechaSalidaVuelo, v.horaSalidaVuelo, v.codVuelo
+                   FROM RESERVAS r
+                   JOIN VUELOS v ON r.codVuelo = v.codVuelo
+                   WHERE r.codReserva = $codReserva AND r.codUsuario = $codUsuario";
+        $resRes = mysqli_query($link, $sqlRes);
+        $reserva = $resRes ? mysqli_fetch_assoc($resRes) : null;
+
+        if ($reserva) {
+            if ($accion === 'confirmar' && $reserva['estadoReserva'] === 'pendiente de pago') {
+                mysqli_query($link, "UPDATE RESERVAS SET estadoReserva = 'confirmada'
+                                     WHERE codReserva = $codReserva");
+                $mensajeExito = 'Reserva confirmada correctamente.';
+
+            } elseif ($accion === 'cancelar' && $reserva['estadoReserva'] !== 'cancelada') {
+                $salidaTs   = strtotime($reserva['fechaSalidaVuelo'] . ' ' . $reserva['horaSalidaVuelo']);
+                $limiteTs   = $salidaTs - (72 * 3600);
+                if (time() <= $limiteTs) {
+                    mysqli_query($link, "UPDATE RESERVAS SET estadoReserva = 'cancelada'
+                                         WHERE codReserva = $codReserva");
+                    mysqli_query($link, "UPDATE VUELOS SET asientosDisponibles = asientosDisponibles + 1
+                                         WHERE codVuelo = {$reserva['codVuelo']}");
+                    $mensajeExito = 'Reserva cancelada. El asiento fue liberado.';
+                } else {
+                    $mensajeError = 'No es posible cancelar: ya pasaron las 72 horas previas al vuelo.';
+                }
+            }
+        } else {
+            $mensajeError = 'Reserva no encontrada.';
+        }
+    }
+}
+
+// Filtro por estado
+$estadoFiltro = $_GET['estado'] ?? '';
+$estadosValidos = ['pendiente de pago', 'confirmada', 'cancelada'];
+$whereEstado = '';
+if ($estadoFiltro !== '' && in_array($estadoFiltro, $estadosValidos, true)) {
+    $e = mysqli_real_escape_string($link, $estadoFiltro);
+    $whereEstado = "AND r.estadoReserva = '$e'";
+}
+
+$sqlReservas = "SELECT r.codReserva, r.estadoReserva, r.fechaReserva,
+                       v.codVuelo, v.origenVuelo, v.destinoVuelo,
+                       v.fechaSalidaVuelo, v.horaSalidaVuelo,
+                       a.nombreAerolinea,
+                       p.descuentoPromocion, v.precioVuelo
+                FROM RESERVAS r
+                JOIN VUELOS v ON r.codVuelo = v.codVuelo
+                JOIN AEROLINEAS a ON v.codAerolinea = a.codAerolinea
+                LEFT JOIN PROMOCIONES p
+                  ON p.codAerolinea = v.codAerolinea
+                 AND p.estadoPromocion = 'aprobada'
+                WHERE r.codUsuario = $codUsuario $whereEstado
+                ORDER BY r.fechaReserva DESC, r.codReserva DESC";
+$resReservas = mysqli_query($link, $sqlReservas);
 ?>
 
 <!DOCTYPE html>
@@ -61,273 +129,205 @@ if (!isset($_SESSION['codUsuario'])) {
           </form>
         </div>
 
-        <!--
-          TODO: Esta lista se generará dinámicamente con PHP
-          haciendo un SELECT a la tabla RESERVAS donde
-          codUsuario = $_SESSION['codUsuario'].
-        -->
+        <?php if (!empty($mensajeExito)): ?>
+          <div class="alert alert-success mb-4" role="status">
+            <i class="bi bi-check-circle me-2" aria-hidden="true"></i>
+            <?= htmlspecialchars($mensajeExito, ENT_QUOTES, 'UTF-8') ?>
+          </div>
+        <?php elseif (!empty($mensajeError)): ?>
+          <div class="alert alert-danger mb-4" role="alert">
+            <i class="bi bi-exclamation-triangle me-2" aria-hidden="true"></i>
+            <?= htmlspecialchars($mensajeError, ENT_QUOTES, 'UTF-8') ?>
+          </div>
+        <?php endif; ?>
+
+        <?php if (isset($_GET['reservaCreada'])): ?>
+          <div class="alert alert-success mb-4" role="status">
+            <i class="bi bi-calendar2-check me-2" aria-hidden="true"></i>
+            Reserva creada correctamente. Quedó en estado <strong>pendiente de pago</strong>.
+          </div>
+        <?php endif; ?>
+
         <ul class="list-unstyled" role="list" aria-label="Lista de mis reservas">
 
-          <li class="mb-4" role="listitem">
-            <article class="card border-0 shadow-sm reserva-estado-pendiente"
-                     aria-label="Reserva 0001: Rosario a Buenos Aires, pendiente de pago">
-              <div class="card-body p-4">
+          <?php if ($resReservas && mysqli_num_rows($resReservas) > 0): ?>
+            <?php while ($r = mysqli_fetch_assoc($resReservas)):
+              $estado     = $r['estadoReserva'];
+              $codFmt     = str_pad((string)$r['codReserva'], 4, '0', STR_PAD_LEFT);
+              $origenCod  = mb_strtoupper(mb_substr($r['origenVuelo'],  0, 3));
+              $destinoCod = mb_strtoupper(mb_substr($r['destinoVuelo'], 0, 3));
+              $descuento  = (float)($r['descuentoPromocion'] ?? 0);
+              $precioBase = (float)$r['precioVuelo'];
+              $precioFinal = $descuento > 0 ? $precioBase * (1 - $descuento / 100) : $precioBase;
+              $fechaVueloFmt  = date('j M Y', strtotime($r['fechaSalidaVuelo']));
+              $horaVueloFmt   = substr($r['horaSalidaVuelo'], 0, 5);
+              $fechaReservaFmt = date('j \d\e F \d\e Y', strtotime($r['fechaReserva']));
 
-                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
-                  <div>
-                    <h2 class="h6 fw-bold mb-1">
-                      <i class="bi bi-airplane-fill text-primary me-2" aria-hidden="true"></i>
-                      Reserva N° 0001
-                    </h2>
-                    <small class="text-secondary">
-                      <i class="bi bi-calendar3 me-1" aria-hidden="true"></i>
-                      Reservada el <time datetime="2026-05-01">1 de mayo de 2026</time>
-                    </small>
-                  </div>
-                  <span class="badge bg-warning-subtle text-warning border border-warning-subtle fs-6 px-3 py-2">
-                    <i class="bi bi-hourglass-split me-1" aria-hidden="true"></i>
-                    Pendiente de pago
-                  </span>
-                </div>
+              $salidaTs   = strtotime($r['fechaSalidaVuelo'] . ' ' . $r['horaSalidaVuelo']);
+              $limiteTs   = $salidaTs - (72 * 3600);
+              $puedeCancelar = ($estado !== 'cancelada' && time() <= $limiteTs);
+              $limiteStr  = date('j \d\e F \d\e Y \a \l\a\s H:i \h\s', $limiteTs);
 
-                <div class="row g-3">
+              switch ($estado) {
+                case 'pendiente de pago':
+                  $cardClass  = 'reserva-estado-pendiente';
+                  $badgeClass = 'bg-warning-subtle text-warning border-warning-subtle';
+                  $badgeIcon  = 'bi-hourglass-split';
+                  $badgeLabel = 'Pendiente de pago';
+                  $iconColor  = 'text-primary';
+                  break;
+                case 'confirmada':
+                  $cardClass  = 'reserva-estado-confirmada';
+                  $badgeClass = 'bg-success-subtle text-success border-success-subtle';
+                  $badgeIcon  = 'bi-check-circle-fill';
+                  $badgeLabel = 'Confirmada';
+                  $iconColor  = 'text-primary';
+                  break;
+                default:
+                  $cardClass  = 'reserva-estado-cancelada';
+                  $badgeClass = 'bg-secondary-subtle text-secondary border-secondary-subtle';
+                  $badgeIcon  = 'bi-x-circle';
+                  $badgeLabel = 'Cancelada';
+                  $iconColor  = 'text-secondary';
+              }
+            ?>
+            <li class="mb-4" role="listitem">
+              <article class="card border-0 shadow-sm <?= $cardClass ?>"
+                       aria-label="Reserva <?= $codFmt ?>: <?= htmlspecialchars($r['origenVuelo'], ENT_QUOTES, 'UTF-8') ?> a <?= htmlspecialchars($r['destinoVuelo'], ENT_QUOTES, 'UTF-8') ?>, <?= htmlspecialchars($badgeLabel, ENT_QUOTES, 'UTF-8') ?>">
+                <div class="card-body p-4">
 
-                  <div class="col-md-5">
-                    <div class="d-flex align-items-center mb-2">
-                      <div class="text-center">
-                        <div class="codigo-iata text-dark fw-bold">ROS</div>
-                        <small class="text-secondary text-uppercase">Rosario</small>
-                      </div>
-                      <div class="linea-ruta mx-3" aria-hidden="true"></div>
-                      <i class="bi bi-airplane-fill text-primary mx-1" aria-hidden="true"></i>
-                      <div class="linea-ruta mx-3" aria-hidden="true"></div>
-                      <div class="text-center">
-                        <div class="codigo-iata text-dark fw-bold">EZE</div>
-                        <small class="text-secondary text-uppercase">Buenos Aires</small>
-                      </div>
+                  <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+                    <div>
+                      <h2 class="h6 fw-bold mb-1">
+                        <i class="bi bi-airplane-fill <?= $iconColor ?> me-2" aria-hidden="true"></i>
+                        Reserva N° <?= $codFmt ?>
+                      </h2>
+                      <small class="text-secondary">
+                        <i class="bi bi-calendar3 me-1" aria-hidden="true"></i>
+                        Reservada el <time datetime="<?= htmlspecialchars($r['fechaReserva'], ENT_QUOTES, 'UTF-8') ?>">
+                          <?= $fechaReservaFmt ?>
+                        </time>
+                      </small>
                     </div>
-                    <small class="text-secondary">
-                      <i class="bi bi-clock me-1" aria-hidden="true"></i>
-                      <time datetime="2026-05-15T08:30">15 May 2026 · 08:30 hs</time>
-                      · 2h 10min · Directo
-                    </small>
+                    <span class="badge <?= $badgeClass ?> border fs-6 px-3 py-2">
+                      <i class="bi <?= $badgeIcon ?> me-1" aria-hidden="true"></i>
+                      <?= htmlspecialchars($badgeLabel, ENT_QUOTES, 'UTF-8') ?>
+                    </span>
                   </div>
 
-                  <div class="col-md-4">
-                    <dl class="mb-0">
-                      <div class="fila-detalle">
-                        <dt class="etiqueta-detalle">Aerolínea</dt>
-                        <dd class="valor-detalle mb-0">Aer. Argentinas</dd>
+                  <div class="row g-3">
+
+                    <div class="col-md-5">
+                      <div class="d-flex align-items-center mb-2">
+                        <div class="text-center">
+                          <div class="codigo-iata <?= $iconColor ?> fw-bold"><?= $origenCod ?></div>
+                          <small class="text-secondary text-uppercase">
+                            <?= htmlspecialchars($r['origenVuelo'], ENT_QUOTES, 'UTF-8') ?>
+                          </small>
+                        </div>
+                        <div class="linea-ruta mx-3" aria-hidden="true"></div>
+                        <i class="bi bi-airplane-fill <?= $iconColor ?> mx-1" aria-hidden="true"></i>
+                        <div class="linea-ruta mx-3" aria-hidden="true"></div>
+                        <div class="text-center">
+                          <div class="codigo-iata <?= $iconColor ?> fw-bold"><?= $destinoCod ?></div>
+                          <small class="text-secondary text-uppercase">
+                            <?= htmlspecialchars($r['destinoVuelo'], ENT_QUOTES, 'UTF-8') ?>
+                          </small>
+                        </div>
                       </div>
-                      <div class="fila-detalle">
-                        <dt class="etiqueta-detalle">Promoción</dt>
-                        <dd class="mb-0">
-                          <span class="badge bg-success-subtle text-success border border-success-subtle">
-                            15% OFF
-                          </span>
-                        </dd>
-                      </div>
-                      <div class="fila-detalle">
-                        <dt class="etiqueta-detalle">Total</dt>
-                        <dd class="valor-detalle mb-0 text-dark">ARS 48.500</dd>
-                      </div>
-                    </dl>
-                  </div>
-
-                  <div class="col-md-3 d-flex flex-column gap-2 justify-content-center">
-                    <form action="mis_reservas.php" method="post">
-                      <input type="hidden" name="accion" value="confirmar"/>
-                      <input type="hidden" name="codReserva" value="0001"/>
-                      <button type="submit" class="btn btn-success w-100 btn-sm">
-                        <i class="bi bi-check-circle me-1" aria-hidden="true"></i>
-                        Confirmar / Pagar
-                      </button>
-                    </form>
-                    <form action="mis_reservas.php" method="post">
-                      <input type="hidden" name="accion" value="cancelar"/>
-                      <input type="hidden" name="codReserva" value="0001"/>
-                      <button type="submit" class="btn btn-outline-danger w-100 btn-sm">
-                        <i class="bi bi-x-circle me-1" aria-hidden="true"></i>
-                        Cancelar reserva
-                      </button>
-                    </form>
-                  </div>
-
-                </div>
-
-                <div class="alert alert-warning py-2 mt-3 mb-0 small" role="note">
-                  <i class="bi bi-info-circle me-1" aria-hidden="true"></i>
-                  Podés cancelar esta reserva hasta <strong>72 horas antes</strong>
-                  de la salida del vuelo (hasta el 12 de mayo de 2026 a las 08:30 hs).
-                </div>
-
-              </div>
-            </article>
-          </li>
-
-          <li class="mb-4" role="listitem">
-            <article class="card border-0 shadow-sm reserva-estado-confirmada"
-                     aria-label="Reserva 0002: Córdoba a Mendoza, confirmada">
-              <div class="card-body p-4">
-
-                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
-                  <div>
-                    <h2 class="h6 fw-bold mb-1">
-                      <i class="bi bi-airplane-fill text-primary me-2" aria-hidden="true"></i>
-                      Reserva N° 0002
-                    </h2>
-                    <small class="text-secondary">
-                      <i class="bi bi-calendar3 me-1" aria-hidden="true"></i>
-                      Reservada el <time datetime="2026-04-20">20 de abril de 2026</time>
-                    </small>
-                  </div>
-                  <span class="badge bg-success-subtle text-success border border-success-subtle fs-6 px-3 py-2">
-                    <i class="bi bi-check-circle-fill me-1" aria-hidden="true"></i>
-                    Confirmada
-                  </span>
-                </div>
-
-                <div class="row g-3">
-
-                  <div class="col-md-5">
-                    <div class="d-flex align-items-center mb-2">
-                      <div class="text-center">
-                        <div class="codigo-iata text-dark fw-bold">COR</div>
-                        <small class="text-secondary text-uppercase">Córdoba</small>
-                      </div>
-                      <div class="linea-ruta mx-3" aria-hidden="true"></div>
-                      <i class="bi bi-airplane-fill text-primary mx-1" aria-hidden="true"></i>
-                      <div class="linea-ruta mx-3" aria-hidden="true"></div>
-                      <div class="text-center">
-                        <div class="codigo-iata text-dark fw-bold">MDZ</div>
-                        <small class="text-secondary text-uppercase">Mendoza</small>
-                      </div>
+                      <small class="text-secondary">
+                        <i class="bi bi-clock me-1" aria-hidden="true"></i>
+                        <time datetime="<?= htmlspecialchars($r['fechaSalidaVuelo'], ENT_QUOTES, 'UTF-8') ?>T<?= $horaVueloFmt ?>">
+                          <?= $fechaVueloFmt ?> · <?= $horaVueloFmt ?> hs
+                        </time>
+                      </small>
                     </div>
-                    <small class="text-secondary">
-                      <i class="bi bi-clock me-1" aria-hidden="true"></i>
-                      <time datetime="2026-05-20T11:00">20 May 2026 · 11:00 hs</time>
-                      · 1h 45min · Directo
-                    </small>
-                  </div>
 
-                  <div class="col-md-4">
-                    <dl class="mb-0">
-                      <div class="fila-detalle">
-                        <dt class="etiqueta-detalle">Aerolínea</dt>
-                        <dd class="valor-detalle mb-0">Flybondi</dd>
-                      </div>
-                      <div class="fila-detalle">
-                        <dt class="etiqueta-detalle">Promoción</dt>
-                        <dd class="mb-0">
-                          <span class="badge bg-success-subtle text-success border border-success-subtle">
-                            30% OFF
-                          </span>
-                        </dd>
-                      </div>
-                      <div class="fila-detalle">
-                        <dt class="etiqueta-detalle">Total pagado</dt>
-                        <dd class="valor-detalle mb-0 text-dark">ARS 29.990</dd>
-                      </div>
-                    </dl>
-                  </div>
-
-                  <div class="col-md-3 d-flex flex-column gap-2 justify-content-center">
-                    <form action="mis_reservas.php" method="post">
-                      <input type="hidden" name="accion" value="cancelar"/>
-                      <input type="hidden" name="codReserva" value="0002"/>
-                      <button type="submit" class="btn btn-outline-danger w-100 btn-sm">
-                        <i class="bi bi-x-circle me-1" aria-hidden="true"></i>
-                        Cancelar reserva
-                      </button>
-                    </form>
-                  </div>
-
-                </div>
-
-                <div class="alert alert-success py-2 mt-3 mb-0 small" role="note">
-                  <i class="bi bi-check-circle me-1" aria-hidden="true"></i>
-                  Reserva confirmada. Podés cancelar hasta el
-                  <strong>17 de mayo de 2026 a las 11:00 hs</strong>.
-                </div>
-
-              </div>
-            </article>
-          </li>
-
-          <li class="mb-4" role="listitem">
-            <article class="card border-0 shadow-sm reserva-estado-cancelada"
-                     aria-label="Reserva 0003: Buenos Aires a Santiago, cancelada">
-              <div class="card-body p-4">
-
-                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
-                  <div>
-                    <h2 class="h6 fw-bold mb-1">
-                      <i class="bi bi-airplane-fill text-secondary me-2" aria-hidden="true"></i>
-                      Reserva N° 0003
-                    </h2>
-                    <small class="text-secondary">
-                      <i class="bi bi-calendar3 me-1" aria-hidden="true"></i>
-                      Reservada el <time datetime="2026-04-10">10 de abril de 2026</time>
-                    </small>
-                  </div>
-                  <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle fs-6 px-3 py-2">
-                    <i class="bi bi-x-circle me-1" aria-hidden="true"></i>
-                    Cancelada
-                  </span>
-                </div>
-
-                <div class="row g-3">
-
-                  <div class="col-md-5">
-                    <div class="d-flex align-items-center mb-2">
-                      <div class="text-center">
-                        <div class="codigo-iata text-secondary fw-bold">AEP</div>
-                        <small class="text-secondary text-uppercase">Bs. Aires</small>
-                      </div>
-                      <div class="linea-ruta mx-3" aria-hidden="true"></div>
-                      <i class="bi bi-airplane-fill text-secondary mx-1" aria-hidden="true"></i>
-                      <div class="linea-ruta mx-3" aria-hidden="true"></div>
-                      <div class="text-center">
-                        <div class="codigo-iata text-secondary fw-bold">SCL</div>
-                        <small class="text-secondary text-uppercase">Santiago</small>
-                      </div>
+                    <div class="col-md-4">
+                      <dl class="mb-0">
+                        <div class="fila-detalle">
+                          <dt class="etiqueta-detalle">Aerolínea</dt>
+                          <dd class="valor-detalle mb-0">
+                            <?= htmlspecialchars($r['nombreAerolinea'], ENT_QUOTES, 'UTF-8') ?>
+                          </dd>
+                        </div>
+                        <div class="fila-detalle">
+                          <dt class="etiqueta-detalle">Promoción</dt>
+                          <dd class="mb-0">
+                            <?php if ($descuento > 0): ?>
+                              <span class="badge bg-success-subtle text-success border border-success-subtle">
+                                <?= (int)$descuento ?>% OFF
+                              </span>
+                            <?php else: ?>
+                              <span class="text-secondary small">Sin promo activa</span>
+                            <?php endif; ?>
+                          </dd>
+                        </div>
+                        <div class="fila-detalle">
+                          <dt class="etiqueta-detalle"><?= $estado === 'confirmada' ? 'Total pagado' : 'Total' ?></dt>
+                          <dd class="valor-detalle mb-0 <?= $estado === 'cancelada' ? 'text-secondary' : 'text-dark' ?>">
+                            ARS <?= number_format($precioFinal, 0, ',', '.') ?>
+                          </dd>
+                        </div>
+                      </dl>
                     </div>
-                    <small class="text-secondary">
-                      <i class="bi bi-clock me-1" aria-hidden="true"></i>
-                      <time datetime="2026-05-18T14:15">18 May 2026 · 14:15 hs</time>
-                      · 3h 50min · Directo
-                    </small>
+
+                    <div class="col-md-3 d-flex flex-column gap-2 justify-content-center">
+                      <?php if ($estado === 'pendiente de pago'): ?>
+                        <form action="mis_reservas.php" method="post">
+                          <input type="hidden" name="accion" value="confirmar"/>
+                          <input type="hidden" name="codReserva" value="<?= (int)$r['codReserva'] ?>"/>
+                          <button type="submit" class="btn btn-success w-100 btn-sm">
+                            <i class="bi bi-check-circle me-1" aria-hidden="true"></i>
+                            Confirmar / Pagar
+                          </button>
+                        </form>
+                      <?php endif; ?>
+                      <?php if ($puedeCancelar): ?>
+                        <form action="mis_reservas.php" method="post">
+                          <input type="hidden" name="accion" value="cancelar"/>
+                          <input type="hidden" name="codReserva" value="<?= (int)$r['codReserva'] ?>"/>
+                          <button type="submit" class="btn btn-outline-danger w-100 btn-sm">
+                            <i class="bi bi-x-circle me-1" aria-hidden="true"></i>
+                            Cancelar reserva
+                          </button>
+                        </form>
+                      <?php elseif ($estado === 'cancelada'): ?>
+                        <p class="text-secondary small text-center mb-0">
+                          <i class="bi bi-slash-circle me-1" aria-hidden="true"></i>
+                          Sin acciones disponibles
+                        </p>
+                      <?php endif; ?>
+                    </div>
+
                   </div>
 
-                  <div class="col-md-4">
-                    <dl class="mb-0">
-                      <div class="fila-detalle">
-                        <dt class="etiqueta-detalle">Aerolínea</dt>
-                        <dd class="valor-detalle mb-0 text-secondary">LATAM Airlines</dd>
+                  <?php if ($estado !== 'cancelada'): ?>
+                    <?php if ($puedeCancelar): ?>
+                      <div class="alert <?= $estado === 'confirmada' ? 'alert-success' : 'alert-warning' ?> py-2 mt-3 mb-0 small" role="note">
+                        <i class="bi bi-info-circle me-1" aria-hidden="true"></i>
+                        Podés cancelar hasta el <strong><?= $limiteStr ?></strong>.
                       </div>
-                      <div class="fila-detalle">
-                        <dt class="etiqueta-detalle">Promoción</dt>
-                        <dd class="mb-0 text-secondary">Sin promo activa</dd>
+                    <?php else: ?>
+                      <div class="alert alert-secondary py-2 mt-3 mb-0 small" role="note">
+                        <i class="bi bi-lock me-1" aria-hidden="true"></i>
+                        Ya no es posible cancelar: pasaron las 72 horas previas al vuelo.
                       </div>
-                      <div class="fila-detalle">
-                        <dt class="etiqueta-detalle">Total</dt>
-                        <dd class="valor-detalle mb-0 text-secondary">ARS 124.900</dd>
-                      </div>
-                    </dl>
-                  </div>
-
-                  <div class="col-md-3 d-flex align-items-center justify-content-center">
-                    <p class="text-secondary small text-center mb-0">
-                      <i class="bi bi-slash-circle me-1" aria-hidden="true"></i>
-                      Sin acciones disponibles
-                    </p>
-                  </div>
+                    <?php endif; ?>
+                  <?php endif; ?>
 
                 </div>
-
+              </article>
+            </li>
+            <?php endwhile; ?>
+          <?php else: ?>
+            <li role="listitem">
+              <div class="alert alert-info" role="status">
+                <i class="bi bi-info-circle me-2" aria-hidden="true"></i>
+                No tenés reservas<?= $estadoFiltro !== '' ? ' con ese estado' : '' ?>.
               </div>
-            </article>
-          </li>
+            </li>
+          <?php endif; ?>
 
         </ul>
 
