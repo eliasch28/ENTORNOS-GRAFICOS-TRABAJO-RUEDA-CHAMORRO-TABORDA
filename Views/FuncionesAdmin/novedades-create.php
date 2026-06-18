@@ -1,6 +1,48 @@
 <?php
 include '../../config/conexion.php';
 require_once '../../config/requiere_admin.php';
+
+$error = '';
+$exito = '';
+
+$textoNovedad             = '';
+$fechaPublicacionNovedad  = '';
+$fechaExpiracionNovedad   = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  $textoNovedad            = trim($_POST['textoNovedad'] ?? '');
+  $fechaPublicacionNovedad = trim($_POST['fechaPublicacionNovedad'] ?? '');
+  $fechaExpiracionNovedad  = trim($_POST['fechaExpiracionNovedad'] ?? '');
+  $hoy                     = date('Y-m-d');
+
+  if ($textoNovedad === '') {
+    $error = 'El texto de la novedad es obligatorio.';
+  } elseif (mb_strlen($textoNovedad) > 200) {
+    $error = 'El texto de la novedad no puede superar los 200 caracteres.';
+  } elseif ($fechaPublicacionNovedad === '') {
+    $error = 'La fecha de publicación es obligatoria.';
+  } elseif ($fechaExpiracionNovedad === '') {
+    $error = 'La fecha de expiración es obligatoria.';
+  } elseif ($fechaPublicacionNovedad <= $hoy) {
+    $error = 'La fecha de publicación debe ser posterior a hoy.';
+  } elseif ($fechaExpiracionNovedad <= $fechaPublicacionNovedad) {
+    $error = 'La fecha de expiración debe ser posterior a la fecha de publicación.';
+  } else {
+    $textoEsc = mysqli_real_escape_string($link, $textoNovedad);
+    $pubEsc   = mysqli_real_escape_string($link, $fechaPublicacionNovedad);
+    $expEsc   = mysqli_real_escape_string($link, $fechaExpiracionNovedad);
+
+    $query = "INSERT INTO NOVEDADES (textoNovedad, fechaPublicacionNovedad, fechaExpiracionNovedad)
+              VALUES ('$textoEsc', '$pubEsc', '$expEsc')";
+
+    if (mysqli_query($link, $query)) {
+      $exito = 'La novedad se registró correctamente.';
+      $textoNovedad = $fechaPublicacionNovedad = $fechaExpiracionNovedad = '';
+    } else {
+      $error = 'Ocurrió un error al registrar la novedad. Intentalo nuevamente.';
+    }
+  }
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -18,34 +60,97 @@ require_once '../../config/requiere_admin.php';
 
 <main id="contenido-principal" tabindex="-1" class="container my-5">
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h2">Alta de Nueva Novedad</h1>
-    <a href="novedades-index.php" class="btn btn-outline-secondary">Volver al Listado</a>
+    <div>
+      <h1 class="h2 mb-1">Alta de Nueva Novedad</h1>
+      <p class="text-secondary mb-0">Completá los datos para publicar un nuevo anuncio del sistema.</p>
+    </div>
+    <a href="novedades-index.php" class="btn btn-outline-secondary">
+      <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>Volver al listado
+    </a>
   </div>
 
-  <div class="card shadow-sm">
-    <div class="card-body">
-      <form action="novedades-store.php" method="POST">
-        <div class="mb-3">
-          <label for="titulo" class="form-label">Título del Anuncio <span class="text-danger">*</span></label>
-          <input type="text" class="form-control" id="titulo" name="titulo" required>
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-7">
+
+      <?php if (!empty($error)): ?>
+        <div class="alert alert-danger d-flex align-items-start" role="alert">
+          <i class="bi bi-exclamation-triangle-fill me-2" aria-hidden="true"></i>
+          <div><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
         </div>
-        <div class="mb-3">
-          <label for="descripcion" class="form-label">Descripción</label>
-          <textarea class="form-control" id="descripcion" name="descripcion" rows="4"></textarea>
+      <?php elseif (!empty($exito)): ?>
+        <div class="alert alert-success d-flex align-items-start" role="status">
+          <i class="bi bi-check-circle-fill me-2" aria-hidden="true"></i>
+          <div><?= htmlspecialchars($exito, ENT_QUOTES, 'UTF-8') ?></div>
         </div>
-        <div class="row mb-3">
+      <?php endif; ?>
+
+      <form action="novedades-create.php" method="POST" class="card border-0 shadow-sm p-4 p-md-5"
+        aria-label="Formulario de alta de nueva novedad">
+
+        <div class="mb-3">
+          <label for="textoNovedad" class="form-label fw-semibold">
+            <i class="bi bi-megaphone me-1" aria-hidden="true"></i>
+            Texto de la novedad
+            <span class="text-danger" aria-hidden="true">*</span>
+          </label>
+          <textarea
+            id="textoNovedad"
+            name="textoNovedad"
+            class="form-control"
+            rows="4"
+            maxlength="200"
+            required
+            aria-required="true"><?= htmlspecialchars($textoNovedad, ENT_QUOTES, 'UTF-8') ?></textarea>
+          <div class="form-text">Máximo 200 caracteres.</div>
+        </div>
+
+        <div class="row g-3">
           <div class="col-md-6">
-            <label for="fecha_publicacion" class="form-label">Fecha de Publicación <span class="text-danger">*</span></label>
-            <input type="date" class="form-control" id="fecha_publicacion" name="fecha_publicacion" required>
+            <label for="fechaPublicacionNovedad" class="form-label fw-semibold">
+              <i class="bi bi-calendar-plus me-1" aria-hidden="true"></i>
+              Fecha de publicación
+              <span class="text-danger" aria-hidden="true">*</span>
+            </label>
+            <input
+              type="date"
+              id="fechaPublicacionNovedad"
+              name="fechaPublicacionNovedad"
+              class="form-control"
+              required
+              min="<?= date('Y-m-d', strtotime('+1 day')) ?>"
+              value="<?= htmlspecialchars($fechaPublicacionNovedad, ENT_QUOTES, 'UTF-8') ?>"
+              aria-required="true" />
+            <div class="form-text">Debe ser posterior a hoy.</div>
           </div>
           <div class="col-md-6">
-            <label for="fecha_caducidad" class="form-label">Fecha de Caducidad <span class="text-danger">*</span></label>
-            <input type="date" class="form-control" id="fecha_caducidad" name="fecha_caducidad" required>
+            <label for="fechaExpiracionNovedad" class="form-label fw-semibold">
+              <i class="bi bi-calendar-x me-1" aria-hidden="true"></i>
+              Fecha de expiración
+              <span class="text-danger" aria-hidden="true">*</span>
+            </label>
+            <input
+              type="date"
+              id="fechaExpiracionNovedad"
+              name="fechaExpiracionNovedad"
+              class="form-control"
+              required
+              value="<?= htmlspecialchars($fechaExpiracionNovedad, ENT_QUOTES, 'UTF-8') ?>"
+              aria-required="true" />
+            <div class="form-text">Debe ser posterior a la fecha de publicación.</div>
           </div>
         </div>
-        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-          <button type="reset" class="btn btn-light me-md-2">Limpiar Campos</button>
-          <button type="submit" class="btn btn-success">Guardar Novedad</button>
+
+        <p class="text-secondary small mb-3 mt-3">
+          <span class="text-danger" aria-hidden="true">*</span> Todos los campos obligatorios deben estar completos.
+        </p>
+
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-2">
+          <button type="reset" class="btn btn-light me-md-2">
+            <i class="bi bi-eraser me-1" aria-hidden="true"></i>Limpiar campos
+          </button>
+          <button type="submit" class="btn btn-success">
+            <i class="bi bi-check-circle me-1" aria-hidden="true"></i>Guardar Novedad
+          </button>
         </div>
       </form>
     </div>
