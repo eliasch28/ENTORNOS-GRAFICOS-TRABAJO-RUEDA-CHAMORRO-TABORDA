@@ -4,6 +4,6 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 if (!isset($_SESSION['codUsuario']) || ($_SESSION['tipoUsuario'] ?? '') !== 'administrador') {
-    header('Location: ../Flujo Sesion/login.php');
+    header('Location: ../FlujoSesion/login.php');
     exit;
 }

@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                               SET tokenVerificacion = '$token', tokenVerificacionExp = DATE_ADD(NOW(), INTERVAL 24 HOUR)
                               WHERE codUsuario = $codUsuario");
 
-        $enlace = BASE_URL . '/Views/' . rawurlencode('Flujo Sesion') . '/verificar_email.php?token=' . $token;
+        $enlace = BASE_URL . '/Views/FlujoSesion/verificar_email.php?token=' . $token;
         $cuerpo = "<p>Hola <strong>{$usuario['nombreUsuario']}</strong>,</p>"
             . "<p>Confirmá tu cuenta de VuelaLibre haciendo clic en el siguiente enlace (válido por 24 horas):</p>"
             . "<p><a href=\"$enlace\">$enlace</a></p>";

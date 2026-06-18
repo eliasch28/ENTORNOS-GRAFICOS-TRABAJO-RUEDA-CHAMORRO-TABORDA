@@ -2,7 +2,7 @@
 include '../../config/conexion.php';
 session_start();
 if (!isset($_SESSION['codUsuario'])) {
-    header('Location: ../Flujo Sesion/login.php');
+    header('Location: ../FlujoSesion/login.php');
     exit;
 }
 ?>

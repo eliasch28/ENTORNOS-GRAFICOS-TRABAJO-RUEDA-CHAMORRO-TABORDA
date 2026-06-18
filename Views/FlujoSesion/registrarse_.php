@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       }
 
       // Si es cliente, enviamos el correo
-      $enlace = BASE_URL . '/Views/' . rawurlencode('Flujo Sesion') . '/verificar_email.php?token=' . $tokenVerificacion;
+      $enlace = BASE_URL . '/Views/FlujoSesion/verificar_email.php?token=' . $tokenVerificacion;
       $cuerpo = "<p>Hola <strong>$nombreUsuario</strong>,</p>"
           . "<p>Gracias por registrarte en VuelaLibre. Confirmá tu cuenta haciendo clic en el siguiente enlace (válido por 24 horas):</p>"
           . "<p><a href=\"$enlace\">$enlace</a></p>";

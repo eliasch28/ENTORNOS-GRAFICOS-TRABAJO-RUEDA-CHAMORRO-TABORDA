@@ -29,27 +29,27 @@
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="../Funciones Admin/aerolineas-index.php">
+              <a class="nav-link" href="../FuncionesAdmin/aerolineas-index.php">
                 <i class="bi bi-building me-1" aria-hidden="true"></i>Aerolíneas
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="../Funciones Admin/auditoria-promociones.php">
+              <a class="nav-link" href="../FuncionesAdmin/auditoria-promociones.php">
                 <i class="bi bi-tag me-1" aria-hidden="true"></i>Promociones
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="../Funciones Admin/novedades-index.php">
+              <a class="nav-link" href="../FuncionesAdmin/novedades-index.php">
                 <i class="bi bi-megaphone me-1" aria-hidden="true"></i>Novedades
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="../Funciones Admin/solicitudes-ceo.php">
+              <a class="nav-link" href="../FuncionesAdmin/solicitudes-ceo.php">
                 <i class="bi bi-person-check me-1" aria-hidden="true"></i>Solicitudes CEO
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="../Funciones Admin/global-reports.php">
+              <a class="nav-link" href="../FuncionesAdmin/global-reports.php">
                 <i class="bi bi-bar-chart-fill me-1" aria-hidden="true"></i>Reportes
               </a>
             </li>
@@ -63,17 +63,17 @@
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="../Funciones CEO/vuelos-index.php">
+              <a class="nav-link" href="../FuncionesCEO/vuelos-index.php">
                 <i class="bi bi-airplane me-1" aria-hidden="true"></i>Vuelos
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="../Funciones CEO/promociones-index.php">
+              <a class="nav-link" href="../FuncionesCEO/promociones-index.php">
                 <i class="bi bi-tag me-1" aria-hidden="true"></i>Promociones
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="../Funciones CEO/reportes-ceo.php">
+              <a class="nav-link" href="../FuncionesCEO/reportes-ceo.php">
                 <i class="bi bi-bar-chart-fill me-1" aria-hidden="true"></i>Reportes
               </a>
             </li>
@@ -87,27 +87,27 @@
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="../Funciones Usuario/buscar_vuelos.php">
+              <a class="nav-link" href="../FuncionesUsuario/buscar_vuelos.php">
                 <i class="bi bi-search me-1" aria-hidden="true"></i>Buscar Vuelos
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="../Funciones Usuario/mis_reservas.php">
+              <a class="nav-link" href="../FuncionesUsuario/mis_reservas.php">
                 <i class="bi bi-calendar2-check me-1" aria-hidden="true"></i>Mis Reservas
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="../Funciones Usuario/historial_compras.php">
+              <a class="nav-link" href="../FuncionesUsuario/historial_compras.php">
                 <i class="bi bi-clock-history me-1" aria-hidden="true"></i>Historial
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="../Funciones Usuario/novedades.php">
+              <a class="nav-link" href="../FuncionesUsuario/novedades.php">
                 <i class="bi bi-megaphone me-1" aria-hidden="true"></i>Novedades
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="../Funciones Usuario/promociones.php">
+              <a class="nav-link" href="../FuncionesUsuario/promociones.php">
                 <i class="bi bi-tag me-1" aria-hidden="true"></i>Promociones
               </a>
             </li>
@@ -135,12 +135,12 @@
 
         <div class="d-flex align-items-center gap-2">
           <?php if ($tipoUsuario): ?>
-            <a href="../Funciones Usuario/mi_perfil.php"
+            <a href="../FuncionesUsuario/mi_perfil.php"
                class="btn btn-light btn-sm text-primary fw-semibold">
               <i class="bi bi-person-circle me-1" aria-hidden="true"></i>
               Mi Perfil
             </a>
-            <form action="../Flujo Sesion/login.php" method="post" class="d-inline">
+            <form action="../FlujoSesion/login.php" method="post" class="d-inline">
               <input type="hidden" name="_logout" value="1"/>
               <button type="submit" class="btn btn-outline-light btn-sm"
                       aria-label="Cerrar sesión">
@@ -149,11 +149,11 @@
               </button>
             </form>
           <?php else: ?>
-            <a href="../Flujo Sesion/login.php" class="btn btn-outline-light btn-sm">
+            <a href="../FlujoSesion/login.php" class="btn btn-outline-light btn-sm">
               <i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>
               Iniciar Sesión
             </a>
-            <a href="../Flujo Sesion/registrarse_.php" class="btn btn-light btn-sm text-primary fw-semibold">
+            <a href="../FlujoSesion/registrarse_.php" class="btn btn-light btn-sm text-primary fw-semibold">
               <i class="bi bi-person-plus-fill me-1" aria-hidden="true"></i>
               Registrarse
             </a>

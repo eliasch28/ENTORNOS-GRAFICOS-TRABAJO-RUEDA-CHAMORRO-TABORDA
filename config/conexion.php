@@ -1,9 +1,8 @@
 <?php
-$link = mysqli_connect("localhost", "root", "");
+$link = mysqli_connect("localhost", "root", "", "entornos_graficos");
 if (!$link) {
     die("Error de conexión: " . mysqli_connect_error());
 }
-mysqli_select_db($link, "entornos_graficos");
 
 define('BASE_URL', 'http://localhost/EC/EG-TP');
 ?>
