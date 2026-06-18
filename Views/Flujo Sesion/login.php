@@ -2,6 +2,13 @@
 include '../../config/conexion.php';
 session_start();
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['_logout'])) {
+    $_SESSION = [];
+    session_destroy();
+    header('Location: login.php');
+    exit;
+}
+
 if (isset($_SESSION['codUsuario'])) {
     $check = mysqli_query($link, "SELECT codUsuario FROM USUARIOS WHERE codUsuario = " . $_SESSION['codUsuario']);
     if (mysqli_num_rows($check) > 0) {
@@ -24,7 +31,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (md5($claveUsuario) === $usuario['claveUsuario']) {
             if ($usuario['verificado'] == 0) {
-                $error = "Tu cuenta está pendiente de aprobación por el Administrador.";
+                if ($usuario['tipoUsuario'] === 'ceo de aerolinea') {
+                    $error = "Tu cuenta está pendiente de aprobación por el Administrador.";
+                } else {
+                    $error = 'Tu cuenta todavía no fue verificada. Revisá tu correo o <a href="reenviar_verificacion.php">reenviá el enlace de verificación</a>.';
+                }
             } else {
                 $_SESSION['codUsuario']    = $usuario['codUsuario'];
                 $_SESSION['nombreUsuario'] = $usuario['nombreUsuario'];
@@ -77,7 +88,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <?php if (isset($_GET['registro'])): ?>
                 <div class="alert alert-success" role="alert">
-                    <i class="bi bi-check-circle me-2"></i>¡Cuenta creada con éxito! Ya podés iniciar sesión.
+                    <i class="bi bi-check-circle me-2"></i>
+                    ¡Cuenta creada con éxito! Te enviamos un correo para verificar tu cuenta antes de poder iniciar sesión.
+                </div>
+            <?php endif; ?>
+
+            <?php if (isset($_GET['correoFallido'])): ?>
+                <div class="alert alert-warning" role="alert">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    No pudimos enviar el correo de verificación. Probá
+                    <a href="reenviar_verificacion.php">reenviarlo</a> en unos minutos.
                 </div>
             <?php endif; ?>
 

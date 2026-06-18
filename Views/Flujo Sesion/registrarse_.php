@@ -1,5 +1,6 @@
 ﻿<?php
 include '../../config/conexion.php';
+include '../../config/EnviarCorreo.php';
 session_start();
 
 if (isset($_SESSION['codUsuario'])) {
@@ -28,17 +29,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (mysqli_num_rows($checkEmail) > 0) {
         $error = "El correo electrónico ya está registrado.";
     } else {
-        $verificado = ($tipoUsuario === 'ceo de aerolinea') ? 0 : 1;
-        $query = "INSERT INTO USUARIOS (nombreUsuario, claveUsuario, tipoUsuario, emailUsuario, telefonoUsuario, verificado) 
-        VALUES ('$nombreUsuario', '$claveUsuario', '$tipoUsuario', '$emailUsuario', '$telefonoUsuario', $verificado)";
+        $esCliente = ($tipoUsuario !== 'ceo de aerolinea');
+        $verificado = 0;
+        $tokenVerificacion = $esCliente ? bin2hex(random_bytes(32)) : null;
+        $tokenVerificacionSql = $esCliente ? "'$tokenVerificacion'" : "NULL";
+        $tokenVerificacionExpSql = $esCliente ? "DATE_ADD(NOW(), INTERVAL 24 HOUR)" : "NULL";
+
+        $query = "INSERT INTO USUARIOS (nombreUsuario, claveUsuario, tipoUsuario, emailUsuario, telefonoUsuario, verificado, tokenVerificacion, tokenVerificacionExp)
+        VALUES ('$nombreUsuario', '$claveUsuario', '$tipoUsuario', '$emailUsuario', '$telefonoUsuario', $verificado, $tokenVerificacionSql, $tokenVerificacionExpSql)";
 
         if (mysqli_query($link, $query)) {
-            if ($tipoUsuario === 'ceo de aerolinea') {
+            if (!$esCliente) {
                 header('Location: login.php?pendiente=1');
-            } else {
+                exit;
+            }
+
+            $enlace = BASE_URL . '/Views/' . rawurlencode('Flujo Sesion') . '/verificar_email.php?token=' . $tokenVerificacion;
+            $cuerpo = "<p>Hola <strong>$nombreUsuario</strong>,</p>"
+                . "<p>Gracias por registrarte en VuelaLibre. Confirmá tu cuenta haciendo clic en el siguiente enlace (válido por 24 horas):</p>"
+                . "<p><a href=\"$enlace\">$enlace</a></p>";
+
+            $enviado = enviarCorreo($emailUsuario, 'Verificá tu cuenta en VuelaLibre', $cuerpo);
+
+            if ($enviado) {
                 header('Location: login.php?registro=1');
+            } else {
+                header('Location: login.php?registro=1&correoFallido=1');
             }
             exit;
+        } else {
+            $error = "Error al registrar el usuario. Intentá de nuevo.";
         }
     }
 }

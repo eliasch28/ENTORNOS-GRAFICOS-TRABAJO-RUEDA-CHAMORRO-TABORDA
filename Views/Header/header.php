@@ -140,7 +140,8 @@
               <i class="bi bi-person-circle me-1" aria-hidden="true"></i>
               Mi Perfil
             </a>
-            <form action="../Flujo Sesion/logout.php" method="post" class="d-inline">
+            <form action="../Flujo Sesion/login.php" method="post" class="d-inline">
+              <input type="hidden" name="_logout" value="1"/>
               <button type="submit" class="btn btn-outline-light btn-sm"
                       aria-label="Cerrar sesión">
                 <i class="bi bi-box-arrow-right me-1" aria-hidden="true"></i>
