@@ -1,4 +1,38 @@
-﻿<?php include '../../config/conexion.php'; ?>
+﻿<?php
+include '../../config/conexion.php';
+include '../../config/EnviarCorreo.php';
+
+$enviado = false;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $emailUsuario = trim($_POST['emailUsuario']);
+    $emailEscapado = mysqli_real_escape_string($link, $emailUsuario);
+
+    $query = "SELECT codUsuario, nombreUsuario FROM USUARIOS WHERE emailUsuario = '$emailEscapado'";
+    $resultado = mysqli_query($link, $query);
+
+    if ($resultado && mysqli_num_rows($resultado) === 1) {
+        $usuario = mysqli_fetch_assoc($resultado);
+        $codUsuario = (int) $usuario['codUsuario'];
+        $token = bin2hex(random_bytes(32));
+
+        mysqli_query($link, "UPDATE USUARIOS
+                              SET tokenRecuperacion = '$token', tokenRecuperacionExp = DATE_ADD(NOW(), INTERVAL 1 HOUR)
+                              WHERE codUsuario = $codUsuario");
+
+        $enlace = BASE_URL . '/Views/' . rawurlencode('Flujo Sesion') . '/restablecer_contrasena.php?token=' . $token;
+        $cuerpo = "<p>Hola <strong>{$usuario['nombreUsuario']}</strong>,</p>"
+            . "<p>Recibimos una solicitud para restablecer tu contraseña de VuelaLibre. El siguiente enlace es válido por 1 hora:</p>"
+            . "<p><a href=\"$enlace\">$enlace</a></p>"
+            . "<p>Si no solicitaste esto, podés ignorar este correo.</p>";
+
+        enviarCorreo($emailUsuario, 'Recuperación de contraseña - VuelaLibre', $cuerpo);
+    }
+
+    // Mensaje genérico siempre, exista o no el correo, por seguridad.
+    $enviado = true;
+}
+?>
 
 <!DOCTYPE html>
 <html lang="es">
@@ -37,6 +71,13 @@
                 un enlace para restablecer tu contraseña.
               </p>
             </div>
+
+            <?php if ($enviado): ?>
+                <div class="alert alert-success" role="alert">
+                    <i class="bi bi-check-circle me-2"></i>
+                    Si el correo está registrado, te enviamos un enlace para restablecer tu contraseña.
+                </div>
+            <?php endif; ?>
 
             <form action="recuperar_contrasena_.php" method="post"
                   class="card border-0 shadow-sm p-4 p-md-5"

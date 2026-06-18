@@ -1,5 +1,6 @@
 ﻿<?php
 include '../../config/conexion.php';
+include '../../config/EnviarCorreo.php';
 session_start();
 
 if (isset($_SESSION['codUsuario'])) {
@@ -11,6 +12,8 @@ if (isset($_SESSION['codUsuario'])) {
     session_destroy();
   }
 }
+
+$error = ''; // Inicializamos la variable de error para evitar warnings
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $nombreUsuario = trim($_POST['nombreUsuario']);
@@ -24,6 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $checkUser = mysqli_query($link, "SELECT codUsuario FROM USUARIOS WHERE nombreUsuario = '$nombreUsuario'");
   $checkEmail = mysqli_query($link, "SELECT codUsuario FROM USUARIOS WHERE emailUsuario = '$emailUsuario'");
 
+  // Validaciones
   if (mysqli_num_rows($checkUser) > 0) {
     $error = "El nombre de usuario ya está en uso.";
   } elseif (mysqli_num_rows($checkEmail) > 0) {
@@ -43,24 +47,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
   }
 
+  // Si pasamos todas las validaciones sin errores, procedemos a registrar
   if (empty($error)) {
-    $verificado = ($tipoUsuario === 'ceo de aerolinea') ? 0 : 1;
+    $esCliente = ($tipoUsuario !== 'ceo de aerolinea');
+    // El CEO nace con verificado=0 (lo aprueba el Admin). El cliente nace con 0 (lo aprueba el correo)
+    $verificado = 0; 
+    
+    $tokenVerificacion = $esCliente ? bin2hex(random_bytes(32)) : null;
+    $tokenVerificacionSql = $esCliente ? "'$tokenVerificacion'" : "NULL";
+    $tokenVerificacionExpSql = $esCliente ? "DATE_ADD(NOW(), INTERVAL 24 HOUR)" : "NULL";
+    $codAerolineaSql = ($codAerolinea !== null) ? $codAerolinea : "NULL";
 
-    if ($codAerolinea !== null) {
-      $query = "INSERT INTO USUARIOS (nombreUsuario, claveUsuario, tipoUsuario, emailUsuario, telefonoUsuario, verificado, codAerolinea)
-            VALUES ('$nombreUsuario', '$claveUsuario', '$tipoUsuario', '$emailUsuario', '$telefonoUsuario', $verificado, $codAerolinea)";
-    } else {
-      $query = "INSERT INTO USUARIOS (nombreUsuario, claveUsuario, tipoUsuario, emailUsuario, telefonoUsuario, verificado)
-            VALUES ('$nombreUsuario', '$claveUsuario', '$tipoUsuario', '$emailUsuario', '$telefonoUsuario', $verificado)";
-    }
+    $query = "INSERT INTO USUARIOS (nombreUsuario, claveUsuario, tipoUsuario, emailUsuario, telefonoUsuario, verificado, tokenVerificacion, tokenVerificacionExp, codAerolinea)
+          VALUES ('$nombreUsuario', '$claveUsuario', '$tipoUsuario', '$emailUsuario', '$telefonoUsuario', $verificado, $tokenVerificacionSql, $tokenVerificacionExpSql, $codAerolineaSql)";
 
     if (mysqli_query($link, $query)) {
-      if ($tipoUsuario === 'ceo de aerolinea') {
+      
+      // Si es CEO, no manda mail de validación, requiere que el admin lo apruebe
+      if (!$esCliente) {
         header('Location: login.php?pendiente=1');
-      } else {
+        exit;
+      }
+
+      // Si es cliente, enviamos el correo
+      $enlace = BASE_URL . '/Views/' . rawurlencode('Flujo Sesion') . '/verificar_email.php?token=' . $tokenVerificacion;
+      $cuerpo = "<p>Hola <strong>$nombreUsuario</strong>,</p>"
+          . "<p>Gracias por registrarte en VuelaLibre. Confirmá tu cuenta haciendo clic en el siguiente enlace (válido por 24 horas):</p>"
+          . "<p><a href=\"$enlace\">$enlace</a></p>";
+
+      $enviado = enviarCorreo($emailUsuario, 'Verificá tu cuenta en VuelaLibre', $cuerpo);
+
+      if ($enviado) {
         header('Location: login.php?registro=1');
+      } else {
+        header('Location: login.php?registro=1&correoFallido=1');
       }
       exit;
+
+    } else {
+      $error = "Error al registrar el usuario en la base de datos.";
     }
   }
 }
