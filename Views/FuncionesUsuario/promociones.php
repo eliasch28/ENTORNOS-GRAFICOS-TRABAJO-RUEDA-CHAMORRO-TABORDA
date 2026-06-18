@@ -1,4 +1,61 @@
-﻿<?php session_start(); ?>
+﻿<?php
+session_start();
+include '../../config/conexion.php';
+
+$codAeroFiltro = isset($_GET['codAerolinea']) ? (int)$_GET['codAerolinea'] : 0;
+
+// Aerolíneas para el filtro
+$sqlAero = "SELECT codAerolinea, nombreAerolinea FROM AEROLINEAS ORDER BY nombreAerolinea ASC";
+$resAero = mysqli_query($link, $sqlAero);
+$aerolineas = [];
+if ($resAero) {
+    while ($a = mysqli_fetch_assoc($resAero)) {
+        $aerolineas[] = $a;
+    }
+}
+
+// Promociones aprobadas
+$whereAero = $codAeroFiltro > 0 ? "AND a.codAerolinea = $codAeroFiltro" : '';
+$sqlPromos = "SELECT p.codPromocion, p.descripcionPromocion, p.descuentoPromocion,
+                     a.codAerolinea, a.nombreAerolinea
+              FROM PROMOCIONES p
+              JOIN AEROLINEAS a ON p.codAerolinea = a.codAerolinea
+              WHERE p.estadoPromocion = 'aprobada' $whereAero
+              ORDER BY p.descuentoPromocion DESC";
+$resPromos = mysqli_query($link, $sqlPromos);
+
+$promos = [];
+if ($resPromos) {
+    while ($p = mysqli_fetch_assoc($resPromos)) {
+        $promos[] = $p;
+    }
+}
+$totalPromos   = count($promos);
+$porPagina     = 2;
+$totalPaginas  = max(1, (int)ceil($totalPromos / $porPagina));
+$paginaPromos  = max(1, min($totalPaginas, (int)($_GET['pagina'] ?? 1)));
+$promosPag     = array_slice($promos, ($paginaPromos - 1) * $porPagina, $porPagina);
+
+// URL base conservando filtro de aerolínea
+$urlBasePromos = 'promociones.php' . ($codAeroFiltro > 0 ? '?codAerolinea=' . $codAeroFiltro . '&' : '?');
+
+// Aerolíneas SIN promo aprobada (solo cuando no hay filtro activo)
+$sinPromo = [];
+if ($codAeroFiltro === 0) {
+    $sqlSin = "SELECT a.codAerolinea, a.nombreAerolinea
+               FROM AEROLINEAS a
+               WHERE a.codAerolinea NOT IN (
+                   SELECT codAerolinea FROM PROMOCIONES WHERE estadoPromocion = 'aprobada'
+               )
+               ORDER BY a.nombreAerolinea ASC";
+    $resSin = mysqli_query($link, $sqlSin);
+    if ($resSin) {
+        while ($s = mysqli_fetch_assoc($resSin)) {
+            $sinPromo[] = $s;
+        }
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -46,136 +103,113 @@
             <select id="filtroAerolinea" name="codAerolinea"
                     class="form-select form-select-sm w-auto">
               <option value="">Todas las aerolíneas</option>
-              <option value="1" <?= (($_GET['codAerolinea'] ?? '') == '1') ? 'selected' : '' ?>>
-                Aerolíneas Argentinas
+              <?php foreach ($aerolineas as $aero): ?>
+              <option value="<?= (int)$aero['codAerolinea'] ?>"
+                      <?= $codAeroFiltro === (int)$aero['codAerolinea'] ? 'selected' : '' ?>>
+                <?= htmlspecialchars($aero['nombreAerolinea'], ENT_QUOTES, 'UTF-8') ?>
               </option>
-              <option value="2" <?= (($_GET['codAerolinea'] ?? '') == '2') ? 'selected' : '' ?>>
-                LATAM Airlines
-              </option>
-              <option value="3" <?= (($_GET['codAerolinea'] ?? '') == '3') ? 'selected' : '' ?>>
-                Flybondi
-              </option>
-              <option value="4" <?= (($_GET['codAerolinea'] ?? '') == '4') ? 'selected' : '' ?>>
-                JetSmart
-              </option>
+              <?php endforeach; ?>
             </select>
             <button type="submit" class="btn btn-primary btn-sm">Filtrar</button>
             <a href="promociones.php" class="btn btn-outline-secondary btn-sm">Ver todas las promociones</a>
           </form>
         </div>
 
-        <!--
-          TODO: Esta lista se generará dinámicamente con PHP
-          haciendo un SELECT a la tabla PROMOCIONES donde
-          estadoPromocion = 'aprobada'
-          ORDER BY codPromocion DESC.
-        -->
         <ul class="list-unstyled" role="list" aria-label="Lista de promociones vigentes">
 
-          <li class="mb-4" role="listitem">
-            <article class="card border-0 shadow-sm tarjeta-promocion"
-                     aria-label="Promoción 001: Flybondi, 30% de descuento">
-              <div class="card-body p-4">
-                <div class="row align-items-center g-4">
+          <?php if (!empty($promosPag)): ?>
+            <?php foreach ($promosPag as $p):
+              $codFmt    = str_pad((string)$p['codPromocion'], 3, '0', STR_PAD_LEFT);
+              $descuento = (int)$p['descuentoPromocion'];
+            ?>
+            <li class="mb-4" role="listitem">
+              <article class="card border-0 shadow-sm tarjeta-promocion"
+                       aria-label="Promoción <?= $codFmt ?>: <?= htmlspecialchars($p['nombreAerolinea'], ENT_QUOTES, 'UTF-8') ?>, <?= $descuento ?>% de descuento">
+                <div class="card-body p-4">
+                  <div class="row align-items-center g-4">
 
-                  <div class="col-md-2 text-center">
-                    <div class="insignia-descuento text-success">30%</div>
-                    <div class="text-success small fw-semibold">DE DESCUENTO</div>
-                  </div>
-
-                  <div class="col-md-7">
-                    <div class="d-flex align-items-center gap-2 mb-2">
-                      <span class="badge bg-success-subtle text-success border border-success-subtle">
-                        <i class="bi bi-check-circle me-1" aria-hidden="true"></i>Aprobada
-                      </span>
-                      <small class="text-secondary">Cód: 001</small>
+                    <div class="col-md-2 text-center">
+                      <div class="insignia-descuento text-success"><?= $descuento ?>%</div>
+                      <div class="text-success small fw-semibold">DE DESCUENTO</div>
                     </div>
-                    <h2 class="h6 fw-bold mb-1">
-                      <i class="bi bi-lightning-charge text-primary me-1" aria-hidden="true"></i>
-                      Flybondi — Descuento mayo
-                    </h2>
-                    <p class="text-secondary small mb-3">
-                      30% de descuento en todos los pasajes durante el mes de mayo.
-                      Válido para vuelos domésticos. Se aplica automáticamente
-                      al seleccionar un vuelo de Flybondi.
-                    </p>
-                    <dl class="mb-0">
-                      <div class="fila-detalle">
-                        <dt class="etiqueta-detalle">Aerolínea</dt>
-                        <dd class="fw-semibold mb-0">Flybondi · Cód: 003</dd>
+
+                    <div class="col-md-7">
+                      <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="badge bg-success-subtle text-success border border-success-subtle">
+                          <i class="bi bi-check-circle me-1" aria-hidden="true"></i>Aprobada
+                        </span>
+                        <small class="text-secondary">Cód: <?= $codFmt ?></small>
                       </div>
-                      <div class="fila-detalle">
-                        <dt class="etiqueta-detalle">Descuento aplicado</dt>
-                        <dd class="fw-semibold mb-0 text-success">30%</dd>
-                      </div>
-                    </dl>
-                  </div>
-
-                  <div class="col-md-3 text-md-end">
-                    <a href="buscar_vuelos.php?codAerolinea=3"
-                       class="btn btn-primary w-100">
-                      <i class="bi bi-search me-1" aria-hidden="true"></i>
-                      Ver vuelos de Flybondi con descuento
-                    </a>
-                  </div>
-
-                </div>
-              </div>
-            </article>
-          </li>
-
-          <li class="mb-4" role="listitem">
-            <article class="card border-0 shadow-sm tarjeta-promocion"
-                     aria-label="Promoción 002: Aerolíneas Argentinas, 15% de descuento">
-              <div class="card-body p-4">
-                <div class="row align-items-center g-4">
-
-                  <div class="col-md-2 text-center">
-                    <div class="insignia-descuento text-success">15%</div>
-                    <div class="text-success small fw-semibold">DE DESCUENTO</div>
-                  </div>
-
-                  <div class="col-md-7">
-                    <div class="d-flex align-items-center gap-2 mb-2">
-                      <span class="badge bg-success-subtle text-success border border-success-subtle">
-                        <i class="bi bi-check-circle me-1" aria-hidden="true"></i>Aprobada
-                      </span>
-                      <small class="text-secondary">Cód: 002</small>
+                      <h2 class="h6 fw-bold mb-1">
+                        <i class="bi bi-lightning-charge text-primary me-1" aria-hidden="true"></i>
+                        <?= htmlspecialchars($p['nombreAerolinea'], ENT_QUOTES, 'UTF-8') ?>
+                      </h2>
+                      <?php if (!empty($p['descripcionPromocion'])): ?>
+                        <p class="text-secondary small mb-3">
+                          <?= htmlspecialchars($p['descripcionPromocion'], ENT_QUOTES, 'UTF-8') ?>
+                        </p>
+                      <?php endif; ?>
+                      <dl class="mb-0">
+                        <div class="fila-detalle">
+                          <dt class="etiqueta-detalle">Aerolínea</dt>
+                          <dd class="fw-semibold mb-0">
+                            <?= htmlspecialchars($p['nombreAerolinea'], ENT_QUOTES, 'UTF-8') ?>
+                            · Cód: <?= (int)$p['codAerolinea'] ?>
+                          </dd>
+                        </div>
+                        <div class="fila-detalle">
+                          <dt class="etiqueta-detalle">Descuento aplicado</dt>
+                          <dd class="fw-semibold mb-0 text-success"><?= $descuento ?>%</dd>
+                        </div>
+                      </dl>
                     </div>
-                    <h2 class="h6 fw-bold mb-1">
-                      <i class="bi bi-airplane text-primary me-1" aria-hidden="true"></i>
-                      Aerolíneas Argentinas — Primera compra
-                    </h2>
-                    <p class="text-secondary small mb-3">
-                      15% de descuento adicional para pasajeros que realizan
-                      su primera compra en el sistema. Se aplica automáticamente
-                      al seleccionar un vuelo de Aerolíneas Argentinas.
-                    </p>
-                    <dl class="mb-0">
-                      <div class="fila-detalle">
-                        <dt class="etiqueta-detalle">Aerolínea</dt>
-                        <dd class="fw-semibold mb-0">Aerolíneas Argentinas · Cód: 001</dd>
-                      </div>
-                      <div class="fila-detalle">
-                        <dt class="etiqueta-detalle">Descuento aplicado</dt>
-                        <dd class="fw-semibold mb-0 text-success">15%</dd>
-                      </div>
-                    </dl>
-                  </div>
 
-                  <div class="col-md-3 text-md-end">
-                    <a href="buscar_vuelos.php?codAerolinea=1"
-                       class="btn btn-primary w-100">
-                      <i class="bi bi-search me-1" aria-hidden="true"></i>
-                      Ver vuelos de Aer. Argentinas con descuento
-                    </a>
-                  </div>
+                    <div class="col-md-3 text-md-end">
+                      <a href="buscar_vuelos.php?codAerolinea=<?= (int)$p['codAerolinea'] ?>"
+                         class="btn btn-primary w-100">
+                        <i class="bi bi-search me-1" aria-hidden="true"></i>
+                        Ver vuelos con descuento
+                      </a>
+                    </div>
 
+                  </div>
                 </div>
+              </article>
+            </li>
+            <?php endforeach; ?>
+          <?php else: ?>
+            <li role="listitem">
+              <div class="alert alert-info" role="status">
+                <i class="bi bi-info-circle me-2" aria-hidden="true"></i>
+                No hay promociones aprobadas en este momento.
               </div>
-            </article>
-          </li>
+            </li>
+          <?php endif; ?>
 
+        </ul>
+
+        <?php if ($totalPaginas > 1): ?>
+          <nav aria-label="Paginación de promociones" class="my-4">
+            <ul class="pagination justify-content-center">
+              <li class="page-item <?= $paginaPromos <= 1 ? 'disabled' : '' ?>">
+                <a class="page-link" href="<?= $urlBasePromos ?>pagina=<?= $paginaPromos - 1 ?>">Anterior</a>
+              </li>
+              <?php for ($i = 1; $i <= $totalPaginas; $i++): ?>
+                <li class="page-item <?= $i === $paginaPromos ? 'active' : '' ?>">
+                  <a class="page-link" href="<?= $urlBasePromos ?>pagina=<?= $i ?>"
+                     <?= $i === $paginaPromos ? 'aria-current="page"' : '' ?>><?= $i ?></a>
+                </li>
+              <?php endfor; ?>
+              <li class="page-item <?= $paginaPromos >= $totalPaginas ? 'disabled' : '' ?>">
+                <a class="page-link" href="<?= $urlBasePromos ?>pagina=<?= $paginaPromos + 1 ?>">Siguiente</a>
+              </li>
+            </ul>
+          </nav>
+        <?php endif; ?>
+
+        <ul class="list-unstyled">
+
+          <?php if (!empty($sinPromo)): ?>
           <li role="listitem">
             <div class="card border-0 shadow-sm">
               <div class="card-body p-4">
@@ -185,22 +219,19 @@
                 </h2>
                 <ul class="list-unstyled mb-0 d-flex flex-wrap gap-2"
                     aria-label="Aerolíneas sin promoción vigente">
+                  <?php foreach ($sinPromo as $s): ?>
                   <li>
                     <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-3 py-2">
-                      <i class="bi bi-globe2 me-1" aria-hidden="true"></i>
-                      LATAM Airlines
+                      <i class="bi bi-airplane me-1" aria-hidden="true"></i>
+                      <?= htmlspecialchars($s['nombreAerolinea'], ENT_QUOTES, 'UTF-8') ?>
                     </span>
                   </li>
-                  <li>
-                    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-3 py-2">
-                      <i class="bi bi-stars me-1" aria-hidden="true"></i>
-                      JetSmart
-                    </span>
-                  </li>
+                  <?php endforeach; ?>
                 </ul>
               </div>
             </div>
           </li>
+          <?php endif; ?>
 
         </ul>
 

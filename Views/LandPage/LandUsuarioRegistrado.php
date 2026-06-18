@@ -12,6 +12,49 @@ $resNovedadesVigentes = mysqli_query($link, "SELECT COUNT(*) AS total FROM NOVED
                                              WHERE fechaPublicacionNovedad <= CURDATE()
                                                AND fechaExpiracionNovedad >= CURDATE()");
 $novedadesVigentes = (int) (mysqli_fetch_assoc($resNovedadesVigentes)['total'] ?? 0);
+
+// Stats y alerta solo para usuario común
+$reservasPendientes  = 0;
+$reservasConfirmadas = 0;
+$comprasTotales      = 0;
+$primerPendiente     = null;
+
+$usuariosRegistrados  = 0;
+$aerolineasActivas    = 0;
+$promocionesPendientes = 0;
+
+if ($tipo === 'administrador') {
+    $r = mysqli_query($link, "SELECT COUNT(*) AS total FROM USUARIOS");
+    $usuariosRegistrados = (int)(mysqli_fetch_assoc($r)['total'] ?? 0);
+
+    $r = mysqli_query($link, "SELECT COUNT(*) AS total FROM AEROLINEAS");
+    $aerolineasActivas = (int)(mysqli_fetch_assoc($r)['total'] ?? 0);
+
+    $r = mysqli_query($link, "SELECT COUNT(*) AS total FROM PROMOCIONES WHERE estadoPromocion = 'pendiente'");
+    $promocionesPendientes = (int)(mysqli_fetch_assoc($r)['total'] ?? 0);
+}
+
+if ($tipo === 'usuario') {
+    $codUsuario = (int)$_SESSION['codUsuario'];
+
+    $resStats = mysqli_query($link,
+        "SELECT SUM(estadoReserva = 'pendiente de pago') AS pendientes,
+                SUM(estadoReserva = 'confirmada')        AS confirmadas
+         FROM RESERVAS WHERE codUsuario = $codUsuario");
+    $stats = mysqli_fetch_assoc($resStats);
+    $reservasPendientes  = (int)($stats['pendientes']  ?? 0);
+    $reservasConfirmadas = (int)($stats['confirmadas'] ?? 0);
+    $comprasTotales      = $reservasConfirmadas;
+
+    $resPend = mysqli_query($link,
+        "SELECT r.codReserva, v.origenVuelo, v.destinoVuelo, v.fechaSalidaVuelo
+         FROM RESERVAS r
+         JOIN VUELOS v ON r.codVuelo = v.codVuelo
+         WHERE r.codUsuario = $codUsuario AND r.estadoReserva = 'pendiente de pago'
+         ORDER BY r.fechaReserva ASC LIMIT 1");
+    $primerPendiente = ($resPend && mysqli_num_rows($resPend) > 0)
+                       ? mysqli_fetch_assoc($resPend) : null;
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -55,9 +98,9 @@ $novedadesVigentes = (int) (mysqli_fetch_assoc($resNovedadesVigentes)['total'] ?
           <div class="card border-0 shadow">
             <div class="card-body p-4">
               <h2 class="h6 fw-bold text-dark mb-3"><i class="bi bi-speedometer2 me-2"></i>Resumen del sistema</h2>
-              <div class="fila-detalle"><span class="etiqueta-detalle">Usuarios registrados</span><span class="fw-bold text-primary">128</span></div>
-              <div class="fila-detalle"><span class="etiqueta-detalle">Aerolíneas activas</span><span class="fw-bold text-success">5</span></div>
-              <div class="fila-detalle"><span class="etiqueta-detalle">Promociones pendientes</span><span class="fw-bold text-warning">7</span></div>
+              <div class="fila-detalle"><span class="etiqueta-detalle">Usuarios registrados</span><span class="fw-bold text-primary"><?= $usuariosRegistrados ?></span></div>
+              <div class="fila-detalle"><span class="etiqueta-detalle">Aerolíneas activas</span><span class="fw-bold text-success"><?= $aerolineasActivas ?></span></div>
+              <div class="fila-detalle"><span class="etiqueta-detalle">Promociones pendientes</span><span class="fw-bold text-warning"><?= $promocionesPendientes ?></span></div>
               <div class="fila-detalle"><span class="etiqueta-detalle">Novedades vigentes</span><span class="fw-bold text-info"><?= $novedadesVigentes ?></span></div>
               <a href="../FuncionesAdmin/auditoria-promociones.php" class="btn btn-outline-dark btn-sm w-100 mt-3">
                 <i class="bi bi-check2-circle me-1"></i>Auditoría de Promociones
@@ -210,9 +253,9 @@ $novedadesVigentes = (int) (mysqli_fetch_assoc($resNovedadesVigentes)['total'] ?
           <div class="card border-0 shadow">
             <div class="card-body p-4">
               <h2 class="h6 fw-bold text-primary mb-3"><i class="bi bi-speedometer2 me-2"></i>Mi resumen</h2>
-              <div class="fila-detalle"><span class="etiqueta-detalle">Reservas pendientes</span><span class="fw-bold text-warning">1</span></div>
-              <div class="fila-detalle"><span class="etiqueta-detalle">Reservas confirmadas</span><span class="fw-bold text-success">1</span></div>
-              <div class="fila-detalle"><span class="etiqueta-detalle">Compras totales</span><span class="fw-bold">2</span></div>
+              <div class="fila-detalle"><span class="etiqueta-detalle">Reservas pendientes</span><span class="fw-bold text-warning"><?= $reservasPendientes ?></span></div>
+              <div class="fila-detalle"><span class="etiqueta-detalle">Reservas confirmadas</span><span class="fw-bold text-success"><?= $reservasConfirmadas ?></span></div>
+              <div class="fila-detalle"><span class="etiqueta-detalle">Compras totales</span><span class="fw-bold"><?= $comprasTotales ?></span></div>
               <div class="fila-detalle"><span class="etiqueta-detalle">Novedades vigentes</span><span class="fw-bold text-primary"><?= $novedadesVigentes ?></span></div>
               <a href="../FuncionesUsuario/mi_perfil.php" class="btn btn-outline-primary btn-sm w-100 mt-3">
                 <i class="bi bi-person-circle me-1"></i>Ver mi perfil completo
@@ -269,20 +312,32 @@ $novedadesVigentes = (int) (mysqli_fetch_assoc($resNovedadesVigentes)['total'] ?
     </div>
   </section>
 
+  <?php if ($primerPendiente):
+      $codFmt     = str_pad((string)$primerPendiente['codReserva'], 4, '0', STR_PAD_LEFT);
+      $origenCod  = mb_strtoupper(mb_substr($primerPendiente['origenVuelo'],  0, 3));
+      $destinoCod = mb_strtoupper(mb_substr($primerPendiente['destinoVuelo'], 0, 3));
+      $fechaFmt   = date('j M Y', strtotime($primerPendiente['fechaSalidaVuelo']));
+      $extra      = $reservasPendientes > 1 ? " (y otras " . ($reservasPendientes - 1) . " más)" : '';
+  ?>
   <section class="pb-4" aria-labelledby="pendiente-titulo">
     <div class="container">
       <div class="alert alert-warning d-flex align-items-start gap-3 shadow-sm" role="note">
         <i class="bi bi-hourglass-split fs-4 flex-shrink-0 mt-1" aria-hidden="true"></i>
         <div>
           <h2 id="pendiente-titulo" class="alert-heading h6 fw-bold mb-1">Tenés una reserva pendiente de pago</h2>
-          <p class="mb-2 small">La <strong>Reserva N° 0001</strong> (ROS → EZE, 15 May 2026) está esperando confirmación de pago.</p>
-          <a href="../FuncionesUsuario/mis_reservas.php" class="btn btn-warning btn-sm">
+          <p class="mb-2 small">
+            La <strong>Reserva N° <?= $codFmt ?></strong>
+            (<?= htmlspecialchars($origenCod, ENT_QUOTES, 'UTF-8') ?> → <?= htmlspecialchars($destinoCod, ENT_QUOTES, 'UTF-8') ?>,
+            <?= $fechaFmt ?>) está esperando confirmación de pago<?= $extra ?>.
+          </p>
+          <a href="../Funciones Usuario/mis_reservas.php" class="btn btn-warning btn-sm">
             <i class="bi bi-calendar2-check me-1" aria-hidden="true"></i>Ir a Mis Reservas para pagar
           </a>
         </div>
       </div>
     </div>
   </section>
+  <?php endif; ?>
 
 <?php endif; ?>
 
