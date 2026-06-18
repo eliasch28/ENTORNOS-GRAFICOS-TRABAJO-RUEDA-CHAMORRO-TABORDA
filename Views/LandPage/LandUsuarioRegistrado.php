@@ -7,6 +7,11 @@ if (!isset($_SESSION['codUsuario'])) {
 }
 $tipo = $_SESSION['tipoUsuario'];
 $nombre = htmlspecialchars($_SESSION['nombreUsuario']);
+
+$resNovedadesVigentes = mysqli_query($link, "SELECT COUNT(*) AS total FROM NOVEDADES
+                                             WHERE fechaPublicacionNovedad <= CURDATE()
+                                               AND fechaExpiracionNovedad >= CURDATE()");
+$novedadesVigentes = (int) (mysqli_fetch_assoc($resNovedadesVigentes)['total'] ?? 0);
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -53,7 +58,7 @@ $nombre = htmlspecialchars($_SESSION['nombreUsuario']);
               <div class="fila-detalle"><span class="etiqueta-detalle">Usuarios registrados</span><span class="fw-bold text-primary">128</span></div>
               <div class="fila-detalle"><span class="etiqueta-detalle">Aerolíneas activas</span><span class="fw-bold text-success">5</span></div>
               <div class="fila-detalle"><span class="etiqueta-detalle">Promociones pendientes</span><span class="fw-bold text-warning">7</span></div>
-              <div class="fila-detalle"><span class="etiqueta-detalle">Novedades vigentes</span><span class="fw-bold text-info">3</span></div>
+              <div class="fila-detalle"><span class="etiqueta-detalle">Novedades vigentes</span><span class="fw-bold text-info"><?= $novedadesVigentes ?></span></div>
               <a href="../Funciones Admin/auditoria-promociones.php" class="btn btn-outline-dark btn-sm w-100 mt-3">
                 <i class="bi bi-check2-circle me-1"></i>Auditoría de Promociones
               </a>
@@ -208,7 +213,7 @@ $nombre = htmlspecialchars($_SESSION['nombreUsuario']);
               <div class="fila-detalle"><span class="etiqueta-detalle">Reservas pendientes</span><span class="fw-bold text-warning">1</span></div>
               <div class="fila-detalle"><span class="etiqueta-detalle">Reservas confirmadas</span><span class="fw-bold text-success">1</span></div>
               <div class="fila-detalle"><span class="etiqueta-detalle">Compras totales</span><span class="fw-bold">2</span></div>
-              <div class="fila-detalle"><span class="etiqueta-detalle">Novedades vigentes</span><span class="fw-bold text-primary">2</span></div>
+              <div class="fila-detalle"><span class="etiqueta-detalle">Novedades vigentes</span><span class="fw-bold text-primary"><?= $novedadesVigentes ?></span></div>
               <a href="../Funciones Usuario/mi_perfil.php" class="btn btn-outline-primary btn-sm w-100 mt-3">
                 <i class="bi bi-person-circle me-1"></i>Ver mi perfil completo
               </a>
