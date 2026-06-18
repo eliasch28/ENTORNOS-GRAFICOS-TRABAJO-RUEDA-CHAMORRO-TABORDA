@@ -5,7 +5,6 @@ require_once '../../config/requiere_admin.php';
 $mensajeExito = '';
 $mensajeError = '';
 
-// Gestión de aprobación / rechazo
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $codPromocion = isset($_POST['codPromocion']) ? (int) $_POST['codPromocion'] : 0;
   $accion = $_POST['accion'] ?? '';
@@ -30,7 +29,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 }
 
-// Paginación
 $porPagina = 10;
 $paginaActual = isset($_GET['pagina']) ? max(1, (int) $_GET['pagina']) : 1;
 $offset = ($paginaActual - 1) * $porPagina;
@@ -212,28 +210,28 @@ $resPromociones = mysqli_query($link, $sqlPromociones);
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmFJ3d7CMK4xBqwJoKD21vBbVxy" crossorigin="anonymous"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
       const modalEl = document.getElementById('modalConfirmacion');
       const modalConfirmacion = new bootstrap.Modal(modalEl);
       const textoEl = document.getElementById('modalConfirmacionTexto');
       const aceptarBtn = document.getElementById('modalConfirmacionAceptar');
       let formIdPendiente = null;
 
-      document.querySelectorAll('[data-confirm-form-id]').forEach(function (btn) {
-        btn.addEventListener('click', function () {
+      document.querySelectorAll('[data-confirm-form-id]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
           formIdPendiente = btn.getAttribute('data-confirm-form-id');
           textoEl.textContent = btn.getAttribute('data-confirm-text') || '¿Confirmás?';
           modalConfirmacion.show();
         });
       });
 
-      aceptarBtn.addEventListener('click', function () {
+      aceptarBtn.addEventListener('click', function() {
         if (!formIdPendiente) return;
         const form = document.getElementById(formIdPendiente);
         if (form) form.submit();
       });
 
-      modalEl.addEventListener('hidden.bs.modal', function () {
+      modalEl.addEventListener('hidden.bs.modal', function() {
         formIdPendiente = null;
       });
     });

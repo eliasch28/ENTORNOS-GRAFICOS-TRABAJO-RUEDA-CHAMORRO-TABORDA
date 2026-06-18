@@ -1,4 +1,55 @@
-﻿<?php session_start(); ?>
+﻿<?php
+session_start();
+include '../../config/conexion.php';
+
+$hoy = date('Y-m-d');
+
+function estadoNovedadUsuario(string $fechaPub, string $fechaExp, string $hoy): array {
+  if ($hoy < $fechaPub) {
+    return [
+      'proxima',
+      'Próxima',
+      'bg-warning-subtle text-warning border border-warning-subtle',
+      'novedad-estado-proxima',
+      'bi-arrow-repeat text-warning',
+    ];
+  }
+  if ($hoy > $fechaExp) {
+    return [
+      'expirada',
+      'Expirada',
+      'bg-secondary-subtle text-secondary border border-secondary-subtle',
+      'novedad-estado-expirada',
+      'bi-tag text-secondary',
+    ];
+  }
+  return [
+    'vigente',
+    'Vigente',
+    'bg-primary-subtle text-primary border border-primary-subtle',
+    'novedad-estado-vigente',
+    'bi-megaphone text-primary',
+  ];
+}
+
+function formatearFechaLarga(string $fecha): string {
+  $meses = [
+    1 => 'enero', 2 => 'febrero', 3 => 'marzo', 4 => 'abril',
+    5 => 'mayo', 6 => 'junio', 7 => 'julio', 8 => 'agosto',
+    9 => 'septiembre', 10 => 'octubre', 11 => 'noviembre', 12 => 'diciembre',
+  ];
+  $ts = strtotime($fecha);
+  $dia = (int) date('j', $ts);
+  $mes = (int) date('n', $ts);
+  $anio = date('Y', $ts);
+  return "$dia de {$meses[$mes]} de $anio";
+}
+
+$sqlNovedades = "SELECT codNovedad, textoNovedad, fechaPublicacionNovedad, fechaExpiracionNovedad
+                 FROM NOVEDADES
+                 ORDER BY fechaPublicacionNovedad DESC";
+$resNovedades = mysqli_query($link, $sqlNovedades);
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -56,198 +107,72 @@
           </span>
         </div>
 
-        <!--
-          TODO: Esta lista se generará dinámicamente con PHP
-          haciendo un SELECT a la tabla NOVEDADES
-          ORDER BY fechaPublicacionNovedad DESC.
-        -->
         <ul class="list-unstyled" role="list" aria-label="Lista de novedades del sistema">
 
-          <li class="mb-4" role="listitem">
-            <article class="card border-0 shadow-sm novedad-estado-vigente"
-                     aria-label="Novedad 0001: Mantenimiento programado — vigente">
-              <div class="card-body p-4">
+          <?php if ($resNovedades && mysqli_num_rows($resNovedades) > 0): ?>
+            <?php while ($row = mysqli_fetch_assoc($resNovedades)):
+              [$estadoKey, $estadoLabel, $badgeClass, $cardClass, $iconClass] = estadoNovedadUsuario(
+                $row['fechaPublicacionNovedad'],
+                $row['fechaExpiracionNovedad'],
+                $hoy
+              );
+              $codFmt = str_pad((string) $row['codNovedad'], 4, '0', STR_PAD_LEFT);
+              $texto = $row['textoNovedad'];
+              $fechaPubFmt = formatearFechaLarga($row['fechaPublicacionNovedad']);
+              $fechaExpFmt = formatearFechaLarga($row['fechaExpiracionNovedad']);
+              $expirada = $estadoKey === 'expirada';
+            ?>
+              <li class="mb-4" role="listitem">
+                <article class="card border-0 shadow-sm <?= $cardClass ?>"
+                         aria-label="Novedad <?= $codFmt ?>: <?= htmlspecialchars(mb_substr($texto, 0, 40), ENT_QUOTES, 'UTF-8') ?> — <?= strtolower($estadoLabel) ?>">
+                  <div class="card-body p-4">
 
-                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
-                  <div class="d-flex align-items-center gap-2">
-                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
-                      Cód: 0001
-                    </span>
-                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
-                      <i class="bi bi-circle-fill me-1 punto-estado-novedad" aria-hidden="true"></i>
-                      Vigente
-                    </span>
+                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
+                      <div class="d-flex align-items-center gap-2">
+                        <span class="badge <?= $badgeClass ?>">
+                          Cód: <?= htmlspecialchars($codFmt, ENT_QUOTES, 'UTF-8') ?>
+                        </span>
+                        <span class="badge <?= $badgeClass ?>">
+                          <i class="bi bi-circle-fill me-1 punto-estado-novedad" aria-hidden="true"></i>
+                          <?= htmlspecialchars($estadoLabel, ENT_QUOTES, 'UTF-8') ?>
+                        </span>
+                      </div>
+                    </div>
+
+                    <h2 class="h6 fw-bold mb-2<?= $expirada ? ' text-secondary' : '' ?>">
+                      <i class="bi <?= $iconClass ?> me-2" aria-hidden="true"></i>
+                      <?= htmlspecialchars($texto, ENT_QUOTES, 'UTF-8') ?>
+                    </h2>
+
+                    <div class="fechas-novedad">
+                      <span>
+                        <i class="bi bi-calendar-plus me-1" aria-hidden="true"></i>
+                        Publicada:
+                        <time datetime="<?= htmlspecialchars($row['fechaPublicacionNovedad'], ENT_QUOTES, 'UTF-8') ?>">
+                          <?= htmlspecialchars($fechaPubFmt, ENT_QUOTES, 'UTF-8') ?>
+                        </time>
+                      </span>
+                      <span>
+                        <i class="bi bi-calendar-x me-1" aria-hidden="true"></i>
+                        <?= $expirada ? 'Expiró' : 'Expira' ?>:
+                        <time datetime="<?= htmlspecialchars($row['fechaExpiracionNovedad'], ENT_QUOTES, 'UTF-8') ?>">
+                          <?= htmlspecialchars($fechaExpFmt, ENT_QUOTES, 'UTF-8') ?>
+                        </time>
+                      </span>
+                    </div>
+
                   </div>
-                </div>
-
-                <h2 class="h6 fw-bold mb-2">
-                  <i class="bi bi-tools text-primary me-2" aria-hidden="true"></i>
-                  Mantenimiento programado — Aeropuerto Internacional de Rosario
-                </h2>
-
-                <p class="text-secondary mb-0 texto-contenido-novedad">
-                  Debido a tareas de mantenimiento programadas, el Aeropuerto
-                  Internacional Islas Malvinas de Rosario permanecerá con operaciones
-                  reducidas el próximo domingo 17 de mayo de 2026 entre las 02:00 y
-                  las 06:00 hs. Los vuelos afectados serán reprogramados. Si tu vuelo
-                  coincide con ese horario, te contactaremos a tu correo electrónico
-                  registrado con más información.
-                </p>
-
-                <div class="fechas-novedad">
-                  <span>
-                    <i class="bi bi-calendar-plus me-1" aria-hidden="true"></i>
-                    Publicada:
-                    <time datetime="2026-05-01">1 de mayo de 2026</time>
-                  </span>
-                  <span>
-                    <i class="bi bi-calendar-x me-1" aria-hidden="true"></i>
-                    Expira:
-                    <time datetime="2026-05-18">18 de mayo de 2026</time>
-                  </span>
-                </div>
-
+                </article>
+              </li>
+            <?php endwhile; ?>
+          <?php else: ?>
+            <li role="listitem">
+              <div class="alert alert-info mb-0" role="status">
+                <i class="bi bi-info-circle me-2" aria-hidden="true"></i>
+                No hay novedades publicadas en este momento.
               </div>
-            </article>
-          </li>
-
-          <li class="mb-4" role="listitem">
-            <article class="card border-0 shadow-sm novedad-estado-vigente"
-                     aria-label="Novedad 0002: Nueva aerolínea incorporada — vigente">
-              <div class="card-body p-4">
-
-                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
-                  <div class="d-flex align-items-center gap-2">
-                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
-                      Cód: 0002
-                    </span>
-                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
-                      <i class="bi bi-circle-fill me-1 punto-estado-novedad" aria-hidden="true"></i>
-                      Vigente
-                    </span>
-                  </div>
-                </div>
-
-                <h2 class="h6 fw-bold mb-2">
-                  <i class="bi bi-building-fill-add text-primary me-2" aria-hidden="true"></i>
-                  Nueva aerolínea incorporada al sistema
-                </h2>
-
-                <p class="text-secondary mb-0 texto-contenido-novedad">
-                  Nos complace anunciar que Aerolíneas del Sur se incorpora a
-                  VuelaLibre a partir del 10 de mayo de 2026. Ya podés buscar
-                  y reservar sus vuelos desde la sección
-                  <a href="buscar_vuelos.php">Buscar Vuelos</a>.
-                  En una primera etapa operarán rutas domésticas en la Patagonia.
-                </p>
-
-                <div class="fechas-novedad">
-                  <span>
-                    <i class="bi bi-calendar-plus me-1" aria-hidden="true"></i>
-                    Publicada:
-                    <time datetime="2026-05-08">8 de mayo de 2026</time>
-                  </span>
-                  <span>
-                    <i class="bi bi-calendar-x me-1" aria-hidden="true"></i>
-                    Expira:
-                    <time datetime="2026-06-08">8 de junio de 2026</time>
-                  </span>
-                </div>
-
-              </div>
-            </article>
-          </li>
-
-          <li class="mb-4" role="listitem">
-            <article class="card border-0 shadow-sm novedad-estado-proxima"
-                     aria-label="Novedad 0003: Actualización del sistema — próxima">
-              <div class="card-body p-4">
-
-                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
-                  <div class="d-flex align-items-center gap-2">
-                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle">
-                      Cód: 0003
-                    </span>
-                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle">
-                      <i class="bi bi-circle-fill me-1 punto-estado-novedad" aria-hidden="true"></i>
-                      Próxima
-                    </span>
-                  </div>
-                </div>
-
-                <h2 class="h6 fw-bold mb-2">
-                  <i class="bi bi-arrow-repeat text-warning me-2" aria-hidden="true"></i>
-                  Actualización programada del sistema — 20 de mayo
-                </h2>
-
-                <p class="text-secondary mb-0 texto-contenido-novedad">
-                  El día 20 de mayo de 2026 entre las 00:00 y las 04:00 hs se
-                  realizará una actualización de mantenimiento del sistema.
-                  Durante ese período VuelaLibre no estará disponible.
-                  Te recomendamos realizar tus reservas antes de ese horario.
-                </p>
-
-                <div class="fechas-novedad">
-                  <span>
-                    <i class="bi bi-calendar-plus me-1" aria-hidden="true"></i>
-                    Publicada:
-                    <time datetime="2026-05-10">10 de mayo de 2026</time>
-                  </span>
-                  <span>
-                    <i class="bi bi-calendar-x me-1" aria-hidden="true"></i>
-                    Expira:
-                    <time datetime="2026-05-20">20 de mayo de 2026</time>
-                  </span>
-                </div>
-
-              </div>
-            </article>
-          </li>
-
-          <li class="mb-4" role="listitem">
-            <article class="card border-0 shadow-sm novedad-estado-expirada"
-                     aria-label="Novedad 0004: Semana de promociones — expirada">
-              <div class="card-body p-4">
-
-                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
-                  <div class="d-flex align-items-center gap-2">
-                    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">
-                      Cód: 0004
-                    </span>
-                    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">
-                      <i class="bi bi-circle-fill me-1 punto-estado-novedad" aria-hidden="true"></i>
-                      Expirada
-                    </span>
-                  </div>
-                </div>
-
-                <h2 class="h6 fw-bold mb-2 text-secondary">
-                  <i class="bi bi-tag text-secondary me-2" aria-hidden="true"></i>
-                  Semana de promociones especiales — Abril 2026
-                </h2>
-
-                <p class="text-secondary mb-0 texto-contenido-novedad">
-                  Durante la semana del 21 al 28 de abril de 2026 las aerolíneas
-                  asociadas a VuelaLibre aplicaron descuentos especiales de hasta
-                  el 40% en rutas seleccionadas. Esta promoción ya ha finalizado.
-                </p>
-
-                <div class="fechas-novedad">
-                  <span>
-                    <i class="bi bi-calendar-plus me-1" aria-hidden="true"></i>
-                    Publicada:
-                    <time datetime="2026-04-20">20 de abril de 2026</time>
-                  </span>
-                  <span>
-                    <i class="bi bi-calendar-x me-1" aria-hidden="true"></i>
-                    Expiró:
-                    <time datetime="2026-04-28">28 de abril de 2026</time>
-                  </span>
-                </div>
-
-              </div>
-            </article>
-          </li>
+            </li>
+          <?php endif; ?>
 
         </ul>
 
@@ -259,4 +184,3 @@
 
 </body>
 </html>
-
