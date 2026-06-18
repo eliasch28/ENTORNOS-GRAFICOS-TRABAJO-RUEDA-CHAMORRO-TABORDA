@@ -1,10 +1,6 @@
 <?php
 include '../../config/conexion.php';
-session_start();
-if (!isset($_SESSION['codUsuario'])) {
-    header('Location: ../Flujo Sesion/login.php');
-    exit;
-}
+require_once '../../config/requiere_ceo.php';
 ?>
 <!DOCTYPE html>
 <html lang="es">
