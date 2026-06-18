@@ -24,6 +24,21 @@ $sqlPromos = "SELECT p.codPromocion, p.descripcionPromocion, p.descuentoPromocio
               ORDER BY p.descuentoPromocion DESC";
 $resPromos = mysqli_query($link, $sqlPromos);
 
+$promos = [];
+if ($resPromos) {
+    while ($p = mysqli_fetch_assoc($resPromos)) {
+        $promos[] = $p;
+    }
+}
+$totalPromos   = count($promos);
+$porPagina     = 2;
+$totalPaginas  = max(1, (int)ceil($totalPromos / $porPagina));
+$paginaPromos  = max(1, min($totalPaginas, (int)($_GET['pagina'] ?? 1)));
+$promosPag     = array_slice($promos, ($paginaPromos - 1) * $porPagina, $porPagina);
+
+// URL base conservando filtro de aerolínea
+$urlBasePromos = 'promociones.php' . ($codAeroFiltro > 0 ? '?codAerolinea=' . $codAeroFiltro . '&' : '?');
+
 // Aerolíneas SIN promo aprobada (solo cuando no hay filtro activo)
 $sinPromo = [];
 if ($codAeroFiltro === 0) {
@@ -102,8 +117,8 @@ if ($codAeroFiltro === 0) {
 
         <ul class="list-unstyled" role="list" aria-label="Lista de promociones vigentes">
 
-          <?php if ($resPromos && mysqli_num_rows($resPromos) > 0): ?>
-            <?php while ($p = mysqli_fetch_assoc($resPromos)):
+          <?php if (!empty($promosPag)): ?>
+            <?php foreach ($promosPag as $p):
               $codFmt    = str_pad((string)$p['codPromocion'], 3, '0', STR_PAD_LEFT);
               $descuento = (int)$p['descuentoPromocion'];
             ?>
@@ -161,7 +176,7 @@ if ($codAeroFiltro === 0) {
                 </div>
               </article>
             </li>
-            <?php endwhile; ?>
+            <?php endforeach; ?>
           <?php else: ?>
             <li role="listitem">
               <div class="alert alert-info" role="status">
@@ -170,6 +185,29 @@ if ($codAeroFiltro === 0) {
               </div>
             </li>
           <?php endif; ?>
+
+        </ul>
+
+        <?php if ($totalPaginas > 1): ?>
+          <nav aria-label="Paginación de promociones" class="my-4">
+            <ul class="pagination justify-content-center">
+              <li class="page-item <?= $paginaPromos <= 1 ? 'disabled' : '' ?>">
+                <a class="page-link" href="<?= $urlBasePromos ?>pagina=<?= $paginaPromos - 1 ?>">Anterior</a>
+              </li>
+              <?php for ($i = 1; $i <= $totalPaginas; $i++): ?>
+                <li class="page-item <?= $i === $paginaPromos ? 'active' : '' ?>">
+                  <a class="page-link" href="<?= $urlBasePromos ?>pagina=<?= $i ?>"
+                     <?= $i === $paginaPromos ? 'aria-current="page"' : '' ?>><?= $i ?></a>
+                </li>
+              <?php endfor; ?>
+              <li class="page-item <?= $paginaPromos >= $totalPaginas ? 'disabled' : '' ?>">
+                <a class="page-link" href="<?= $urlBasePromos ?>pagina=<?= $paginaPromos + 1 ?>">Siguiente</a>
+              </li>
+            </ul>
+          </nav>
+        <?php endif; ?>
+
+        <ul class="list-unstyled">
 
           <?php if (!empty($sinPromo)): ?>
           <li role="listitem">

@@ -50,8 +50,24 @@ $sqlVuelos = "SELECT v.codVuelo, v.origenVuelo, v.destinoVuelo,
               WHERE $whereStr
               ORDER BY v.fechaSalidaVuelo ASC, v.horaSalidaVuelo ASC";
 
-$resVuelos   = mysqli_query($link, $sqlVuelos);
-$totalVuelos = $resVuelos ? mysqli_num_rows($resVuelos) : 0;
+$resVuelos = mysqli_query($link, $sqlVuelos);
+$vuelos = [];
+if ($resVuelos) {
+    while ($v = mysqli_fetch_assoc($resVuelos)) {
+        $vuelos[] = $v;
+    }
+}
+$totalVuelos  = count($vuelos);
+$porPagina    = 3;
+$totalPaginas = max(1, (int)ceil($totalVuelos / $porPagina));
+$paginaVuelos = max(1, min($totalPaginas, (int)($_GET['pagina'] ?? 1)));
+$vuelosPag    = array_slice($vuelos, ($paginaVuelos - 1) * $porPagina, $porPagina);
+
+// URL base conservando filtros excepto 'pagina'
+$getFiltros = $_GET;
+unset($getFiltros['pagina']);
+$queryFiltros  = http_build_query($getFiltros);
+$urlBaseVuelos = 'buscar_vuelos.php' . ($queryFiltros ? '?' . $queryFiltros . '&' : '?');
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -175,7 +191,7 @@ $totalVuelos = $resVuelos ? mysqli_num_rows($resVuelos) : 0;
             <ul class="list-unstyled" role="list" aria-label="Vuelos encontrados">
 
               <?php if ($totalVuelos > 0): ?>
-                <?php while ($v = mysqli_fetch_assoc($resVuelos)):
+                <?php foreach ($vuelosPag as $v):
                   $codFmt     = str_pad((string)$v['codVuelo'], 4, '0', STR_PAD_LEFT);
                   $origenCod  = mb_strtoupper(mb_substr($v['origenVuelo'],  0, 3));
                   $destinoCod = mb_strtoupper(mb_substr($v['destinoVuelo'], 0, 3));
@@ -267,7 +283,7 @@ $totalVuelos = $resVuelos ? mysqli_num_rows($resVuelos) : 0;
                     </div>
                   </article>
                 </li>
-                <?php endwhile; ?>
+                <?php endforeach; ?>
               <?php else: ?>
                 <li role="listitem">
                   <div class="alert alert-info" role="status">
@@ -278,6 +294,25 @@ $totalVuelos = $resVuelos ? mysqli_num_rows($resVuelos) : 0;
               <?php endif; ?>
 
             </ul>
+
+            <?php if ($totalPaginas > 1): ?>
+              <nav aria-label="Paginación de vuelos" class="mt-4">
+                <ul class="pagination justify-content-center">
+                  <li class="page-item <?= $paginaVuelos <= 1 ? 'disabled' : '' ?>">
+                    <a class="page-link" href="<?= $urlBaseVuelos ?>pagina=<?= $paginaVuelos - 1 ?>">Anterior</a>
+                  </li>
+                  <?php for ($i = 1; $i <= $totalPaginas; $i++): ?>
+                    <li class="page-item <?= $i === $paginaVuelos ? 'active' : '' ?>">
+                      <a class="page-link" href="<?= $urlBaseVuelos ?>pagina=<?= $i ?>"
+                         <?= $i === $paginaVuelos ? 'aria-current="page"' : '' ?>><?= $i ?></a>
+                    </li>
+                  <?php endfor; ?>
+                  <li class="page-item <?= $paginaVuelos >= $totalPaginas ? 'disabled' : '' ?>">
+                    <a class="page-link" href="<?= $urlBaseVuelos ?>pagina=<?= $paginaVuelos + 1 ?>">Siguiente</a>
+                  </li>
+                </ul>
+              </nav>
+            <?php endif; ?>
 
           </div>
 

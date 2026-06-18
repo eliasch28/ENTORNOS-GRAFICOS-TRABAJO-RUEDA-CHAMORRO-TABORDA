@@ -19,6 +19,21 @@ $reservasConfirmadas = 0;
 $comprasTotales      = 0;
 $primerPendiente     = null;
 
+$usuariosRegistrados  = 0;
+$aerolineasActivas    = 0;
+$promocionesPendientes = 0;
+
+if ($tipo === 'administrador') {
+    $r = mysqli_query($link, "SELECT COUNT(*) AS total FROM USUARIOS");
+    $usuariosRegistrados = (int)(mysqli_fetch_assoc($r)['total'] ?? 0);
+
+    $r = mysqli_query($link, "SELECT COUNT(*) AS total FROM AEROLINEAS");
+    $aerolineasActivas = (int)(mysqli_fetch_assoc($r)['total'] ?? 0);
+
+    $r = mysqli_query($link, "SELECT COUNT(*) AS total FROM PROMOCIONES WHERE estadoPromocion = 'pendiente'");
+    $promocionesPendientes = (int)(mysqli_fetch_assoc($r)['total'] ?? 0);
+}
+
 if ($tipo === 'usuario') {
     $codUsuario = (int)$_SESSION['codUsuario'];
 
@@ -83,9 +98,9 @@ if ($tipo === 'usuario') {
           <div class="card border-0 shadow">
             <div class="card-body p-4">
               <h2 class="h6 fw-bold text-dark mb-3"><i class="bi bi-speedometer2 me-2"></i>Resumen del sistema</h2>
-              <div class="fila-detalle"><span class="etiqueta-detalle">Usuarios registrados</span><span class="fw-bold text-primary">128</span></div>
-              <div class="fila-detalle"><span class="etiqueta-detalle">Aerolíneas activas</span><span class="fw-bold text-success">5</span></div>
-              <div class="fila-detalle"><span class="etiqueta-detalle">Promociones pendientes</span><span class="fw-bold text-warning">7</span></div>
+              <div class="fila-detalle"><span class="etiqueta-detalle">Usuarios registrados</span><span class="fw-bold text-primary"><?= $usuariosRegistrados ?></span></div>
+              <div class="fila-detalle"><span class="etiqueta-detalle">Aerolíneas activas</span><span class="fw-bold text-success"><?= $aerolineasActivas ?></span></div>
+              <div class="fila-detalle"><span class="etiqueta-detalle">Promociones pendientes</span><span class="fw-bold text-warning"><?= $promocionesPendientes ?></span></div>
               <div class="fila-detalle"><span class="etiqueta-detalle">Novedades vigentes</span><span class="fw-bold text-info"><?= $novedadesVigentes ?></span></div>
               <a href="../FuncionesAdmin/auditoria-promociones.php" class="btn btn-outline-dark btn-sm w-100 mt-3">
                 <i class="bi bi-check2-circle me-1"></i>Auditoría de Promociones

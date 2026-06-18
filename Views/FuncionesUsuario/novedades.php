@@ -49,6 +49,18 @@ $sqlNovedades = "SELECT codNovedad, textoNovedad, fechaPublicacionNovedad, fecha
                  FROM NOVEDADES
                  ORDER BY fechaPublicacionNovedad DESC";
 $resNovedades = mysqli_query($link, $sqlNovedades);
+
+$novedades = [];
+if ($resNovedades) {
+    while ($row = mysqli_fetch_assoc($resNovedades)) {
+        $novedades[] = $row;
+    }
+}
+$totalNovedades = count($novedades);
+$porPagina      = 2;
+$totalPaginas   = max(1, (int)ceil($totalNovedades / $porPagina));
+$pagina         = max(1, min($totalPaginas, (int)($_GET['pagina'] ?? 1)));
+$novedadesPag   = array_slice($novedades, ($pagina - 1) * $porPagina, $porPagina);
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -109,8 +121,8 @@ $resNovedades = mysqli_query($link, $sqlNovedades);
 
         <ul class="list-unstyled" role="list" aria-label="Lista de novedades del sistema">
 
-          <?php if ($resNovedades && mysqli_num_rows($resNovedades) > 0): ?>
-            <?php while ($row = mysqli_fetch_assoc($resNovedades)):
+          <?php if (!empty($novedadesPag)): ?>
+            <?php foreach ($novedadesPag as $row):
               [$estadoKey, $estadoLabel, $badgeClass, $cardClass, $iconClass] = estadoNovedadUsuario(
                 $row['fechaPublicacionNovedad'],
                 $row['fechaExpiracionNovedad'],
@@ -164,7 +176,7 @@ $resNovedades = mysqli_query($link, $sqlNovedades);
                   </div>
                 </article>
               </li>
-            <?php endwhile; ?>
+            <?php endforeach; ?>
           <?php else: ?>
             <li role="listitem">
               <div class="alert alert-info mb-0" role="status">
@@ -175,6 +187,25 @@ $resNovedades = mysqli_query($link, $sqlNovedades);
           <?php endif; ?>
 
         </ul>
+
+        <?php if ($totalPaginas > 1): ?>
+          <nav aria-label="Paginación de novedades" class="mt-4">
+            <ul class="pagination justify-content-center">
+              <li class="page-item <?= $pagina <= 1 ? 'disabled' : '' ?>">
+                <a class="page-link" href="novedades.php?pagina=<?= $pagina - 1 ?>">Anterior</a>
+              </li>
+              <?php for ($i = 1; $i <= $totalPaginas; $i++): ?>
+                <li class="page-item <?= $i === $pagina ? 'active' : '' ?>">
+                  <a class="page-link" href="novedades.php?pagina=<?= $i ?>"
+                     <?= $i === $pagina ? 'aria-current="page"' : '' ?>><?= $i ?></a>
+                </li>
+              <?php endfor; ?>
+              <li class="page-item <?= $pagina >= $totalPaginas ? 'disabled' : '' ?>">
+                <a class="page-link" href="novedades.php?pagina=<?= $pagina + 1 ?>">Siguiente</a>
+              </li>
+            </ul>
+          </nav>
+        <?php endif; ?>
 
       </div>
     </section>

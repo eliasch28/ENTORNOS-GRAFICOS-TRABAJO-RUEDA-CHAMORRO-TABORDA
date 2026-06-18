@@ -120,7 +120,7 @@ $resReservas = mysqli_query($link, $sqlReservas);
             </label>
             <select id="filtroEstado" name="estado" class="form-select form-select-sm w-auto">
               <option value="">Todas</option>
-              <option value="pendiente"  <?= (($_GET['estado'] ?? '') === 'pendiente')  ? 'selected' : '' ?>>Pendiente de pago</option>
+              <option value="pendiente de pago" <?= (($_GET['estado'] ?? '') === 'pendiente de pago') ? 'selected' : '' ?>>Pendiente de pago</option>
               <option value="confirmada" <?= (($_GET['estado'] ?? '') === 'confirmada') ? 'selected' : '' ?>>Confirmada</option>
               <option value="cancelada"  <?= (($_GET['estado'] ?? '') === 'cancelada')  ? 'selected' : '' ?>>Cancelada</option>
             </select>

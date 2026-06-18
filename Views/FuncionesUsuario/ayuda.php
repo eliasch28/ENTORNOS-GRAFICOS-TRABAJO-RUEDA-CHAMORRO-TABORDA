@@ -78,12 +78,74 @@ $preguntas = [
                     restablecer tu contraseña. El enlace expira en <strong>1 hora</strong>.
                     Revisá también la carpeta de spam si no lo encontrás en tu bandeja principal.',
   ],
+  [
+    'id'        => 'faq-6',
+    'categoria' => 'pagos',
+    'pregunta'  => '¿Cómo se confirma el pago de una reserva?',
+    'respuesta' => 'Una vez que realizaste la reserva, esta queda en estado
+                    <em>pendiente de pago</em>. Para confirmarla, ingresá a
+                    <strong>"Mis Reservas"</strong> y hacé clic en
+                    <strong>"Confirmar / Pagar"</strong>. La reserva pasará
+                    al estado <em>confirmada</em> y quedará registrada en tu historial
+                    de compras.',
+  ],
+  [
+    'id'        => 'faq-7',
+    'categoria' => 'pagos',
+    'pregunta'  => '¿Dónde veo mis compras confirmadas?',
+    'respuesta' => 'Podés ver todas tus compras confirmadas en la sección
+                    <strong>"Historial de Compras"</strong>, disponible desde el menú
+                    principal. Allí encontrarás el detalle de cada vuelo, el precio
+                    abonado, y el ahorro obtenido si aplicaste alguna promoción.',
+  ],
+  [
+    'id'        => 'faq-8',
+    'categoria' => 'vuelos',
+    'pregunta'  => '¿Qué significa que un vuelo tenga "pocos asientos"?',
+    'respuesta' => 'El indicador de asientos disponibles cambia de color según la
+                    disponibilidad: <strong style="color:green">verde</strong> indica
+                    más de 20 asientos libres, <strong style="color:orange">naranja</strong>
+                    entre 6 y 20, y <strong style="color:red">rojo</strong> 5 o menos.
+                    Te recomendamos reservar rápido cuando el indicador esté en rojo.',
+  ],
+  [
+    'id'        => 'faq-9',
+    'categoria' => 'registro',
+    'pregunta'  => '¿Cómo me registro como CEO de aerolínea?',
+    'respuesta' => 'Durante el registro seleccioná el tipo de usuario
+                    <strong>"CEO de Aerolínea"</strong>. Tu solicitud quedará pendiente
+                    de aprobación por parte del Administrador del sistema. Una vez
+                    aprobada recibirás acceso al panel de gestión de vuelos y
+                    promociones de tu aerolínea.',
+  ],
+  [
+    'id'        => 'faq-10',
+    'categoria' => 'reservas',
+    'pregunta'  => '¿Puedo tener varias reservas al mismo tiempo?',
+    'respuesta' => 'Sí. Podés tener múltiples reservas activas simultáneamente, ya sea
+                    en estado <em>pendiente de pago</em> o <em>confirmada</em>. Cada
+                    reserva se gestiona de forma independiente desde la sección
+                    <strong>"Mis Reservas"</strong>, donde podés confirmar o cancelar
+                    cada una por separado.',
+  ],
 ];
 
 /* ── Filtrar según la categoría recibida ────────────────────── */
 $preguntasFiltradas = ($categoriaActual === 'todas')
   ? $preguntas
   : array_values(array_filter($preguntas, fn($p) => $p['categoria'] === $categoriaActual));
+
+/* ── Paginación ─────────────────────────────────────────────── */
+$porPaginaFaq   = 3;
+$totalFaq       = count($preguntasFiltradas);
+$totalPagFaq    = max(1, (int)ceil($totalFaq / $porPaginaFaq));
+$paginaFaq      = max(1, min($totalPagFaq, (int)($_GET['pagina'] ?? 1)));
+$pregsPagina    = array_slice($preguntasFiltradas, ($paginaFaq - 1) * $porPaginaFaq, $porPaginaFaq);
+
+$getAyuda = [];
+if ($categoriaActual !== 'todas') $getAyuda['categoria'] = $categoriaActual;
+$queryAyuda  = http_build_query($getAyuda);
+$urlBaseAyuda = 'ayuda.php' . ($queryAyuda ? '?' . $queryAyuda . '&' : '?');
 
 /* ── Etiquetas visibles de cada categoría ───────────────────── */
 $categorias = [
@@ -137,7 +199,7 @@ $categorias = [
               </div>
             <?php else: ?>
               <div class="accordion shadow-sm mb-4" id="faq-accordion">
-                <?php foreach ($preguntasFiltradas as $pregunta): ?>
+                <?php foreach ($pregsPagina as $pregunta): ?>
                   <div class="accordion-item border-0 mb-2">
                     <h2 class="accordion-header" id="<?= $pregunta['id'] ?>-header">
                       <button class="accordion-button collapsed fw-semibold"
@@ -163,22 +225,24 @@ $categorias = [
             <?php endif; ?>
 
             <!-- Paginado de preguntas -->
+            <?php if ($totalPagFaq > 1): ?>
             <nav aria-label="Paginación de preguntas frecuentes" class="mb-4">
               <ul class="pagination justify-content-center">
-                <li class="page-item disabled">
-                  <span class="page-link">Anterior</span>
+                <li class="page-item <?= $paginaFaq <= 1 ? 'disabled' : '' ?>">
+                  <a class="page-link" href="<?= $urlBaseAyuda ?>pagina=<?= $paginaFaq - 1 ?>">Anterior</a>
                 </li>
-                <li class="page-item active" aria-current="page">
-                  <span class="page-link">1</span>
-                </li>
-                <li class="page-item">
-                  <a class="page-link" href="ayuda.php?pagina=2">2</a>
-                </li>
-                <li class="page-item">
-                  <a class="page-link" href="ayuda.php?pagina=2">Siguiente</a>
+                <?php for ($i = 1; $i <= $totalPagFaq; $i++): ?>
+                  <li class="page-item <?= $i === $paginaFaq ? 'active' : '' ?>">
+                    <a class="page-link" href="<?= $urlBaseAyuda ?>pagina=<?= $i ?>"
+                       <?= $i === $paginaFaq ? 'aria-current="page"' : '' ?>><?= $i ?></a>
+                  </li>
+                <?php endfor; ?>
+                <li class="page-item <?= $paginaFaq >= $totalPagFaq ? 'disabled' : '' ?>">
+                  <a class="page-link" href="<?= $urlBaseAyuda ?>pagina=<?= $paginaFaq + 1 ?>">Siguiente</a>
                 </li>
               </ul>
             </nav>
+            <?php endif; ?>
 
             <!-- Botón Contáctanos -->
             <div class="text-center mb-3">
