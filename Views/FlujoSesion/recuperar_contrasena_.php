@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                               SET tokenRecuperacion = '$token', tokenRecuperacionExp = DATE_ADD(NOW(), INTERVAL 1 HOUR)
                               WHERE codUsuario = $codUsuario");
 
-        $enlace = BASE_URL . '/Views/' . rawurlencode('Flujo Sesion') . '/restablecer_contrasena.php?token=' . $token;
+        $enlace = BASE_URL . '/Views/FlujoSesion/restablecer_contrasena.php?token=' . $token;
         $cuerpo = "<p>Hola <strong>{$usuario['nombreUsuario']}</strong>,</p>"
             . "<p>Recibimos una solicitud para restablecer tu contraseña de VuelaLibre. El siguiente enlace es válido por 1 hora:</p>"
             . "<p><a href=\"$enlace\">$enlace</a></p>"

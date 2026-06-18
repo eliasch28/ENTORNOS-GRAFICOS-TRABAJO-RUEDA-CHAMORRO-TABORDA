@@ -24,33 +24,33 @@
         <?php if ($tipoUsuario === 'administrador'): ?>
           <ul class="lista-mapa-sitio" role="list">
             <li><a href="../LandPage/LandUsuarioRegistrado.php">Inicio</a></li>
-            <li><a href="../Funciones Admin/aerolineas-index.php">Aerolíneas</a></li>
-            <li><a href="../Funciones Admin/auditoria-promociones.php">Promociones</a></li>
-            <li><a href="../Funciones Admin/novedades-index.php">Novedades</a></li>
-            <li><a href="../Funciones Admin/solicitudes-ceo.php">Solicitudes CEO</a></li>
-            <li><a href="../Funciones Admin/global-reports.php">Reportes</a></li>
-            <li><a href="../Funciones Usuario/sobre_nosotros.php">Sobre Nosotros</a></li>
-            <li><a href="../Funciones Usuario/ayuda.php">Centro de Ayuda</a></li>
+            <li><a href="../FuncionesAdmin/aerolineas-index.php">Aerolíneas</a></li>
+            <li><a href="../FuncionesAdmin/auditoria-promociones.php">Promociones</a></li>
+            <li><a href="../FuncionesAdmin/novedades-index.php">Novedades</a></li>
+            <li><a href="../FuncionesAdmin/solicitudes-ceo.php">Solicitudes CEO</a></li>
+            <li><a href="../FuncionesAdmin/global-reports.php">Reportes</a></li>
+            <li><a href="../FuncionesUsuario/sobre_nosotros.php">Sobre Nosotros</a></li>
+            <li><a href="../FuncionesUsuario/ayuda.php">Centro de Ayuda</a></li>
           </ul>
 
         <?php elseif ($tipoUsuario === 'ceo de aerolinea'): ?>
           <ul class="lista-mapa-sitio" role="list">
             <li><a href="../LandPage/LandUsuarioRegistrado.php">Inicio</a></li>
-            <li><a href="../Funciones CEO/vuelos-index.php">Vuelos</a></li>
-            <li><a href="../Funciones CEO/promociones-index.php">Promociones</a></li>
-            <li><a href="../Funciones CEO/reportes-ceo.php">Reportes</a></li>
-            <li><a href="../Funciones Usuario/sobre_nosotros.php">Sobre Nosotros</a></li>
-            <li><a href="../Funciones Usuario/ayuda.php">Centro de Ayuda</a></li>
+            <li><a href="../FuncionesCEO/vuelos-index.php">Vuelos</a></li>
+            <li><a href="../FuncionesCEO/promociones-index.php">Promociones</a></li>
+            <li><a href="../FuncionesCEO/reportes-ceo.php">Reportes</a></li>
+            <li><a href="../FuncionesUsuario/sobre_nosotros.php">Sobre Nosotros</a></li>
+            <li><a href="../FuncionesUsuario/ayuda.php">Centro de Ayuda</a></li>
           </ul>
 
         <?php elseif ($tipoUsuario === 'usuario'): ?>
           <ul class="lista-mapa-sitio" role="list">
             <li><a href="../LandPage/LandUsuarioRegistrado.php">Inicio</a></li>
-            <li><a href="../Funciones Usuario/buscar_vuelos.php">Buscar Vuelos</a></li>
-            <li><a href="../Funciones Usuario/promociones.php">Promociones</a></li>
-            <li><a href="../Funciones Usuario/novedades.php">Novedades</a></li>
-            <li><a href="../Funciones Usuario/sobre_nosotros.php">Sobre Nosotros</a></li>
-            <li><a href="../Funciones Usuario/ayuda.php">Centro de Ayuda</a></li>
+            <li><a href="../FuncionesUsuario/buscar_vuelos.php">Buscar Vuelos</a></li>
+            <li><a href="../FuncionesUsuario/promociones.php">Promociones</a></li>
+            <li><a href="../FuncionesUsuario/novedades.php">Novedades</a></li>
+            <li><a href="../FuncionesUsuario/sobre_nosotros.php">Sobre Nosotros</a></li>
+            <li><a href="../FuncionesUsuario/ayuda.php">Centro de Ayuda</a></li>
           </ul>
 
         <?php else: ?>
@@ -58,10 +58,10 @@
             <li><a href="../LandPage/LandUsuarioNoRegistrado.php">Inicio</a></li>
             <li><a href="../LandPage/LandUsuarioNoRegistrado.php#seccion-aerolineas">Aerolíneas</a></li>
             <li><a href="../LandPage/LandUsuarioNoRegistrado.php#seccion-vuelos">Vuelos disponibles</a></li>
-            <li><a href="../Flujo Sesion/registrarse_.php">Registrarse</a></li>
-            <li><a href="../Flujo Sesion/login.php">Iniciar Sesión</a></li>
-            <li><a href="../Funciones Usuario/sobre_nosotros.php">Sobre Nosotros</a></li>
-            <li><a href="../Funciones Usuario/ayuda.php">Centro de Ayuda</a></li>
+            <li><a href="../FlujoSesion/registrarse_.php">Registrarse</a></li>
+            <li><a href="../FlujoSesion/login.php">Iniciar Sesión</a></li>
+            <li><a href="../FuncionesUsuario/sobre_nosotros.php">Sobre Nosotros</a></li>
+            <li><a href="../FuncionesUsuario/ayuda.php">Centro de Ayuda</a></li>
           </ul>
         <?php endif; ?>
 
@@ -71,13 +71,13 @@
       <nav class="col-lg-3 col-md-6" aria-label="Mi cuenta">
         <h2 class="h6 text-uppercase text-secondary small fw-semibold mb-3">Mi Cuenta</h2>
         <ul class="lista-mapa-sitio" role="list">
-          <li><a href="../Funciones Usuario/mi_perfil.php">Mi Perfil</a></li>
+          <li><a href="../FuncionesUsuario/mi_perfil.php">Mi Perfil</a></li>
           <?php if ($tipoUsuario === 'usuario'): ?>
-            <li><a href="../Funciones Usuario/mis_reservas.php">Mis Reservas</a></li>
-            <li><a href="../Funciones Usuario/historial_compras.php">Historial de Compras</a></li>
+            <li><a href="../FuncionesUsuario/mis_reservas.php">Mis Reservas</a></li>
+            <li><a href="../FuncionesUsuario/historial_compras.php">Historial de Compras</a></li>
           <?php endif; ?>
-          <li><a href="../Flujo Sesion/recuperar_contrasena_.php">Recuperar Contraseña</a></li>
-          <li><a href="../Flujo Sesion/logout.php">Cerrar Sesión</a></li>
+          <li><a href="../FlujoSesion/recuperar_contrasena_.php">Recuperar Contraseña</a></li>
+          <li><a href="../FlujoSesion/logout.php">Cerrar Sesión</a></li>
         </ul>
       </nav>
       <?php endif; ?>

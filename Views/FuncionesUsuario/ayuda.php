@@ -273,21 +273,21 @@ $categorias = [
               </h2>
               <ul class="list-unstyled mb-0">
                 <li class="mb-2">
-                  <a href="../Flujo Sesion/registrarse_.php"
+                  <a href="../FlujoSesion/registrarse_.php"
                      class="text-decoration-none text-secondary small">
                     <i class="bi bi-person-plus me-2 text-primary" aria-hidden="true"></i>
                     Cómo registrarme
                   </a>
                 </li>
                 <li class="mb-2">
-                  <a href="../Flujo Sesion/recuperar_contrasena_.php"
+                  <a href="../FlujoSesion/recuperar_contrasena_.php"
                      class="text-decoration-none text-secondary small">
                     <i class="bi bi-key me-2 text-primary" aria-hidden="true"></i>
                     Recuperar contraseña
                   </a>
                 </li>
                 <li class="mb-2">
-                  <a href="../Flujo Sesion/login.php"
+                  <a href="../FlujoSesion/login.php"
                      class="text-decoration-none text-secondary small">
                     <i class="bi bi-box-arrow-in-right me-2 text-primary" aria-hidden="true"></i>
                     Iniciar sesión

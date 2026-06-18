@@ -42,7 +42,7 @@
               <a href="#seccion-vuelos" class="btn btn-light btn-lg text-primary fw-semibold">
                 <i class="bi bi-search me-2" aria-hidden="true"></i>Buscar Vuelos
               </a>
-              <a href="../Flujo Sesion/registrarse_.php" class="btn btn-outline-light btn-lg">
+              <a href="../FlujoSesion/registrarse_.php" class="btn btn-outline-light btn-lg">
                 <i class="bi bi-person-plus me-2" aria-hidden="true"></i>Crear Cuenta
               </a>
             </div>
@@ -220,7 +220,7 @@
                     <div class="fw-bold fs-5 text-dark">
                       <small class="text-secondary fw-normal fs-6">ARS</small> 48.500
                     </div>
-                    <a href="../Flujo Sesion/login.php" class="btn btn-primary btn-sm mt-2">
+                    <a href="../FlujoSesion/login.php" class="btn btn-primary btn-sm mt-2">
                       Iniciar sesión para reservar
                     </a>
                   </div>
@@ -273,7 +273,7 @@
                     <div class="fw-bold fs-5 text-dark">
                       <small class="text-secondary fw-normal fs-6">ARS</small> 124.900
                     </div>
-                    <a href="../Flujo Sesion/login.php" class="btn btn-primary btn-sm mt-2">
+                    <a href="../FlujoSesion/login.php" class="btn btn-primary btn-sm mt-2">
                       Iniciar sesión para reservar
                     </a>
                   </div>
@@ -285,7 +285,7 @@
         </ul>
 
         <div class="text-center mt-3">
-          <a href="../Flujo Sesion/login.php" class="btn btn-outline-primary">
+          <a href="../FlujoSesion/login.php" class="btn btn-outline-primary">
             Iniciar sesión para ver todos los vuelos <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
           </a>
         </div>
@@ -299,10 +299,10 @@
           Creá tu cuenta gratis y empezá a explorar vuelos y promociones exclusivas.
         </p>
         <div class="d-flex gap-3 justify-content-center flex-wrap">
-          <a href="../Flujo Sesion/registrarse_.php" class="btn btn-light btn-lg text-primary fw-semibold">
+          <a href="../FlujoSesion/registrarse_.php" class="btn btn-light btn-lg text-primary fw-semibold">
             <i class="bi bi-person-plus-fill me-2" aria-hidden="true"></i>Registrarse gratis
           </a>
-          <a href="../Flujo Sesion/login.php" class="btn btn-outline-light btn-lg">
+          <a href="../FlujoSesion/login.php" class="btn btn-outline-light btn-lg">
             <i class="bi bi-box-arrow-in-right me-2" aria-hidden="true"></i>Ya tengo cuenta
           </a>
         </div>
