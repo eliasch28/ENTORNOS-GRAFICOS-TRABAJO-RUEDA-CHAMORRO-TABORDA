@@ -1,14 +1,12 @@
 ﻿<?php
 include '../../config/conexion.php';
 session_start();
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['_logout'])) {
     $_SESSION = [];
     session_destroy();
     header('Location: login.php');
     exit;
 }
-
 if (isset($_SESSION['codUsuario'])) {
     $check = mysqli_query($link, "SELECT codUsuario FROM USUARIOS WHERE codUsuario = " . $_SESSION['codUsuario']);
     if (mysqli_num_rows($check) > 0) {
@@ -18,17 +16,13 @@ if (isset($_SESSION['codUsuario'])) {
         session_destroy();
     }
 }
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nombreUsuario = trim($_POST['nombreUsuario']);
     $claveUsuario  = $_POST['claveUsuario'];
-
     $query = "SELECT * FROM USUARIOS WHERE BINARY nombreUsuario = '$nombreUsuario'";
     $resultado = mysqli_query($link, $query);
-
     if ($resultado && mysqli_num_rows($resultado) === 1) {
         $usuario = mysqli_fetch_assoc($resultado);
-
         if (md5($claveUsuario) === $usuario['claveUsuario']) {
             if ($usuario['verificado'] == 0) {
                 if ($usuario['tipoUsuario'] === 'ceo de aerolinea') {
@@ -88,14 +82,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <?php if (isset($_GET['registro'])): ?>
                 <div class="alert alert-success" role="alert">
-                    <i class="bi bi-check-circle me-2"></i>
+                    <i class="bi bi-check-circle me-2" aria-hidden="true"></i>
                     ¡Cuenta creada con éxito! Te enviamos un correo para verificar tu cuenta antes de poder iniciar sesión.
                 </div>
             <?php endif; ?>
 
             <?php if (isset($_GET['correoFallido'])): ?>
                 <div class="alert alert-warning" role="alert">
-                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <i class="bi bi-exclamation-triangle me-2" aria-hidden="true"></i>
                     No pudimos enviar el correo de verificación. Probá
                     <a href="reenviar_verificacion.php">reenviarlo</a> en unos minutos.
                 </div>
@@ -103,13 +97,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <?php if (isset($_GET['pendiente'])): ?>
                 <div class="alert alert-warning" role="alert">
-                    <i class="bi bi-hourglass-split me-2"></i>Tu solicitud fue enviada. Aguardá la aprobación del Administrador para poder iniciar sesión.
+                    <i class="bi bi-hourglass-split me-2" aria-hidden="true"></i>Tu solicitud fue enviada. Aguardá la aprobación del Administrador para poder iniciar sesión.
                 </div>
             <?php endif; ?>
 
             <?php if (!empty($error)): ?>
                 <div class="alert alert-danger" role="alert">
-                    <i class="bi bi-exclamation-triangle me-2"></i><?= $error ?>
+                    <i class="bi bi-exclamation-triangle me-2" aria-hidden="true"></i><?= $error ?>
                 </div>
             <?php endif; ?>
             
@@ -172,4 +166,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 </body>
 </html>
-

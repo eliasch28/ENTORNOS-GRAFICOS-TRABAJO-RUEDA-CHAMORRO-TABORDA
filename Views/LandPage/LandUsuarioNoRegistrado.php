@@ -1,6 +1,5 @@
 ﻿<?php
 include '../../config/conexion.php';
-
 $resAero = mysqli_query($link,
     "SELECT codAerolinea, nombreAerolinea, codigoIATA, descripcionAerolinea, codPais
      FROM AEROLINEAS ORDER BY codAerolinea ASC LIMIT 3");
@@ -8,7 +7,6 @@ $aerolineas = [];
 if ($resAero) {
     while ($a = mysqli_fetch_assoc($resAero)) $aerolineas[] = $a;
 }
-
 $resVuelos = mysqli_query($link,
     "SELECT v.codVuelo, v.origenVuelo, v.destinoVuelo,
             v.fechaSalidaVuelo, v.horaSalidaVuelo,
@@ -26,7 +24,6 @@ $vuelos = [];
 if ($resVuelos) {
     while ($v = mysqli_fetch_assoc($resVuelos)) $vuelos[] = $v;
 }
-
 $iconosAero = ['bi-airplane', 'bi-globe2', 'bi-lightning-charge', 'bi-stars', 'bi-building'];
 ?>
 <!DOCTYPE html>
@@ -296,4 +293,3 @@ $iconosAero = ['bi-airplane', 'bi-globe2', 'bi-lightning-charge', 'bi-stars', 'b
 
 </body>
 </html>
-

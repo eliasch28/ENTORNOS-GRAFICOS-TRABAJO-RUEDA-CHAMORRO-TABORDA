@@ -25,7 +25,6 @@
     <section class="py-5" aria-labelledby="nosotros-titulo">
       <div class="container">
 
-        <!-- Encabezado -->
         <div class="mb-5">
           <p class="text-primary text-uppercase small fw-semibold mb-1">
             <i class="bi bi-info-circle me-1" aria-hidden="true"></i>La empresa
@@ -36,11 +35,9 @@
           </p>
         </div>
 
-
         <div class="row g-4">
           <div class="col-lg-8">
 
-            <!-- Información sobre VuelaLibre -->
             <div class="card border-0 shadow-sm mb-4">
               <div class="card-body p-4">
                 <h2 class="h5 fw-bold text-primary mb-3">
@@ -67,8 +64,6 @@
               </div>
             </div>
 
-
-            <!-- Políticas de privacidad -->
             <div class="card border-0 shadow-sm mb-4">
               <div class="card-body p-4">
                 <h2 class="h5 fw-bold text-primary mb-3">
@@ -102,8 +97,6 @@
               </div>
             </div>
 
-
-            <!-- Botón Contáctanos que despliega el formulario -->
             <div class="text-center mb-3">
               <button class="btn btn-primary btn-lg"
                       type="button"
@@ -115,7 +108,6 @@
               </button>
             </div>
 
-            <!-- Formulario de contacto colapsable -->
             <div class="collapse" id="formularioContacto">
               <div class="card border-0 shadow-sm">
                 <div class="card-body p-4">
@@ -125,10 +117,6 @@
                     Formulario de contacto
                   </h2>
 
-                  <!--
-                    TODO: Procesar con PHP en etapa de integración.
-                    Enviar por email o guardar en tabla CONSULTAS.
-                  -->
                   <form action="sobre_nosotros.php" method="post"
                         aria-label="Formulario de contacto">
 
@@ -190,10 +178,8 @@
               </div>
             </div>
 
-          </div><!-- /col principal -->
+          </div>
 
-
-          <!-- Columna lateral: datos de contacto -->
           <div class="col-lg-4">
             <div class="card border-0 shadow-sm p-4">
               <h2 class="h6 fw-bold text-primary mb-3">
@@ -221,7 +207,7 @@
             </div>
           </div>
 
-        </div><!-- /row -->
+        </div>
 
       </div>
     </section>
@@ -231,4 +217,3 @@
 
 </body>
 </html>
-

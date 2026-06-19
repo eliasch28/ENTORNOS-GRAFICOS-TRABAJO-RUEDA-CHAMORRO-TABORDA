@@ -1,38 +1,29 @@
 <?php
 include '../../config/conexion.php';
 require_once '../../config/requiere_admin.php';
-
 $error = '';
 $exito = '';
-
 $codNovedad = isset($_GET['id']) ? (int) $_GET['id'] : 0;
-
 if ($codNovedad <= 0) {
   header('Location: novedades-index.php');
   exit;
 }
-
 $idEsc = (int) $codNovedad;
 $resNovedad = mysqli_query($link, "SELECT codNovedad, textoNovedad, fechaPublicacionNovedad, fechaExpiracionNovedad
                                    FROM NOVEDADES
                                    WHERE codNovedad = $idEsc");
-
 if (!$resNovedad || mysqli_num_rows($resNovedad) === 0) {
   header('Location: novedades-index.php');
   exit;
 }
-
 $novedad = mysqli_fetch_assoc($resNovedad);
-
 $textoNovedad            = $novedad['textoNovedad'];
 $fechaPublicacionNovedad = $novedad['fechaPublicacionNovedad'];
 $fechaExpiracionNovedad  = $novedad['fechaExpiracionNovedad'];
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $textoNovedad            = trim($_POST['textoNovedad'] ?? '');
   $fechaPublicacionNovedad = trim($_POST['fechaPublicacionNovedad'] ?? '');
   $fechaExpiracionNovedad  = trim($_POST['fechaExpiracionNovedad'] ?? '');
-
   if ($textoNovedad === '') {
     $error = 'El texto de la novedad es obligatorio.';
   } elseif (mb_strlen($textoNovedad) > 200) {
@@ -47,13 +38,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $textoEsc = mysqli_real_escape_string($link, $textoNovedad);
     $pubEsc   = mysqli_real_escape_string($link, $fechaPublicacionNovedad);
     $expEsc   = mysqli_real_escape_string($link, $fechaExpiracionNovedad);
-
     $query = "UPDATE NOVEDADES
               SET textoNovedad            = '$textoEsc',
                   fechaPublicacionNovedad = '$pubEsc',
                   fechaExpiracionNovedad  = '$expEsc'
               WHERE codNovedad = $idEsc";
-
     if (mysqli_query($link, $query) && mysqli_affected_rows($link) >= 0) {
       $exito = 'La novedad se actualizó correctamente.';
     } else {

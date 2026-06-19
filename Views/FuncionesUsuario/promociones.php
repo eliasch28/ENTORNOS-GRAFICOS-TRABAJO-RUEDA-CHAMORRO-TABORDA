@@ -1,10 +1,7 @@
 ﻿<?php
 session_start();
 include '../../config/conexion.php';
-
 $codAeroFiltro = isset($_GET['codAerolinea']) ? (int)$_GET['codAerolinea'] : 0;
-
-// Aerolíneas para el filtro
 $sqlAero = "SELECT codAerolinea, nombreAerolinea FROM AEROLINEAS ORDER BY nombreAerolinea ASC";
 $resAero = mysqli_query($link, $sqlAero);
 $aerolineas = [];
@@ -13,8 +10,6 @@ if ($resAero) {
         $aerolineas[] = $a;
     }
 }
-
-// Promociones aprobadas
 $whereAero = $codAeroFiltro > 0 ? "AND a.codAerolinea = $codAeroFiltro" : '';
 $sqlPromos = "SELECT p.codPromocion, p.descripcionPromocion, p.descuentoPromocion,
                      a.codAerolinea, a.nombreAerolinea
@@ -23,7 +18,6 @@ $sqlPromos = "SELECT p.codPromocion, p.descripcionPromocion, p.descuentoPromocio
               WHERE p.estadoPromocion = 'aprobada' $whereAero
               ORDER BY p.descuentoPromocion DESC";
 $resPromos = mysqli_query($link, $sqlPromos);
-
 $promos = [];
 if ($resPromos) {
     while ($p = mysqli_fetch_assoc($resPromos)) {
@@ -35,11 +29,7 @@ $porPagina     = 2;
 $totalPaginas  = max(1, (int)ceil($totalPromos / $porPagina));
 $paginaPromos  = max(1, min($totalPaginas, (int)($_GET['pagina'] ?? 1)));
 $promosPag     = array_slice($promos, ($paginaPromos - 1) * $porPagina, $porPagina);
-
-// URL base conservando filtro de aerolínea
 $urlBasePromos = 'promociones.php' . ($codAeroFiltro > 0 ? '?codAerolinea=' . $codAeroFiltro . '&' : '?');
-
-// Aerolíneas SIN promo aprobada (solo cuando no hay filtro activo)
 $sinPromo = [];
 if ($codAeroFiltro === 0) {
     $sqlSin = "SELECT a.codAerolinea, a.nombreAerolinea
@@ -243,4 +233,3 @@ if ($codAeroFiltro === 0) {
 
 </body>
 </html>
-

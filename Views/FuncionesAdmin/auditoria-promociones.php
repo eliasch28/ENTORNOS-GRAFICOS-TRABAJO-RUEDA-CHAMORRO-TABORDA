@@ -1,22 +1,17 @@
 <?php
 include '../../config/conexion.php';
 require_once '../../config/requiere_admin.php';
-
 $mensajeExito = '';
 $mensajeError = '';
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $codPromocion = isset($_POST['codPromocion']) ? (int) $_POST['codPromocion'] : 0;
   $accion = $_POST['accion'] ?? '';
-
   if ($codPromocion > 0 && in_array($accion, ['aprobar', 'rechazar'], true)) {
     $nuevoEstado = $accion === 'aprobar' ? 'aprobada' : 'denegada';
     $nuevoEstadoEsc = mysqli_real_escape_string($link, $nuevoEstado);
-
     $query = "UPDATE PROMOCIONES
               SET estadoPromocion = '$nuevoEstadoEsc'
               WHERE codPromocion = $codPromocion";
-
     if (mysqli_query($link, $query) && mysqli_affected_rows($link) > 0) {
       $mensajeExito = $accion === 'aprobar'
         ? 'La promoción fue aprobada correctamente.'
@@ -28,16 +23,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $mensajeError = 'Solicitud inválida.';
   }
 }
-
 $porPagina = 10;
 $paginaActual = isset($_GET['pagina']) ? max(1, (int) $_GET['pagina']) : 1;
 $offset = ($paginaActual - 1) * $porPagina;
-
 $sqlTotal = "SELECT COUNT(*) AS total FROM PROMOCIONES";
 $resTotal = mysqli_query($link, $sqlTotal);
 $total = mysqli_fetch_assoc($resTotal)['total'] ?? 0;
 $totalPaginas = max(1, (int) ceil($total / $porPagina));
-
 $sqlPromociones = "SELECT p.codPromocion,
                           p.descripcionPromocion,
                           p.descuentoPromocion,
@@ -164,7 +156,6 @@ $resPromociones = mysqli_query($link, $sqlPromociones);
           </table>
         </div>
 
-        <!-- Paginación -->
         <?php if ($totalPaginas > 1): ?>
           <nav aria-label="Paginación" class="mt-4">
             <ul class="pagination justify-content-center mb-0">
@@ -187,7 +178,6 @@ $resPromociones = mysqli_query($link, $sqlPromociones);
     </div>
   </main>
 
-  <!-- Modal reutilizable para confirmar acciones -->
   <div class="modal fade" id="modalConfirmacion" tabindex="-1" aria-labelledby="modalConfirmacionLabel"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -216,7 +206,6 @@ $resPromociones = mysqli_query($link, $sqlPromociones);
       const textoEl = document.getElementById('modalConfirmacionTexto');
       const aceptarBtn = document.getElementById('modalConfirmacionAceptar');
       let formIdPendiente = null;
-
       document.querySelectorAll('[data-confirm-form-id]').forEach(function(btn) {
         btn.addEventListener('click', function() {
           formIdPendiente = btn.getAttribute('data-confirm-form-id');
@@ -224,13 +213,11 @@ $resPromociones = mysqli_query($link, $sqlPromociones);
           modalConfirmacion.show();
         });
       });
-
       aceptarBtn.addEventListener('click', function() {
         if (!formIdPendiente) return;
         const form = document.getElementById(formIdPendiente);
         if (form) form.submit();
       });
-
       modalEl.addEventListener('hidden.bs.modal', function() {
         formIdPendiente = null;
       });

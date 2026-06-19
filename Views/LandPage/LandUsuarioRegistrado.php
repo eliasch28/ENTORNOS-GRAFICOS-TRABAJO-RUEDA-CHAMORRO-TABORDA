@@ -7,18 +7,14 @@ if (!isset($_SESSION['codUsuario'])) {
 }
 $tipo = $_SESSION['tipoUsuario'];
 $nombre = htmlspecialchars($_SESSION['nombreUsuario']);
-
 $resNovedadesVigentes = mysqli_query($link, "SELECT COUNT(*) AS total FROM NOVEDADES
                                              WHERE fechaPublicacionNovedad <= CURDATE()
                                                AND fechaExpiracionNovedad >= CURDATE()");
 $novedadesVigentes = (int) (mysqli_fetch_assoc($resNovedadesVigentes)['total'] ?? 0);
-
-// Stats y alerta solo para usuario común
 $reservasPendientes  = 0;
 $reservasConfirmadas = 0;
 $comprasTotales      = 0;
 $primerPendiente     = null;
-
 $usuariosRegistrados   = 0;
 $aerolineasActivas     = 0;
 $promocionesPendientes = 0;
@@ -26,18 +22,14 @@ $vuelosActivos         = 0;
 $promosAprobadas       = 0;
 $promosPendientesCeo   = 0;
 $nombreAerolineaCeo    = '';
-
 if ($tipo === 'administrador') {
     $r = mysqli_query($link, "SELECT COUNT(*) AS total FROM USUARIOS");
     $usuariosRegistrados = (int)(mysqli_fetch_assoc($r)['total'] ?? 0);
-
     $r = mysqli_query($link, "SELECT COUNT(*) AS total FROM AEROLINEAS");
     $aerolineasActivas = (int)(mysqli_fetch_assoc($r)['total'] ?? 0);
-
     $r = mysqli_query($link, "SELECT COUNT(*) AS total FROM PROMOCIONES WHERE estadoPromocion = 'pendiente'");
     $promocionesPendientes = (int)(mysqli_fetch_assoc($r)['total'] ?? 0);
 }
-
 if ($tipo === 'ceo de aerolinea') {
     $codUsuarioCeo = (int)$_SESSION['codUsuario'];
     $resAeroCeo = mysqli_query($link,
@@ -48,27 +40,22 @@ if ($tipo === 'ceo de aerolinea') {
     if ($aeroCeo) {
         $codAerolineaCeo    = (int)$aeroCeo['codAerolinea'];
         $nombreAerolineaCeo = htmlspecialchars($aeroCeo['nombreAerolinea'], ENT_QUOTES, 'UTF-8');
-
         $r = mysqli_query($link,
             "SELECT COUNT(*) AS total FROM VUELOS
              WHERE codAerolinea = $codAerolineaCeo AND fechaSalidaVuelo >= CURDATE()");
         $vuelosActivos = (int)(mysqli_fetch_assoc($r)['total'] ?? 0);
-
         $r = mysqli_query($link,
             "SELECT COUNT(*) AS total FROM PROMOCIONES
              WHERE codAerolinea = $codAerolineaCeo AND estadoPromocion = 'aprobada'");
         $promosAprobadas = (int)(mysqli_fetch_assoc($r)['total'] ?? 0);
-
         $r = mysqli_query($link,
             "SELECT COUNT(*) AS total FROM PROMOCIONES
              WHERE codAerolinea = $codAerolineaCeo AND estadoPromocion = 'pendiente'");
         $promosPendientesCeo = (int)(mysqli_fetch_assoc($r)['total'] ?? 0);
     }
 }
-
 if ($tipo === 'usuario') {
     $codUsuario = (int)$_SESSION['codUsuario'];
-
     $resStats = mysqli_query($link,
         "SELECT SUM(estadoReserva = 'pendiente de pago') AS pendientes,
                 SUM(estadoReserva = 'confirmada')        AS confirmadas
@@ -77,7 +64,6 @@ if ($tipo === 'usuario') {
     $reservasPendientes  = (int)($stats['pendientes']  ?? 0);
     $reservasConfirmadas = (int)($stats['confirmadas'] ?? 0);
     $comprasTotales      = $reservasConfirmadas;
-
     $resPend = mysqli_query($link,
         "SELECT r.codReserva, v.origenVuelo, v.destinoVuelo, v.fechaSalidaVuelo
          FROM RESERVAS r
@@ -107,35 +93,34 @@ if ($tipo === 'usuario') {
 
 <?php if ($tipo === 'administrador'): ?>
 
-  <!-- ═══════════════════ PANEL ADMINISTRADOR ═══════════════════ -->
   <section class="portada-registrado text-white bg-dark" aria-labelledby="hero-titulo">
     <div class="container">
       <div class="row align-items-center g-4">
         <div class="col-lg-7">
           <p class="text-white-50 text-uppercase small fw-semibold mb-2">
-            <i class="bi bi-shield-fill-check me-1"></i>Panel de Administración
+            <i class="bi bi-shield-fill-check me-1" aria-hidden="true"></i>Panel de Administración
           </p>
           <h1 id="hero-titulo" class="display-5 fw-bold mb-2">¡Bienvenido, <?= $nombre ?>!</h1>
           <p class="lead text-white-50 mb-4">Gestioná aerolíneas, novedades, aprobá promociones y consultá reportes del sistema.</p>
           <div class="d-flex gap-3 flex-wrap">
             <a href="../FuncionesAdmin/aerolineas-index.php" class="btn btn-light btn-lg fw-semibold">
-              <i class="bi bi-building me-2"></i>Aerolíneas
+              <i class="bi bi-building me-2" aria-hidden="true"></i>Aerolíneas
             </a>
             <a href="../FuncionesAdmin/global-reports.php" class="btn btn-outline-light btn-lg">
-              <i class="bi bi-bar-chart-line me-2"></i>Reportes
+              <i class="bi bi-bar-chart-line me-2" aria-hidden="true"></i>Reportes
             </a>
           </div>
         </div>
         <div class="col-lg-5">
           <div class="card border-0 shadow">
             <div class="card-body p-4">
-              <h2 class="h6 fw-bold text-dark mb-3"><i class="bi bi-speedometer2 me-2"></i>Resumen del sistema</h2>
+              <h2 class="h6 fw-bold text-dark mb-3"><i class="bi bi-speedometer2 me-2" aria-hidden="true"></i>Resumen del sistema</h2>
               <div class="fila-detalle"><span class="etiqueta-detalle">Usuarios registrados</span><span class="fw-bold text-primary"><?= $usuariosRegistrados ?></span></div>
               <div class="fila-detalle"><span class="etiqueta-detalle">Aerolíneas activas</span><span class="fw-bold text-success"><?= $aerolineasActivas ?></span></div>
               <div class="fila-detalle"><span class="etiqueta-detalle">Promociones pendientes</span><span class="fw-bold text-warning"><?= $promocionesPendientes ?></span></div>
               <div class="fila-detalle"><span class="etiqueta-detalle">Novedades vigentes</span><span class="fw-bold text-info"><?= $novedadesVigentes ?></span></div>
               <a href="../FuncionesAdmin/auditoria-promociones.php" class="btn btn-outline-dark btn-sm w-100 mt-3">
-                <i class="bi bi-check2-circle me-1"></i>Auditoría de Promociones
+                <i class="bi bi-check2-circle me-1" aria-hidden="true"></i>Auditoría de Promociones
               </a>
             </div>
           </div>
@@ -185,29 +170,28 @@ if ($tipo === 'usuario') {
 
 <?php elseif ($tipo === 'ceo de aerolinea'): ?>
 
-  <!-- ═══════════════════ PANEL CEO ═══════════════════ -->
   <section class="portada-registrado text-white bg-secondary" aria-labelledby="hero-titulo">
     <div class="container">
       <div class="row align-items-center g-4">
         <div class="col-lg-7">
           <p class="text-white-50 text-uppercase small fw-semibold mb-2">
-            <i class="bi bi-briefcase-fill me-1"></i>Panel CEO de Aerolínea
+            <i class="bi bi-briefcase-fill me-1" aria-hidden="true"></i>Panel CEO de Aerolínea
           </p>
           <h1 id="hero-titulo" class="display-5 fw-bold mb-2">¡Bienvenido, <?= $nombre ?>!</h1>
           <p class="lead text-white-50 mb-4">Administrá los vuelos de tu aerolínea y gestioná las promociones que enviás al Administrador.</p>
           <div class="d-flex gap-3 flex-wrap">
             <a href="../FuncionesCEO/vuelos-index.php" class="btn btn-light btn-lg fw-semibold">
-              <i class="bi bi-airplane me-2"></i>Mis Vuelos
+              <i class="bi bi-airplane me-2" aria-hidden="true"></i>Mis Vuelos
             </a>
             <a href="../FuncionesCEO/promociones-index.php" class="btn btn-outline-light btn-lg">
-              <i class="bi bi-tag me-2"></i>Mis Promociones
+              <i class="bi bi-tag me-2" aria-hidden="true"></i>Mis Promociones
             </a>
           </div>
         </div>
         <div class="col-lg-5">
           <div class="card border-0 shadow">
             <div class="card-body p-4">
-              <h2 class="h6 fw-bold text-dark mb-3"><i class="bi bi-speedometer2 me-2"></i>Resumen de mi aerolínea</h2>
+              <h2 class="h6 fw-bold text-dark mb-3"><i class="bi bi-speedometer2 me-2" aria-hidden="true"></i>Resumen de mi aerolínea</h2>
               <?php if ($nombreAerolineaCeo !== ''): ?>
               <div class="fila-detalle"><span class="etiqueta-detalle">Aerolínea</span><span class="fw-bold text-secondary small"><?= $nombreAerolineaCeo ?></span></div>
               <?php endif; ?>
@@ -215,7 +199,7 @@ if ($tipo === 'usuario') {
               <div class="fila-detalle"><span class="etiqueta-detalle">Promociones aprobadas</span><span class="fw-bold text-primary"><?= $promosAprobadas ?></span></div>
               <div class="fila-detalle"><span class="etiqueta-detalle">Promociones pendientes</span><span class="fw-bold text-warning"><?= $promosPendientesCeo ?></span></div>
               <a href="../FuncionesCEO/reportes-ceo.php" class="btn btn-outline-secondary btn-sm w-100 mt-3">
-                <i class="bi bi-bar-chart-line me-1"></i>Ver Reportes del Sistema
+                <i class="bi bi-bar-chart-line me-1" aria-hidden="true"></i>Ver Reportes del Sistema
               </a>
             </div>
           </div>
@@ -265,35 +249,34 @@ if ($tipo === 'usuario') {
 
 <?php else: ?>
 
-  <!-- ═══════════════════ PANEL USUARIO/PASAJERO ═══════════════════ -->
   <section class="portada-registrado text-white bg-primary" aria-labelledby="hero-titulo">
     <div class="container">
       <div class="row align-items-center g-4">
         <div class="col-lg-7">
           <p class="text-white-50 text-uppercase small fw-semibold mb-2">
-            <i class="bi bi-person-check-fill me-1"></i>Sesión iniciada
+            <i class="bi bi-person-check-fill me-1" aria-hidden="true"></i>Sesión iniciada
           </p>
           <h1 id="hero-titulo" class="display-5 fw-bold mb-2">¡Bienvenido, <?= $nombre ?>!</h1>
           <p class="lead text-white-50 mb-4">¿A dónde volamos hoy? Buscá tu próximo vuelo o gestioná tus reservas.</p>
           <div class="d-flex gap-3 flex-wrap">
             <a href="../FuncionesUsuario/buscar_vuelos.php" class="btn btn-light btn-lg text-primary fw-semibold">
-              <i class="bi bi-search me-2"></i>Buscar Vuelos
+              <i class="bi bi-search me-2" aria-hidden="true"></i>Buscar Vuelos
             </a>
             <a href="../FuncionesUsuario/mis_reservas.php" class="btn btn-outline-light btn-lg">
-              <i class="bi bi-calendar2-check me-2"></i>Mis Reservas
+              <i class="bi bi-calendar2-check me-2" aria-hidden="true"></i>Mis Reservas
             </a>
           </div>
         </div>
         <div class="col-lg-5">
           <div class="card border-0 shadow">
             <div class="card-body p-4">
-              <h2 class="h6 fw-bold text-primary mb-3"><i class="bi bi-speedometer2 me-2"></i>Mi resumen</h2>
+              <h2 class="h6 fw-bold text-primary mb-3"><i class="bi bi-speedometer2 me-2" aria-hidden="true"></i>Mi resumen</h2>
               <div class="fila-detalle"><span class="etiqueta-detalle">Reservas pendientes</span><span class="fw-bold text-warning"><?= $reservasPendientes ?></span></div>
               <div class="fila-detalle"><span class="etiqueta-detalle">Reservas confirmadas</span><span class="fw-bold text-success"><?= $reservasConfirmadas ?></span></div>
               <div class="fila-detalle"><span class="etiqueta-detalle">Compras totales</span><span class="fw-bold"><?= $comprasTotales ?></span></div>
               <div class="fila-detalle"><span class="etiqueta-detalle">Novedades vigentes</span><span class="fw-bold text-primary"><?= $novedadesVigentes ?></span></div>
               <a href="../FuncionesUsuario/mi_perfil.php" class="btn btn-outline-primary btn-sm w-100 mt-3">
-                <i class="bi bi-person-circle me-1"></i>Ver mi perfil completo
+                <i class="bi bi-person-circle me-1" aria-hidden="true"></i>Ver mi perfil completo
               </a>
             </div>
           </div>

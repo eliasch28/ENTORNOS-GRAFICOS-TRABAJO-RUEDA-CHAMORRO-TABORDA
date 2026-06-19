@@ -1,16 +1,13 @@
 <?php
 include '../../config/conexion.php';
 require_once '../../config/requiere_admin.php';
-
 $error = '';
 $exito = '';
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $nombreAerolinea      = trim($_POST['nombreAerolinea'] ?? '');
   $codigoIATA           = strtoupper(trim($_POST['codigoIATA'] ?? ''));
   $descripcionAerolinea = trim($_POST['descripcionAerolinea'] ?? '');
   $codigoPais           = strtoupper(trim($_POST['codigoPais'] ?? ''));
-
   if ($nombreAerolinea === '') {
     $error = 'El nombre de la aerolínea es obligatorio.';
   } elseif ($codigoIATA === '') {
@@ -32,14 +29,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $iataEsc     = mysqli_real_escape_string($link, $codigoIATA);
     $descEsc     = mysqli_real_escape_string($link, $descripcionAerolinea);
     $paisEsc     = mysqli_real_escape_string($link, $codigoPais);
-
     $checkIata = mysqli_query($link, "SELECT codAerolinea FROM AEROLINEAS WHERE codigoIATA = '$iataEsc'");
     if ($checkIata && mysqli_num_rows($checkIata) > 0) {
       $error = 'Ya existe una aerolínea registrada con ese código IATA.';
     } else {
       $query = "INSERT INTO AEROLINEAS (nombreAerolinea, codigoIATA, descripcionAerolinea, codPais)
                       VALUES ('$nombreEsc', '$iataEsc', '$descEsc', '$paisEsc')";
-
       if (mysqli_query($link, $query)) {
         $exito = 'La aerolínea se registró correctamente.';
         $nombreAerolinea = $codigoIATA = $descripcionAerolinea = $codigoPais = '';

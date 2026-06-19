@@ -1,35 +1,26 @@
 <?php
 include '../../config/conexion.php';
 include '../../config/EnviarCorreo.php';
-
 $enviado = false;
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $emailUsuario = trim($_POST['emailUsuario']);
     $emailEscapado = mysqli_real_escape_string($link, $emailUsuario);
-
     $query = "SELECT codUsuario, nombreUsuario FROM USUARIOS
               WHERE emailUsuario = '$emailEscapado' AND verificado = 0 AND tipoUsuario != 'ceo de aerolinea'";
     $resultado = mysqli_query($link, $query);
-
     if ($resultado && mysqli_num_rows($resultado) === 1) {
         $usuario = mysqli_fetch_assoc($resultado);
         $codUsuario = (int) $usuario['codUsuario'];
         $token = bin2hex(random_bytes(32));
-
         mysqli_query($link, "UPDATE USUARIOS
                               SET tokenVerificacion = '$token', tokenVerificacionExp = DATE_ADD(NOW(), INTERVAL 24 HOUR)
                               WHERE codUsuario = $codUsuario");
-
         $enlace = BASE_URL . '/Views/FlujoSesion/verificar_email.php?token=' . $token;
         $cuerpo = "<p>Hola <strong>{$usuario['nombreUsuario']}</strong>,</p>"
             . "<p>Confirmá tu cuenta de VuelaLibre haciendo clic en el siguiente enlace (válido por 24 horas):</p>"
             . "<p><a href=\"$enlace\">$enlace</a></p>";
-
         enviarCorreo($emailUsuario, 'Verificá tu cuenta en VuelaLibre', $cuerpo);
     }
-
-    // Mensaje genérico siempre, exista o no el correo, para no filtrar qué emails están registrados.
     $enviado = true;
 }
 ?>
@@ -70,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <?php if ($enviado): ?>
                 <div class="alert alert-success" role="alert">
-                    <i class="bi bi-check-circle me-2"></i>
+                    <i class="bi bi-check-circle me-2" aria-hidden="true"></i>
                     Si el correo está registrado y pendiente de verificación, te reenviamos el enlace.
                 </div>
             <?php endif; ?>

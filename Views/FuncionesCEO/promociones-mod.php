@@ -1,9 +1,7 @@
 <?php
 include '../../config/conexion.php';
 require_once '../../config/requiere_ceo.php';
-
 $codUsuario = (int)$_SESSION['codUsuario'];
-
 $resU = mysqli_query($link, "SELECT u.codAerolinea, a.nombreAerolinea, a.codigoIATA
                               FROM USUARIOS u
                               JOIN AEROLINEAS a ON u.codAerolinea = a.codAerolinea
@@ -16,31 +14,24 @@ if (!$ceoData || !$ceoData['codAerolinea']) {
 $codAerolinea    = (int)$ceoData['codAerolinea'];
 $nombreAerolinea = htmlspecialchars($ceoData['nombreAerolinea'], ENT_QUOTES, 'UTF-8');
 $codigoIATA      = htmlspecialchars($ceoData['codigoIATA'], ENT_QUOTES, 'UTF-8');
-
 $codPromocion = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 if ($codPromocion <= 0) {
     header('Location: promociones-index.php');
     exit;
 }
-
-// Cargar promo y verificar que pertenece a la aerolínea del CEO
 $resP = mysqli_query($link,
     "SELECT codPromocion, descripcionPromocion, descuentoPromocion, estadoPromocion
      FROM PROMOCIONES
      WHERE codPromocion = $codPromocion AND codAerolinea = $codAerolinea");
 $promo = ($resP && mysqli_num_rows($resP) > 0) ? mysqli_fetch_assoc($resP) : null;
-
 if (!$promo) {
     header('Location: promociones-index.php');
     exit;
 }
-
 $error = '';
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $descripcion = trim($_POST['descripcionPromocion'] ?? '');
     $descuento   = (float)($_POST['descuentoPromocion'] ?? 0);
-
     if ($descripcion === '') {
         $error = 'La descripción es obligatoria.';
     } elseif ($descuento <= 0 || $descuento > 100) {
@@ -60,12 +51,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'Error al actualizar la promoción. Intentá nuevamente.';
         }
     }
-
-    // Si hay error, mantener los valores ingresados
     $promo['descripcionPromocion'] = $_POST['descripcionPromocion'] ?? $promo['descripcionPromocion'];
     $promo['descuentoPromocion']   = $_POST['descuentoPromocion']   ?? $promo['descuentoPromocion'];
 }
-
 $codFmt = str_pad((string)$promo['codPromocion'], 3, '0', STR_PAD_LEFT);
 ?>
 <!DOCTYPE html>
@@ -89,32 +77,32 @@ $codFmt = str_pad((string)$promo['codPromocion'], 3, '0', STR_PAD_LEFT);
       <div class="d-flex justify-content-between align-items-center mb-2">
         <div>
           <p class="text-primary text-uppercase small fw-semibold mb-1">
-            <i class="bi bi-tag-fill me-1"></i>CEO · Promociones
+            <i class="bi bi-tag-fill me-1" aria-hidden="true"></i>CEO · Promociones
           </p>
           <h1 class="h3 fw-bold mb-0">Editar Promoción <small class="text-secondary fs-5">#<?= $codFmt ?></small></h1>
           <p class="text-secondary small mb-0">Al guardar, la promoción volverá a estado <strong>Pendiente</strong> para re-aprobación.</p>
         </div>
         <a href="promociones-index.php" class="btn btn-outline-secondary">
-          <i class="bi bi-arrow-left me-1"></i>Volver al listado
+          <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>Volver al listado
         </a>
       </div>
 
       <div class="mb-4">
         <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-3 py-2">
-          <i class="bi bi-building me-1"></i>
+          <i class="bi bi-building me-1" aria-hidden="true"></i>
           Aerolínea: <strong><?= $nombreAerolinea ?></strong> · IATA: <?= $codigoIATA ?>
         </span>
       </div>
 
       <?php if ($error !== ''): ?>
         <div class="alert alert-danger mb-4" role="alert">
-          <i class="bi bi-exclamation-triangle me-2"></i><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?>
+          <i class="bi bi-exclamation-triangle me-2" aria-hidden="true"></i><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?>
         </div>
       <?php endif; ?>
 
       <?php if ($promo['estadoPromocion'] === 'aprobada'): ?>
         <div class="alert alert-warning mb-4" role="note">
-          <i class="bi bi-exclamation-triangle me-2"></i>
+          <i class="bi bi-exclamation-triangle me-2" aria-hidden="true"></i>
           Esta promoción está <strong>aprobada y activa</strong>. Si la editás, volverá a estado <strong>Pendiente</strong> y dejará de aplicarse hasta que el Administrador la re-apruebe.
         </div>
       <?php endif; ?>
@@ -155,7 +143,7 @@ $codFmt = str_pad((string)$promo['codPromocion'], 3, '0', STR_PAD_LEFT);
                 <div class="d-flex gap-2 justify-content-end">
                   <a href="promociones-index.php" class="btn btn-outline-secondary">Cancelar</a>
                   <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-floppy me-1"></i>Guardar cambios
+                    <i class="bi bi-floppy me-1" aria-hidden="true"></i>Guardar cambios
                   </button>
                 </div>
 

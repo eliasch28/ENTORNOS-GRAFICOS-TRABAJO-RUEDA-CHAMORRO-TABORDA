@@ -1,10 +1,8 @@
 <?php
 include '../../config/conexion.php';
-
 $token = isset($_GET['token']) ? $_GET['token'] : '';
 $exito = false;
 $mensaje = '';
-
 if ($token === '') {
     $mensaje = "Enlace de verificación inválido.";
 } else {
@@ -12,15 +10,12 @@ if ($token === '') {
     $query = "SELECT codUsuario FROM USUARIOS
               WHERE tokenVerificacion = '$tokenEscapado' AND tokenVerificacionExp > NOW()";
     $resultado = mysqli_query($link, $query);
-
     if ($resultado && mysqli_num_rows($resultado) === 1) {
         $usuario = mysqli_fetch_assoc($resultado);
         $codUsuario = (int) $usuario['codUsuario'];
-
         mysqli_query($link, "UPDATE USUARIOS
                               SET verificado = 1, tokenVerificacion = NULL, tokenVerificacionExp = NULL
                               WHERE codUsuario = $codUsuario");
-
         $exito = true;
         $mensaje = "¡Tu cuenta fue verificada con éxito! Ya podés iniciar sesión.";
     } else {
@@ -62,7 +57,7 @@ if ($token === '') {
 
             <div class="card border-0 shadow-sm p-4 p-md-5 text-center">
               <div class="alert <?= $exito ? 'alert-success' : 'alert-danger' ?>" role="alert">
-                <i class="bi bi-<?= $exito ? 'check-circle' : 'exclamation-triangle' ?> me-2"></i><?= $mensaje ?>
+                <i class="bi bi-<?= $exito ? 'check-circle' : 'exclamation-triangle' ?> me-2" aria-hidden="true"></i><?= $mensaje ?>
               </div>
 
               <?php if ($exito): ?>

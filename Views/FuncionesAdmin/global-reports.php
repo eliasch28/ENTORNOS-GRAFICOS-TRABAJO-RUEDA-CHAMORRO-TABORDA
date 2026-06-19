@@ -1,7 +1,6 @@
 <?php
 include '../../config/conexion.php';
 require_once '../../config/requiere_admin.php';
-
 function badgeEstadoReserva(string $estado): array
 {
   switch ($estado) {
@@ -15,33 +14,25 @@ function badgeEstadoReserva(string $estado): array
       return [ucfirst($estado), 'bg-secondary'];
   }
 }
-
 function formatearPrecio($precio): string
 {
   return '$' . number_format((float) $precio, 2, ',', '.');
 }
-
 $resClientes = mysqli_query($link, "SELECT COUNT(*) AS total FROM USUARIOS WHERE tipoUsuario = 'usuario'");
 $totalClientes = (int) (mysqli_fetch_assoc($resClientes)['total'] ?? 0);
-
 $resCeos = mysqli_query($link, "SELECT COUNT(*) AS total FROM USUARIOS WHERE tipoUsuario = 'ceo de aerolinea'");
 $totalCeos = (int) (mysqli_fetch_assoc($resCeos)['total'] ?? 0);
-
 $resVuelosActivos = mysqli_query($link, "SELECT COUNT(*) AS total FROM VUELOS
                                           WHERE fechaSalidaVuelo >= CURDATE()
                                             AND asientosDisponibles > 0");
 $totalVuelosActivos = (int) (mysqli_fetch_assoc($resVuelosActivos)['total'] ?? 0);
-
 $resReservas = mysqli_query($link, "SELECT COUNT(*) AS total FROM RESERVAS");
 $totalReservas = (int) (mysqli_fetch_assoc($resReservas)['total'] ?? 0);
-
 $reporteActivo = $_GET['reporte'] ?? '';
 $reporteValido = in_array($reporteActivo, ['ventas', 'vuelos', 'usuarios'], true);
-
 $resReporte = null;
 $totalVentas = 0;
 $filasReporte = 0;
-
 if ($reporteValido) {
   switch ($reporteActivo) {
     case 'ventas':
@@ -58,7 +49,6 @@ if ($reporteValido) {
                                              WHERE r.estadoReserva = 'confirmada'");
       $totalVentas = (float) (mysqli_fetch_assoc($resTotalVentas)['total'] ?? 0);
       break;
-
     case 'vuelos':
       $resReporte = mysqli_query($link, "SELECT v.codVuelo, a.nombreAerolinea, v.origenVuelo, v.destinoVuelo,
                                                 v.fechaSalidaVuelo, v.horaSalidaVuelo, v.precioVuelo,
@@ -67,7 +57,6 @@ if ($reporteValido) {
                                          INNER JOIN AEROLINEAS a ON v.codAerolinea = a.codAerolinea
                                          ORDER BY v.fechaSalidaVuelo DESC, v.codVuelo DESC");
       break;
-
     case 'usuarios':
       $resReporte = mysqli_query($link, "SELECT codUsuario, nombreUsuario, tipoUsuario, emailUsuario,
                                                 telefonoUsuario, verificado
@@ -76,25 +65,20 @@ if ($reporteValido) {
                                                   nombreUsuario ASC");
       break;
   }
-
   if ($resReporte) {
     $filasReporte = mysqli_num_rows($resReporte);
   }
 }
-
 $porPagina = 10;
 $paginaActual = isset($_GET['pagina']) ? max(1, (int) $_GET['pagina']) : 1;
 $offset = ($paginaActual - 1) * $porPagina;
-
 $resTotalReservas = mysqli_query($link, "SELECT COUNT(*) AS total FROM RESERVAS");
 $totalReservasListado = (int) (mysqli_fetch_assoc($resTotalReservas)['total'] ?? 0);
 $totalPaginas = max(1, (int) ceil($totalReservasListado / $porPagina));
-
 if ($paginaActual > $totalPaginas) {
   $paginaActual = $totalPaginas;
   $offset = ($paginaActual - 1) * $porPagina;
 }
-
 $sqlUltimasReservas = "SELECT r.codReserva, u.nombreUsuario, v.origenVuelo, v.destinoVuelo,
                               r.fechaReserva, r.estadoReserva
                        FROM RESERVAS r
@@ -103,7 +87,6 @@ $sqlUltimasReservas = "SELECT r.codReserva, u.nombreUsuario, v.origenVuelo, v.de
                        ORDER BY r.codReserva DESC
                        LIMIT $porPagina OFFSET $offset";
 $resUltimasReservas = mysqli_query($link, $sqlUltimasReservas);
-
 $queryReporte = $reporteValido ? '&reporte=' . urlencode($reporteActivo) : '';
 ?>
 <!DOCTYPE html>

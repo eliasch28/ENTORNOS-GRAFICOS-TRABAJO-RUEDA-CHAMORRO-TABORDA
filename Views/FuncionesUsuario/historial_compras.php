@@ -5,10 +5,7 @@ if (!isset($_SESSION['codUsuario'])) {
     header('Location: ../FlujoSesion/login.php');
     exit;
 }
-
 $codUsuario = (int)$_SESSION['codUsuario'];
-
-// Estadísticas agregadas de compras confirmadas
 $sqlStats = "SELECT COUNT(*) AS totalCompras,
                     SUM(v.precioVuelo * (1 - COALESCE(p.descuentoPromocion, 0) / 100)) AS totalGastado,
                     SUM(v.precioVuelo * COALESCE(p.descuentoPromocion, 0) / 100)        AS totalAhorrado
@@ -24,8 +21,6 @@ $stats    = $resStats ? mysqli_fetch_assoc($resStats) : [];
 $totalCompras  = (int)($stats['totalCompras']  ?? 0);
 $totalGastado  = (float)($stats['totalGastado']  ?? 0);
 $totalAhorrado = (float)($stats['totalAhorrado'] ?? 0);
-
-// Lista de compras confirmadas
 $sqlHistorial = "SELECT r.codReserva, r.fechaReserva,
                         v.origenVuelo, v.destinoVuelo,
                         v.fechaSalidaVuelo, v.horaSalidaVuelo,
@@ -254,4 +249,3 @@ $resHistorial = mysqli_query($link, $sqlHistorial);
 
 </body>
 </html>
-

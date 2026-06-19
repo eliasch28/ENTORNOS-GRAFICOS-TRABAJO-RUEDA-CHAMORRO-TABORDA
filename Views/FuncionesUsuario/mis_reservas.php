@@ -1,36 +1,73 @@
 ﻿<?php
 include '../../config/conexion.php';
+include '../../config/EnviarCorreo.php';
 session_start();
 if (!isset($_SESSION['codUsuario'])) {
     header('Location: ../FlujoSesion/login.php');
     exit;
 }
-
 $codUsuario   = (int)$_SESSION['codUsuario'];
 $mensajeExito = '';
 $mensajeError = '';
-
-// Acciones POST: confirmar o cancelar
+function enviarCorreoConfirmacion(array $reserva): void
+{
+    if (empty($reserva['emailUsuario'])) {
+        return;
+    }
+    $codFmt      = str_pad((string)$reserva['codReserva'], 4, '0', STR_PAD_LEFT);
+    $descuento   = (float)($reserva['descuentoPromocion'] ?? 0);
+    $precioBase  = (float)$reserva['precioVuelo'];
+    $precioFinal = $descuento > 0 ? $precioBase * (1 - $descuento / 100) : $precioBase;
+    $fechaFmt    = date('d/m/Y', strtotime($reserva['fechaSalidaVuelo']));
+    $horaFmt     = substr($reserva['horaSalidaVuelo'], 0, 5);
+    $totalFmt    = number_format($precioFinal, 0, ',', '.');
+    $nombre   = htmlspecialchars($reserva['nombreUsuario'], ENT_QUOTES, 'UTF-8');
+    $origen   = htmlspecialchars($reserva['origenVuelo'], ENT_QUOTES, 'UTF-8');
+    $destino  = htmlspecialchars($reserva['destinoVuelo'], ENT_QUOTES, 'UTF-8');
+    $aero     = htmlspecialchars($reserva['nombreAerolinea'], ENT_QUOTES, 'UTF-8');
+    $cuerpo  = "<p>Hola <strong>$nombre</strong>,</p>"
+        . "<p>¡Tu reserva fue confirmada y pagada con éxito! Estos son los datos de tu vuelo:</p>"
+        . "<table cellpadding='8' cellspacing='0' style='border-collapse:collapse;border:1px solid #ddd;'>"
+        . "<tr><td style='border:1px solid #ddd;'><strong>N° de reserva</strong></td><td style='border:1px solid #ddd;'>$codFmt</td></tr>"
+        . "<tr><td style='border:1px solid #ddd;'><strong>Aerolínea</strong></td><td style='border:1px solid #ddd;'>$aero</td></tr>"
+        . "<tr><td style='border:1px solid #ddd;'><strong>Origen</strong></td><td style='border:1px solid #ddd;'>$origen</td></tr>"
+        . "<tr><td style='border:1px solid #ddd;'><strong>Destino</strong></td><td style='border:1px solid #ddd;'>$destino</td></tr>"
+        . "<tr><td style='border:1px solid #ddd;'><strong>Fecha de salida</strong></td><td style='border:1px solid #ddd;'>$fechaFmt · $horaFmt hs</td></tr>";
+    if ($descuento > 0) {
+        $cuerpo .= "<tr><td style='border:1px solid #ddd;'><strong>Promoción aplicada</strong></td><td style='border:1px solid #ddd;'>" . (int)$descuento . "% de descuento</td></tr>";
+    }
+    $cuerpo .= "<tr><td style='border:1px solid #ddd;'><strong>Total pagado</strong></td><td style='border:1px solid #ddd;'>ARS $totalFmt</td></tr>"
+        . "</table>"
+        . "<p>¡Buen viaje! Gracias por elegir VuelaLibre.</p>";
+    enviarCorreo($reserva['emailUsuario'], "Confirmación de tu reserva N° $codFmt - VuelaLibre", $cuerpo);
+}
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $accion     = $_POST['accion']     ?? '';
     $codReserva = isset($_POST['codReserva']) ? (int)$_POST['codReserva'] : 0;
-
     if ($codReserva > 0) {
-        // Verificar que la reserva pertenece al usuario
         $sqlRes = "SELECT r.codReserva, r.estadoReserva,
-                          v.fechaSalidaVuelo, v.horaSalidaVuelo, v.codVuelo
+                          v.codVuelo, v.origenVuelo, v.destinoVuelo,
+                          v.fechaSalidaVuelo, v.horaSalidaVuelo,
+                          v.precioVuelo,
+                          a.nombreAerolinea,
+                          p.descuentoPromocion,
+                          u.nombreUsuario, u.emailUsuario
                    FROM RESERVAS r
                    JOIN VUELOS v ON r.codVuelo = v.codVuelo
+                   JOIN AEROLINEAS a ON v.codAerolinea = a.codAerolinea
+                   JOIN USUARIOS u ON r.codUsuario = u.codUsuario
+                   LEFT JOIN PROMOCIONES p
+                     ON p.codAerolinea = v.codAerolinea
+                    AND p.estadoPromocion = 'aprobada'
                    WHERE r.codReserva = $codReserva AND r.codUsuario = $codUsuario";
         $resRes = mysqli_query($link, $sqlRes);
         $reserva = $resRes ? mysqli_fetch_assoc($resRes) : null;
-
         if ($reserva) {
             if ($accion === 'confirmar' && $reserva['estadoReserva'] === 'pendiente de pago') {
                 mysqli_query($link, "UPDATE RESERVAS SET estadoReserva = 'confirmada'
                                      WHERE codReserva = $codReserva");
                 $mensajeExito = 'Reserva confirmada correctamente.';
-
+                enviarCorreoConfirmacion($reserva);
             } elseif ($accion === 'cancelar' && $reserva['estadoReserva'] !== 'cancelada') {
                 $salidaTs   = strtotime($reserva['fechaSalidaVuelo'] . ' ' . $reserva['horaSalidaVuelo']);
                 $limiteTs   = $salidaTs - (72 * 3600);
@@ -49,8 +86,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
-
-// Filtro por estado
 $estadoFiltro = $_GET['estado'] ?? '';
 $estadosValidos = ['pendiente de pago', 'confirmada', 'cancelada'];
 $whereEstado = '';
@@ -58,7 +93,6 @@ if ($estadoFiltro !== '' && in_array($estadoFiltro, $estadosValidos, true)) {
     $e = mysqli_real_escape_string($link, $estadoFiltro);
     $whereEstado = "AND r.estadoReserva = '$e'";
 }
-
 $sqlReservas = "SELECT r.codReserva, r.estadoReserva, r.fechaReserva,
                        v.codVuelo, v.origenVuelo, v.destinoVuelo,
                        v.fechaSalidaVuelo, v.horaSalidaVuelo,
@@ -162,12 +196,10 @@ $resReservas = mysqli_query($link, $sqlReservas);
               $fechaVueloFmt  = date('j M Y', strtotime($r['fechaSalidaVuelo']));
               $horaVueloFmt   = substr($r['horaSalidaVuelo'], 0, 5);
               $fechaReservaFmt = date('j \d\e F \d\e Y', strtotime($r['fechaReserva']));
-
               $salidaTs   = strtotime($r['fechaSalidaVuelo'] . ' ' . $r['horaSalidaVuelo']);
               $limiteTs   = $salidaTs - (72 * 3600);
               $puedeCancelar = ($estado !== 'cancelada' && time() <= $limiteTs);
               $limiteStr  = date('j \d\e F \d\e Y \a \l\a\s H:i \h\s', $limiteTs);
-
               switch ($estado) {
                 case 'pendiente de pago':
                   $cardClass  = 'reserva-estado-pendiente';
@@ -339,4 +371,3 @@ $resReservas = mysqli_query($link, $sqlReservas);
 
 </body>
 </html>
-

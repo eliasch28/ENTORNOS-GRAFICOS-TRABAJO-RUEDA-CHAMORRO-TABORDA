@@ -1,28 +1,24 @@
 <?php
 include '../../config/conexion.php';
 require_once '../../config/requiere_admin.php';
-
 $mensajeExito = '';
 $mensajeError = '';
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $codUsuario = isset($_POST['codUsuario']) ? (int) $_POST['codUsuario'] : 0;
   $accion     = $_POST['accion'] ?? '';
-
   if ($codUsuario > 0 && in_array($accion, ['aprobar', 'rechazar'], true)) {
     if ($accion === 'aprobar') {
-      $query = "UPDATE USUARIOS 
-                SET verificado = 1 
-                WHERE codUsuario = $codUsuario 
-                  AND tipoUsuario = 'ceo de aerolinea' 
+      $query = "UPDATE USUARIOS
+                SET verificado = 1
+                WHERE codUsuario = $codUsuario
+                  AND tipoUsuario = 'ceo de aerolinea'
                   AND verificado = 0";
     } else {
-      $query = "DELETE FROM USUARIOS 
-                WHERE codUsuario = $codUsuario 
-                  AND tipoUsuario = 'ceo de aerolinea' 
+      $query = "DELETE FROM USUARIOS
+                WHERE codUsuario = $codUsuario
+                  AND tipoUsuario = 'ceo de aerolinea'
                   AND verificado = 0";
     }
-
     if (mysqli_query($link, $query) && mysqli_affected_rows($link) > 0) {
       if ($accion === 'aprobar') {
         $mensajeExito = 'El CEO fue aprobado exitosamente.';
@@ -36,8 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $mensajeError = 'Solicitud inválida.';
   }
 }
-
-$sqlSolicitudes = "SELECT 
+$sqlSolicitudes = "SELECT
                       u.codUsuario,
                       u.nombreUsuario,
                       u.emailUsuario,
@@ -146,7 +141,6 @@ $solicitudesResult = mysqli_query($link, $sqlSolicitudes);
     </div>
   </main>
 
-  <!-- Modal reutilizable para confirmar acciones -->
   <div class="modal fade" id="modalConfirmacion" tabindex="-1" aria-labelledby="modalConfirmacionLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
@@ -172,7 +166,6 @@ $solicitudesResult = mysqli_query($link, $sqlSolicitudes);
       const textoEl = document.getElementById('modalConfirmacionTexto');
       const aceptarBtn = document.getElementById('modalConfirmacionAceptar');
       let formIdPendiente = null;
-
       document.querySelectorAll('[data-confirm-form-id]').forEach(function(btn) {
         btn.addEventListener('click', function() {
           formIdPendiente = btn.getAttribute('data-confirm-form-id');
@@ -180,7 +173,6 @@ $solicitudesResult = mysqli_query($link, $sqlSolicitudes);
           modalConfirmacion.show();
         });
       });
-
       aceptarBtn.addEventListener('click', function() {
         if (!formIdPendiente) return;
         const form = document.getElementById(formIdPendiente);

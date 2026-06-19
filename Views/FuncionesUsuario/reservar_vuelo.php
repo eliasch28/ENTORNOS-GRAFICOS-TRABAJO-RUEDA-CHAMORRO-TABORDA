@@ -5,21 +5,15 @@ if (!isset($_SESSION['codUsuario'])) {
     header('Location: ../FlujoSesion/login.php');
     exit;
 }
-
 $mensajeError = '';
 $codUsuario   = (int)$_SESSION['codUsuario'];
-
-// Datos completos del usuario (email y teléfono no están en sesión)
 $sqlUser = "SELECT nombreUsuario, emailUsuario, telefonoUsuario
             FROM USUARIOS WHERE codUsuario = $codUsuario";
 $resUser = mysqli_query($link, $sqlUser);
 $usuario = mysqli_fetch_assoc($resUser);
-
-// Manejo del POST: confirmar reserva
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $codVuelo = isset($_POST['codVuelo']) ? (int)$_POST['codVuelo'] : 0;
     if ($codVuelo > 0) {
-        // Verificar que el vuelo sigue con asientos disponibles
         $sqlCheck = "SELECT codVuelo, asientosDisponibles FROM VUELOS
                      WHERE codVuelo = $codVuelo AND asientosDisponibles > 0
                      AND fechaSalidaVuelo >= CURDATE()";
@@ -43,8 +37,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $mensajeError = 'Vuelo inválido.';
     }
 }
-
-// Cargar datos del vuelo desde GET
 $codVueloGet = isset($_GET['codVuelo']) ? (int)$_GET['codVuelo'] : 0;
 $vuelo = null;
 if ($codVueloGet > 0) {
@@ -64,12 +56,10 @@ if ($codVueloGet > 0) {
     $resVuelo = mysqli_query($link, $sqlVuelo);
     $vuelo = $resVuelo ? mysqli_fetch_assoc($resVuelo) : null;
 }
-
 if (!$vuelo) {
     header('Location: buscar_vuelos.php?error=vuelo_no_disponible');
     exit;
 }
-
 $codFmt      = str_pad((string)$vuelo['codVuelo'], 4, '0', STR_PAD_LEFT);
 $origenCod   = mb_strtoupper(mb_substr($vuelo['origenVuelo'],  0, 3));
 $destinoCod  = mb_strtoupper(mb_substr($vuelo['destinoVuelo'], 0, 3));
@@ -356,4 +346,3 @@ $horaFmt     = substr($vuelo['horaSalidaVuelo'], 0, 5);
 
 </body>
 </html>
-

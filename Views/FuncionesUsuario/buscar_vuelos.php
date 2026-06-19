@@ -1,8 +1,6 @@
 ﻿<?php
 include '../../config/conexion.php';
 session_start();
-
-// Aerolíneas para el filtro
 $sqlAero = "SELECT codAerolinea, nombreAerolinea FROM AEROLINEAS ORDER BY nombreAerolinea ASC";
 $resAero = mysqli_query($link, $sqlAero);
 $aerolineas = [];
@@ -11,14 +9,10 @@ if ($resAero) {
         $aerolineas[] = $a;
     }
 }
-
-// Parámetros de filtro
 $origenInput  = trim($_GET['origenVuelo']      ?? '');
 $destinoInput = trim($_GET['destinoVuelo']     ?? '');
 $fechaInput   = trim($_GET['fechaSalidaVuelo'] ?? '');
 $codAeroInput = isset($_GET['codAerolinea']) ? (int)$_GET['codAerolinea'] : 0;
-
-// WHERE dinámico
 $conds = ["v.asientosDisponibles > 0", "v.fechaSalidaVuelo >= CURDATE()"];
 if ($origenInput !== '') {
     $e = mysqli_real_escape_string($link, $origenInput);
@@ -36,7 +30,6 @@ if ($codAeroInput > 0) {
     $conds[] = "v.codAerolinea = $codAeroInput";
 }
 $whereStr = implode(' AND ', $conds);
-
 $sqlVuelos = "SELECT v.codVuelo, v.origenVuelo, v.destinoVuelo,
                      v.fechaSalidaVuelo, v.horaSalidaVuelo,
                      v.precioVuelo, v.asientosDisponibles,
@@ -49,7 +42,6 @@ $sqlVuelos = "SELECT v.codVuelo, v.origenVuelo, v.destinoVuelo,
                AND p.estadoPromocion = 'aprobada'
               WHERE $whereStr
               ORDER BY v.fechaSalidaVuelo ASC, v.horaSalidaVuelo ASC";
-
 $resVuelos = mysqli_query($link, $sqlVuelos);
 $vuelos = [];
 if ($resVuelos) {
@@ -62,8 +54,6 @@ $porPagina    = 3;
 $totalPaginas = max(1, (int)ceil($totalVuelos / $porPagina));
 $paginaVuelos = max(1, min($totalPaginas, (int)($_GET['pagina'] ?? 1)));
 $vuelosPag    = array_slice($vuelos, ($paginaVuelos - 1) * $porPagina, $porPagina);
-
-// URL base conservando filtros excepto 'pagina'
 $getFiltros = $_GET;
 unset($getFiltros['pagina']);
 $queryFiltros  = http_build_query($getFiltros);
@@ -326,4 +316,3 @@ $urlBaseVuelos = 'buscar_vuelos.php' . ($queryFiltros ? '?' . $queryFiltros . '&
 
 </body>
 </html>
-

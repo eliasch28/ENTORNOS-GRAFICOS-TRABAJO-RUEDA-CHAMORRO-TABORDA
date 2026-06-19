@@ -1,9 +1,7 @@
 <?php
 include '../../config/conexion.php';
 require_once '../../config/requiere_ceo.php';
-
 $codUsuario = (int)$_SESSION['codUsuario'];
-
 $resU = mysqli_query($link, "SELECT u.codAerolinea, a.nombreAerolinea, a.codigoIATA
                               FROM USUARIOS u
                               JOIN AEROLINEAS a ON u.codAerolinea = a.codAerolinea
@@ -16,9 +14,7 @@ if (!$ceoData || !$ceoData['codAerolinea']) {
 $codAerolinea   = (int)$ceoData['codAerolinea'];
 $nombreAerolinea = htmlspecialchars($ceoData['nombreAerolinea'], ENT_QUOTES, 'UTF-8');
 $codigoIATA      = htmlspecialchars($ceoData['codigoIATA'], ENT_QUOTES, 'UTF-8');
-
 $error = '';
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $origen   = trim($_POST['origenVuelo']      ?? '');
     $destino  = trim($_POST['destinoVuelo']     ?? '');
@@ -26,7 +22,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $hora     = trim($_POST['horaSalidaVuelo']  ?? '');
     $precio   = (float)($_POST['precioVuelo']         ?? 0);
     $asientos = (int)($_POST['asientosDisponibles']   ?? 0);
-
     if ($origen === '' || $destino === '') {
         $error = 'Origen y destino son obligatorios.';
     } elseif ($fecha === '' || $hora === '') {
@@ -75,25 +70,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <div class="d-flex justify-content-between align-items-center mb-2">
         <div>
           <p class="text-primary text-uppercase small fw-semibold mb-1">
-            <i class="bi bi-airplane me-1"></i>CEO · Vuelos
+            <i class="bi bi-airplane me-1" aria-hidden="true"></i>CEO · Vuelos
           </p>
           <h1 class="h3 fw-bold mb-0">Nuevo Vuelo</h1>
         </div>
         <a href="vuelos-index.php" class="btn btn-outline-secondary">
-          <i class="bi bi-arrow-left me-1"></i>Volver al listado
+          <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>Volver al listado
         </a>
       </div>
 
       <div class="mb-4">
         <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-3 py-2">
-          <i class="bi bi-building me-1"></i>
+          <i class="bi bi-building me-1" aria-hidden="true"></i>
           Aerolínea: <strong><?= $nombreAerolinea ?></strong> · IATA: <?= $codigoIATA ?>
         </span>
       </div>
 
       <?php if ($error !== ''): ?>
         <div class="alert alert-danger mb-4" role="alert">
-          <i class="bi bi-exclamation-triangle me-2"></i><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?>
+          <i class="bi bi-exclamation-triangle me-2" aria-hidden="true"></i><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?>
         </div>
       <?php endif; ?>
 
@@ -172,7 +167,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="d-flex gap-2 justify-content-end">
                   <button type="reset" class="btn btn-outline-secondary">Limpiar</button>
                   <button type="submit" class="btn btn-success">
-                    <i class="bi bi-floppy me-1"></i>Guardar vuelo
+                    <i class="bi bi-floppy me-1" aria-hidden="true"></i>Guardar vuelo
                   </button>
                 </div>
 

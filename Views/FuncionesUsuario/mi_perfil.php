@@ -5,23 +5,19 @@ if (!isset($_SESSION['codUsuario'])) {
     header('Location: ../FlujoSesion/login.php');
     exit;
 }
-
 $cod = $_SESSION['codUsuario'];
 $resultado = mysqli_query($link, "SELECT * FROM USUARIOS WHERE codUsuario = $cod");
 $usuario = mysqli_fetch_assoc($resultado);
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $emailUsuario    = trim($_POST['emailUsuario']);
     $telefonoUsuario = trim($_POST['telefonoUsuario']);
     $claveActual     = $_POST['claveActual'];
     $claveNueva      = $_POST['claveNueva'];
-
     $checkEmail = mysqli_query($link, "SELECT codUsuario FROM USUARIOS WHERE emailUsuario = '$emailUsuario' AND codUsuario != $cod");
     if (mysqli_num_rows($checkEmail) > 0) {
         $error = "El correo electrónico ya está en uso por otro usuario.";
     } else {
         $query = "UPDATE USUARIOS SET emailUsuario = '$emailUsuario', telefonoUsuario = '$telefonoUsuario' WHERE codUsuario = $cod";
-
         if (!empty($claveActual) && !empty($claveNueva)) {
             if (md5($claveActual) !== $usuario['claveUsuario']) {
                 $error = "La contraseña actual es incorrecta.";
@@ -29,7 +25,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $query = "UPDATE USUARIOS SET emailUsuario = '$emailUsuario', telefonoUsuario = '$telefonoUsuario', claveUsuario = '" . md5($claveNueva) . "' WHERE codUsuario = $cod";
             }
         }
-
         if (!isset($error)) {
             mysqli_query($link, $query);
             $resultado = mysqli_query($link, "SELECT * FROM USUARIOS WHERE codUsuario = $cod");
@@ -149,11 +144,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <div class="col-lg-8">
 
             <?php if (!empty($exito)): ?>
-                <div class="alert alert-success"><i class="bi bi-check-circle me-2"></i><?= $exito ?></div>
+                <div class="alert alert-success"><i class="bi bi-check-circle me-2" aria-hidden="true"></i><?= $exito ?></div>
             <?php endif; ?>
             
             <?php if (!empty($error)): ?>
-                <div class="alert alert-danger"><i class="bi bi-exclamation-triangle me-2"></i><?= $error ?></div>
+                <div class="alert alert-danger"><i class="bi bi-exclamation-triangle me-2" aria-hidden="true"></i><?= $error ?></div>
             <?php endif; ?>
 
             <form action="mi_perfil.php" method="post"
@@ -280,4 +275,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 </body>
 </html>
-

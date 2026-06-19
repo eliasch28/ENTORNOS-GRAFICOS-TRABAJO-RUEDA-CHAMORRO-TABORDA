@@ -1,10 +1,7 @@
 <?php
 include '../../config/conexion.php';
 require_once '../../config/requiere_ceo.php';
-
 $codUsuario = (int)$_SESSION['codUsuario'];
-
-// Obtener codAerolinea del CEO desde la DB
 $resU = mysqli_query($link, "SELECT codAerolinea FROM USUARIOS WHERE codUsuario = $codUsuario");
 $ceoData = $resU ? mysqli_fetch_assoc($resU) : null;
 if (!$ceoData || !$ceoData['codAerolinea']) {
@@ -12,20 +9,16 @@ if (!$ceoData || !$ceoData['codAerolinea']) {
     exit;
 }
 $codAerolinea = (int)$ceoData['codAerolinea'];
-
 $error   = '';
 $exito   = '';
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $descripcion = trim($_POST['descripcionPromocion'] ?? '');
     $descuento   = (float)($_POST['descuentoPromocion'] ?? 0);
-
     if ($descripcion === '') {
         $error = 'La descripción es obligatoria.';
     } elseif ($descuento <= 0 || $descuento > 100) {
         $error = 'El descuento debe ser un número entre 1 y 100.';
     } else {
-        // Verificar regla: no puede haber más de una promo pendiente o aprobada por aerolínea
         $resCheck = mysqli_query($link,
             "SELECT codPromocion FROM PROMOCIONES
              WHERE codAerolinea = $codAerolinea
@@ -67,19 +60,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
           <p class="text-primary text-uppercase small fw-semibold mb-1">
-            <i class="bi bi-tag-fill me-1"></i>CEO · Promociones
+            <i class="bi bi-tag-fill me-1" aria-hidden="true"></i>CEO · Promociones
           </p>
           <h1 class="h3 fw-bold mb-0">Nueva Promoción</h1>
           <p class="text-secondary small mb-0">La promoción quedará pendiente hasta que el Administrador la apruebe.</p>
         </div>
         <a href="promociones-index.php" class="btn btn-outline-secondary">
-          <i class="bi bi-arrow-left me-1"></i>Volver al listado
+          <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>Volver al listado
         </a>
       </div>
 
       <?php if ($error !== ''): ?>
         <div class="alert alert-danger mb-4" role="alert">
-          <i class="bi bi-exclamation-triangle me-2"></i><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?>
+          <i class="bi bi-exclamation-triangle me-2" aria-hidden="true"></i><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?>
         </div>
       <?php endif; ?>
 
@@ -118,7 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <div class="alert alert-info py-2 small mb-4" role="note">
-                  <i class="bi bi-info-circle me-1"></i>
+                  <i class="bi bi-info-circle me-1" aria-hidden="true"></i>
                   Solo puede existir <strong>una promoción pendiente o aprobada</strong> por aerolínea a la vez.
                   Esta promoción quedará en estado <strong>Pendiente</strong> hasta su aprobación.
                 </div>
@@ -126,7 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="d-flex gap-2 justify-content-end">
                   <button type="reset" class="btn btn-outline-secondary">Limpiar</button>
                   <button type="submit" class="btn btn-success">
-                    <i class="bi bi-send me-1"></i>Enviar para aprobación
+                    <i class="bi bi-send me-1" aria-hidden="true"></i>Enviar para aprobación
                   </button>
                 </div>
 

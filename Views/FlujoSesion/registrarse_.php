@@ -2,7 +2,6 @@
 include '../../config/conexion.php';
 include '../../config/EnviarCorreo.php';
 session_start();
-
 if (isset($_SESSION['codUsuario'])) {
   $check = mysqli_query($link, "SELECT codUsuario FROM USUARIOS WHERE codUsuario = " . $_SESSION['codUsuario']);
   if (mysqli_num_rows($check) > 0) {
@@ -12,9 +11,7 @@ if (isset($_SESSION['codUsuario'])) {
     session_destroy();
   }
 }
-
-$error = ''; // Inicializamos la variable de error para evitar warnings
-
+$error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $nombreUsuario = trim($_POST['nombreUsuario']);
   $claveUsuario = md5($_POST['claveUsuario']);
@@ -23,11 +20,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $telefonoUsuario = trim($_POST['telefonoUsuario']);
   $codigoIATA = isset($_POST['codigoIATA']) ? strtoupper(trim($_POST['codigoIATA'])) : '';
   $codAerolinea = null;
-
   $checkUser = mysqli_query($link, "SELECT codUsuario FROM USUARIOS WHERE nombreUsuario = '$nombreUsuario'");
   $checkEmail = mysqli_query($link, "SELECT codUsuario FROM USUARIOS WHERE emailUsuario = '$emailUsuario'");
-
-  // Validaciones
   if (mysqli_num_rows($checkUser) > 0) {
     $error = "El nombre de usuario ya está en uso.";
   } elseif (mysqli_num_rows($checkEmail) > 0) {
@@ -46,44 +40,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       }
     }
   }
-
-  // Si pasamos todas las validaciones sin errores, procedemos a registrar
   if (empty($error)) {
     $esCliente = ($tipoUsuario !== 'ceo de aerolinea');
-    // El CEO nace con verificado=0 (lo aprueba el Admin). El cliente nace con 0 (lo aprueba el correo)
-    $verificado = 0; 
-    
+    $verificado = 0;
     $tokenVerificacion = $esCliente ? bin2hex(random_bytes(32)) : null;
     $tokenVerificacionSql = $esCliente ? "'$tokenVerificacion'" : "NULL";
     $tokenVerificacionExpSql = $esCliente ? "DATE_ADD(NOW(), INTERVAL 24 HOUR)" : "NULL";
     $codAerolineaSql = ($codAerolinea !== null) ? $codAerolinea : "NULL";
-
     $query = "INSERT INTO USUARIOS (nombreUsuario, claveUsuario, tipoUsuario, emailUsuario, telefonoUsuario, verificado, tokenVerificacion, tokenVerificacionExp, codAerolinea)
           VALUES ('$nombreUsuario', '$claveUsuario', '$tipoUsuario', '$emailUsuario', '$telefonoUsuario', $verificado, $tokenVerificacionSql, $tokenVerificacionExpSql, $codAerolineaSql)";
-
     if (mysqli_query($link, $query)) {
-      
-      // Si es CEO, no manda mail de validación, requiere que el admin lo apruebe
       if (!$esCliente) {
         header('Location: login.php?pendiente=1');
         exit;
       }
-
-      // Si es cliente, enviamos el correo
       $enlace = BASE_URL . '/Views/FlujoSesion/verificar_email.php?token=' . $tokenVerificacion;
       $cuerpo = "<p>Hola <strong>$nombreUsuario</strong>,</p>"
           . "<p>Gracias por registrarte en VuelaLibre. Confirmá tu cuenta haciendo clic en el siguiente enlace (válido por 24 horas):</p>"
           . "<p><a href=\"$enlace\">$enlace</a></p>";
-
       $enviado = enviarCorreo($emailUsuario, 'Verificá tu cuenta en VuelaLibre', $cuerpo);
-
       if ($enviado) {
         header('Location: login.php?registro=1');
       } else {
         header('Location: login.php?registro=1&correoFallido=1');
       }
       exit;
-
     } else {
       $error = "Error al registrar el usuario en la base de datos.";
     }
@@ -124,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <?php if (!empty($error)): ?>
               <div class="alert alert-danger" role="alert">
-                <i class="bi bi-exclamation-triangle me-2"></i><?= $error ?>
+                <i class="bi bi-exclamation-triangle me-2" aria-hidden="true"></i><?= $error ?>
               </div>
             <?php endif; ?>
 
@@ -263,7 +244,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       const tipoAerolinea = document.getElementById('tipo-aerolinea');
       const campoIata = document.getElementById('campo-codigo-iata');
       const inputIata = document.getElementById('codigoIATA');
-
       function actualizarCampoIata() {
         const esCeo = tipoAerolinea.checked;
         campoIata.hidden = !esCeo;
@@ -272,7 +252,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           inputIata.value = '';
         }
       }
-
       tipoUsuario.addEventListener('change', actualizarCampoIata);
       tipoAerolinea.addEventListener('change', actualizarCampoIata);
       actualizarCampoIata();

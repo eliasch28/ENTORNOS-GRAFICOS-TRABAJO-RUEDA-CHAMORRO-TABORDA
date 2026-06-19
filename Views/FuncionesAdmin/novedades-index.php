@@ -1,11 +1,9 @@
 <?php
 include '../../config/conexion.php';
 require_once '../../config/requiere_admin.php';
-
 $mensajeExito = '';
 $mensajeError = '';
 $hoy = date('Y-m-d');
-
 function estadoNovedadAdmin(string $fechaPub, string $fechaExp, string $hoy): array
 {
   if ($hoy < $fechaPub) {
@@ -16,13 +14,10 @@ function estadoNovedadAdmin(string $fechaPub, string $fechaExp, string $hoy): ar
   }
   return ['Activa', 'bg-success'];
 }
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $codNovedad = isset($_POST['codNovedad']) ? (int) $_POST['codNovedad'] : 0;
-
   if ($codNovedad > 0) {
     $query = "DELETE FROM NOVEDADES WHERE codNovedad = $codNovedad";
-
     if (mysqli_query($link, $query) && mysqli_affected_rows($link) > 0) {
       $mensajeExito = 'La novedad fue eliminada correctamente.';
     } else {
@@ -32,16 +27,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $mensajeError = 'Solicitud inválida.';
   }
 }
-
 $porPagina = 10;
 $paginaActual = isset($_GET['pagina']) ? max(1, (int) $_GET['pagina']) : 1;
 $offset = ($paginaActual - 1) * $porPagina;
-
 $sqlTotal = "SELECT COUNT(*) AS total FROM NOVEDADES";
 $resTotal = mysqli_query($link, $sqlTotal);
 $total = mysqli_fetch_assoc($resTotal)['total'] ?? 0;
 $totalPaginas = max(1, (int) ceil($total / $porPagina));
-
 $sqlNovedades = "SELECT codNovedad, textoNovedad, fechaPublicacionNovedad, fechaExpiracionNovedad
                  FROM NOVEDADES
                  ORDER BY fechaPublicacionNovedad DESC
@@ -202,7 +194,6 @@ $resNovedades = mysqli_query($link, $sqlNovedades);
       const textoEl = document.getElementById('modalConfirmacionTexto');
       const aceptarBtn = document.getElementById('modalConfirmacionAceptar');
       let formIdPendiente = null;
-
       document.querySelectorAll('[data-confirm-form-id]').forEach(function (btn) {
         btn.addEventListener('click', function () {
           formIdPendiente = btn.getAttribute('data-confirm-form-id');
@@ -210,13 +201,11 @@ $resNovedades = mysqli_query($link, $sqlNovedades);
           modalConfirmacion.show();
         });
       });
-
       aceptarBtn.addEventListener('click', function () {
         if (!formIdPendiente) return;
         const form = document.getElementById(formIdPendiente);
         if (form) form.submit();
       });
-
       modalEl.addEventListener('hidden.bs.modal', function () {
         formIdPendiente = null;
       });

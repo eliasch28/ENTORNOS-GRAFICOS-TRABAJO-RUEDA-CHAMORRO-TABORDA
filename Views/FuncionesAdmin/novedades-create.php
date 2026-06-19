@@ -1,20 +1,16 @@
 <?php
 include '../../config/conexion.php';
 require_once '../../config/requiere_admin.php';
-
 $error = '';
 $exito = '';
-
 $textoNovedad             = '';
 $fechaPublicacionNovedad  = '';
 $fechaExpiracionNovedad   = '';
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $textoNovedad            = trim($_POST['textoNovedad'] ?? '');
   $fechaPublicacionNovedad = trim($_POST['fechaPublicacionNovedad'] ?? '');
   $fechaExpiracionNovedad  = trim($_POST['fechaExpiracionNovedad'] ?? '');
   $hoy                     = date('Y-m-d');
-
   if ($textoNovedad === '') {
     $error = 'El texto de la novedad es obligatorio.';
   } elseif (mb_strlen($textoNovedad) > 200) {
@@ -31,10 +27,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $textoEsc = mysqli_real_escape_string($link, $textoNovedad);
     $pubEsc   = mysqli_real_escape_string($link, $fechaPublicacionNovedad);
     $expEsc   = mysqli_real_escape_string($link, $fechaExpiracionNovedad);
-
     $query = "INSERT INTO NOVEDADES (textoNovedad, fechaPublicacionNovedad, fechaExpiracionNovedad)
               VALUES ('$textoEsc', '$pubEsc', '$expEsc')";
-
     if (mysqli_query($link, $query)) {
       $exito = 'La novedad se registró correctamente.';
       $textoNovedad = $fechaPublicacionNovedad = $fechaExpiracionNovedad = '';

@@ -1,5 +1,10 @@
 <?php $tipoUsuario = $_SESSION['tipoUsuario'] ?? ''; ?>
 
+<a class="visually-hidden-focusable position-absolute top-0 start-0 m-2 btn btn-light text-primary fw-semibold"
+   href="#contenido-principal">
+  Saltar al contenido principal
+</a>
+
 <header>
   <nav class="navbar navbar-expand-lg navbar-dark bg-primary"
        aria-label="Navegación principal">

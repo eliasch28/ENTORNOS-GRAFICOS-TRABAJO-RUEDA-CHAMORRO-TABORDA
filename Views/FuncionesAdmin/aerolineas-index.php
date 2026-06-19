@@ -1,16 +1,12 @@
 <?php
 include '../../config/conexion.php';
 require_once '../../config/requiere_admin.php';
-
 $mensajeExito = '';
 $mensajeError = '';
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $codAerolinea = isset($_POST['codAerolinea']) ? (int) $_POST['codAerolinea'] : 0;
-
   if ($codAerolinea > 0) {
     $query = "DELETE FROM AEROLINEAS WHERE codAerolinea = $codAerolinea";
-
     if (mysqli_query($link, $query) && mysqli_affected_rows($link) > 0) {
       $mensajeExito = 'La aerolínea fue eliminada correctamente.';
     } else {
@@ -20,16 +16,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $mensajeError = 'Solicitud inválida.';
   }
 }
-
 $porPagina = 10;
 $paginaActual = isset($_GET['pagina']) ? max(1, (int) $_GET['pagina']) : 1;
 $offset = ($paginaActual - 1) * $porPagina;
-
 $sqlTotal = "SELECT COUNT(*) AS total FROM AEROLINEAS";
 $resTotal = mysqli_query($link, $sqlTotal);
 $total = mysqli_fetch_assoc($resTotal)['total'] ?? 0;
 $totalPaginas = max(1, (int) ceil($total / $porPagina));
-
 $sqlAerolineas = "SELECT codAerolinea, nombreAerolinea, codigoIATA, codPais, descripcionAerolinea
                   FROM AEROLINEAS
                   ORDER BY codAerolinea ASC
@@ -103,7 +96,7 @@ $resAerolineas = mysqli_query($link, $sqlAerolineas);
                         class="btn btn-sm btn-outline-secondary">
                         <i class="bi bi-pencil" aria-hidden="true"></i> Editar
                       </a>
-                      <!-- Form oculto para el DELETE -->
+
                       <form action="aerolineas-index.php?pagina=<?= $paginaActual ?>" method="POST" class="d-inline"
                         id="form-eliminar-<?= (int) $row['codAerolinea'] ?>">
                         <input type="hidden" name="codAerolinea" value="<?= (int) $row['codAerolinea'] ?>">
@@ -127,7 +120,6 @@ $resAerolineas = mysqli_query($link, $sqlAerolineas);
           </table>
         </div>
 
-        <!-- Paginación -->
         <?php if ($totalPaginas > 1): ?>
           <nav aria-label="Paginación" class="mt-4">
             <ul class="pagination justify-content-center mb-0">
@@ -150,7 +142,6 @@ $resAerolineas = mysqli_query($link, $sqlAerolineas);
     </div>
   </main>
 
-  <!-- Modal reutilizable para confirmar eliminación -->
   <div class="modal fade" id="modalConfirmacion" tabindex="-1" aria-labelledby="modalConfirmacionLabel"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -181,7 +172,6 @@ $resAerolineas = mysqli_query($link, $sqlAerolineas);
       const textoEl = document.getElementById('modalConfirmacionTexto');
       const aceptarBtn = document.getElementById('modalConfirmacionAceptar');
       let formIdPendiente = null;
-
       document.querySelectorAll('[data-confirm-form-id]').forEach(function (btn) {
         btn.addEventListener('click', function () {
           formIdPendiente = btn.getAttribute('data-confirm-form-id');
@@ -189,13 +179,11 @@ $resAerolineas = mysqli_query($link, $sqlAerolineas);
           modalConfirmacion.show();
         });
       });
-
       aceptarBtn.addEventListener('click', function () {
         if (!formIdPendiente) return;
         const form = document.getElementById(formIdPendiente);
         if (form) form.submit();
       });
-
       modalEl.addEventListener('hidden.bs.modal', function () {
         formIdPendiente = null;
       });

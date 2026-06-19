@@ -1,4 +1,40 @@
-﻿<?php session_start(); ?>
+﻿<?php
+session_start();
+require_once '../../config/EnviarCorreo.php';
+$contactoExito = '';
+$contactoError = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mensajeContacto'])) {
+    $nombreContacto  = trim($_POST['nombreContacto'] ?? '');
+    $emailContacto   = trim($_POST['emailContacto'] ?? '');
+    $mensajeContacto = trim($_POST['mensajeContacto'] ?? '');
+    if ($nombreContacto === '' || $emailContacto === '' || $mensajeContacto === '') {
+        $contactoError = 'Completá todos los campos para enviar tu consulta.';
+    } elseif (!filter_var($emailContacto, FILTER_VALIDATE_EMAIL)) {
+        $contactoError = 'Ingresá un correo electrónico válido.';
+    } else {
+        $nombreSafe  = htmlspecialchars($nombreContacto, ENT_QUOTES, 'UTF-8');
+        $emailSafe   = htmlspecialchars($emailContacto, ENT_QUOTES, 'UTF-8');
+        $mensajeSafe = nl2br(htmlspecialchars($mensajeContacto, ENT_QUOTES, 'UTF-8'));
+        $cuerpo = "<p><strong>Nueva consulta desde el formulario de contacto de VuelaLibre.</strong></p>"
+            . "<p><strong>Nombre:</strong> $nombreSafe</p>"
+            . "<p><strong>Correo:</strong> $emailSafe</p>"
+            . "<p><strong>Consulta:</strong></p>"
+            . "<p>$mensajeSafe</p>";
+        $enviado = enviarCorreo(
+            MAIL_SMTP_USER,
+            'Nueva consulta de contacto - VuelaLibre',
+            $cuerpo,
+            false,
+            ['email' => $emailContacto, 'nombre' => $nombreContacto]
+        );
+        if ($enviado) {
+            $contactoExito = '¡Tu consulta fue enviada! Te responderemos a la brevedad.';
+        } else {
+            $contactoError = 'No pudimos enviar tu consulta en este momento. Intentá más tarde.';
+        }
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -19,10 +55,7 @@
 
 <?php
 
-/* ── Categoría seleccionada vía GET ───────────────────────── */
 $categoriaActual = $_GET['categoria'] ?? 'todas';
-
-/* ── Preguntas frecuentes con su categoría asignada ────────── */
 $preguntas = [
   [
     'id'        => 'faq-1',
@@ -129,25 +162,18 @@ $preguntas = [
                     cada una por separado.',
   ],
 ];
-
-/* ── Filtrar según la categoría recibida ────────────────────── */
 $preguntasFiltradas = ($categoriaActual === 'todas')
   ? $preguntas
   : array_values(array_filter($preguntas, fn($p) => $p['categoria'] === $categoriaActual));
-
-/* ── Paginación ─────────────────────────────────────────────── */
 $porPaginaFaq   = 3;
 $totalFaq       = count($preguntasFiltradas);
 $totalPagFaq    = max(1, (int)ceil($totalFaq / $porPaginaFaq));
 $paginaFaq      = max(1, min($totalPagFaq, (int)($_GET['pagina'] ?? 1)));
 $pregsPagina    = array_slice($preguntasFiltradas, ($paginaFaq - 1) * $porPaginaFaq, $porPaginaFaq);
-
 $getAyuda = [];
 if ($categoriaActual !== 'todas') $getAyuda['categoria'] = $categoriaActual;
 $queryAyuda  = http_build_query($getAyuda);
 $urlBaseAyuda = 'ayuda.php' . ($queryAyuda ? '?' . $queryAyuda . '&' : '?');
-
-/* ── Etiquetas visibles de cada categoría ───────────────────── */
 $categorias = [
   'todas'    => 'Todas',
   'registro' => 'Registro y cuenta',
@@ -178,7 +204,6 @@ $categorias = [
         <div class="row g-4">
           <div class="col-lg-8">
 
-            <!-- Filtro de categorías -->
             <div class="mb-4 d-flex gap-2 flex-wrap"
                  role="group" aria-label="Filtrar preguntas por categoría">
               <?php foreach ($categorias as $clave => $etiqueta): ?>
@@ -190,7 +215,6 @@ $categorias = [
               <?php endforeach; ?>
             </div>
 
-            <!-- Preguntas frecuentes — accordion Bootstrap -->
             <?php if (empty($preguntasFiltradas)): ?>
               <div class="alert alert-info" role="note">
                 <i class="bi bi-info-circle me-2" aria-hidden="true"></i>
@@ -224,7 +248,6 @@ $categorias = [
               </div>
             <?php endif; ?>
 
-            <!-- Paginado de preguntas -->
             <?php if ($totalPagFaq > 1): ?>
             <nav aria-label="Paginación de preguntas frecuentes" class="mb-4">
               <ul class="pagination justify-content-center">
@@ -244,7 +267,6 @@ $categorias = [
             </nav>
             <?php endif; ?>
 
-            <!-- Botón Contáctanos -->
             <div class="text-center mb-3">
               <button class="btn btn-primary btn-lg"
                       type="button"
@@ -256,8 +278,7 @@ $categorias = [
               </button>
             </div>
 
-            <!-- Formulario de contacto colapsable -->
-            <div class="collapse" id="formularioContactoAyuda">
+            <div class="collapse <?= ($contactoExito || $contactoError) ? 'show' : '' ?>" id="formularioContactoAyuda">
               <div class="card border-0 shadow-sm">
                 <div class="card-body p-4">
 
@@ -265,6 +286,18 @@ $categorias = [
                     <i class="bi bi-envelope me-2" aria-hidden="true"></i>
                     Envianos tu consulta
                   </h2>
+
+                  <?php if ($contactoExito): ?>
+                    <div class="alert alert-success" role="status">
+                      <i class="bi bi-check-circle me-2" aria-hidden="true"></i>
+                      <?= htmlspecialchars($contactoExito, ENT_QUOTES, 'UTF-8') ?>
+                    </div>
+                  <?php elseif ($contactoError): ?>
+                    <div class="alert alert-danger" role="alert">
+                      <i class="bi bi-exclamation-triangle me-2" aria-hidden="true"></i>
+                      <?= htmlspecialchars($contactoError, ENT_QUOTES, 'UTF-8') ?>
+                    </div>
+                  <?php endif; ?>
 
                   <form action="ayuda.php" method="post"
                         aria-label="Formulario de consulta">
@@ -326,9 +359,8 @@ $categorias = [
               </div>
             </div>
 
-          </div><!-- /col principal -->
+          </div>
 
-          <!-- Columna lateral: accesos directos -->
           <div class="col-lg-4">
             <div class="card border-0 shadow-sm p-4 mb-4">
               <h2 class="h6 fw-bold text-primary mb-3">
@@ -386,7 +418,7 @@ $categorias = [
             </div>
           </div>
 
-        </div><!-- /row -->
+        </div>
 
       </div>
     </section>
@@ -396,4 +428,3 @@ $categorias = [
 
 </body>
 </html>
-

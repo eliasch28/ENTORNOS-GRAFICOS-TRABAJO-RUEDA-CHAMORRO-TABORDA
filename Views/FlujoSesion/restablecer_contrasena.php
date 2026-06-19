@@ -1,11 +1,9 @@
 <?php
 include '../../config/conexion.php';
-
 $token = isset($_GET['token']) ? $_GET['token'] : (isset($_POST['token']) ? $_POST['token'] : '');
 $tokenValido = false;
 $error = '';
 $exito = false;
-
 if ($token === '') {
     $error = "Enlace de recuperación inválido.";
 } else {
@@ -13,7 +11,6 @@ if ($token === '') {
     $query = "SELECT codUsuario FROM USUARIOS
               WHERE tokenRecuperacion = '$tokenEscapado' AND tokenRecuperacionExp > NOW()";
     $resultado = mysqli_query($link, $query);
-
     if ($resultado && mysqli_num_rows($resultado) === 1) {
         $tokenValido = true;
         $usuario = mysqli_fetch_assoc($resultado);
@@ -22,10 +19,8 @@ if ($token === '') {
         $error = "El enlace de recuperación venció o no es válido.";
     }
 }
-
 if ($tokenValido && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $claveUsuario = $_POST['claveUsuario'];
-
     if ($claveUsuario === '' || strlen($claveUsuario) > 8) {
         $error = "La contraseña debe tener entre 1 y 8 caracteres.";
     } else {
@@ -73,7 +68,7 @@ if ($tokenValido && $_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php if ($exito): ?>
                 <div class="card border-0 shadow-sm p-4 p-md-5 text-center">
                   <div class="alert alert-success" role="alert">
-                    <i class="bi bi-check-circle me-2"></i>
+                    <i class="bi bi-check-circle me-2" aria-hidden="true"></i>
                     Tu contraseña fue actualizada con éxito.
                   </div>
                   <a href="login.php" class="btn btn-primary w-100">
@@ -83,7 +78,7 @@ if ($tokenValido && $_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php elseif (!$tokenValido): ?>
                 <div class="card border-0 shadow-sm p-4 p-md-5 text-center">
                   <div class="alert alert-danger" role="alert">
-                    <i class="bi bi-exclamation-triangle me-2"></i><?= $error ?>
+                    <i class="bi bi-exclamation-triangle me-2" aria-hidden="true"></i><?= $error ?>
                   </div>
                   <a href="recuperar_contrasena_.php" class="btn btn-primary w-100">
                     <i class="bi bi-arrow-repeat me-2" aria-hidden="true"></i>Solicitar un nuevo enlace
@@ -93,7 +88,7 @@ if ($tokenValido && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <?php if (!empty($error)): ?>
                     <div class="alert alert-danger" role="alert">
-                        <i class="bi bi-exclamation-triangle me-2"></i><?= $error ?>
+                        <i class="bi bi-exclamation-triangle me-2" aria-hidden="true"></i><?= $error ?>
                     </div>
                 <?php endif; ?>
 

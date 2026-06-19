@@ -1,9 +1,7 @@
 ﻿<?php
 session_start();
 include '../../config/conexion.php';
-
 $hoy = date('Y-m-d');
-
 function estadoNovedadUsuario(string $fechaPub, string $fechaExp, string $hoy): array {
   if ($hoy < $fechaPub) {
     return [
@@ -31,7 +29,6 @@ function estadoNovedadUsuario(string $fechaPub, string $fechaExp, string $hoy): 
     'bi-megaphone text-primary',
   ];
 }
-
 function formatearFechaLarga(string $fecha): string {
   $meses = [
     1 => 'enero', 2 => 'febrero', 3 => 'marzo', 4 => 'abril',
@@ -44,12 +41,10 @@ function formatearFechaLarga(string $fecha): string {
   $anio = date('Y', $ts);
   return "$dia de {$meses[$mes]} de $anio";
 }
-
 $sqlNovedades = "SELECT codNovedad, textoNovedad, fechaPublicacionNovedad, fechaExpiracionNovedad
                  FROM NOVEDADES
                  ORDER BY fechaPublicacionNovedad DESC";
 $resNovedades = mysqli_query($link, $sqlNovedades);
-
 $novedades = [];
 if ($resNovedades) {
     while ($row = mysqli_fetch_assoc($resNovedades)) {

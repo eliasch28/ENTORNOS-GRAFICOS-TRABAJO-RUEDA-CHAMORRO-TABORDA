@@ -1,40 +1,31 @@
 <?php
 include '../../config/conexion.php';
 require_once '../../config/requiere_admin.php';
-
 $error = '';
 $exito = '';
-
 $codAerolinea = isset($_GET['id']) ? (int) $_GET['id'] : 0;
-
 if ($codAerolinea <= 0) {
   header('Location: aerolineas-index.php');
   exit;
 }
-
 $idEsc = (int) $codAerolinea;
 $resAerolinea = mysqli_query($link, "SELECT codAerolinea, nombreAerolinea, codigoIATA, descripcionAerolinea, codPais
                                      FROM AEROLINEAS
                                      WHERE codAerolinea = $idEsc");
-
 if (!$resAerolinea || mysqli_num_rows($resAerolinea) === 0) {
   header('Location: aerolineas-index.php');
   exit;
 }
-
 $aerolinea = mysqli_fetch_assoc($resAerolinea);
-
 $nombreAerolinea      = $aerolinea['nombreAerolinea'];
 $codigoIATA           = $aerolinea['codigoIATA'];
 $descripcionAerolinea = $aerolinea['descripcionAerolinea'];
 $codigoPais           = $aerolinea['codPais'];
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $nombreAerolinea      = trim($_POST['nombreAerolinea'] ?? '');
   $codigoIATA           = strtoupper(trim($_POST['codigoIATA'] ?? ''));
   $descripcionAerolinea = trim($_POST['descripcionAerolinea'] ?? '');
   $codigoPais           = strtoupper(trim($_POST['codigoPais'] ?? ''));
-
   if ($nombreAerolinea === '') {
     $error = 'El nombre de la aerolínea es obligatorio.';
   } elseif ($codigoIATA === '') {
@@ -56,7 +47,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $iataEsc   = mysqli_real_escape_string($link, $codigoIATA);
     $descEsc   = mysqli_real_escape_string($link, $descripcionAerolinea);
     $paisEsc   = mysqli_real_escape_string($link, $codigoPais);
-
     $checkIata = mysqli_query($link, "SELECT codAerolinea FROM AEROLINEAS
                                       WHERE codigoIATA = '$iataEsc'
                                         AND codAerolinea != $idEsc");
@@ -69,7 +59,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     descripcionAerolinea = '$descEsc',
                     codPais              = '$paisEsc'
                 WHERE codAerolinea = $idEsc";
-
       if (mysqli_query($link, $query) && mysqli_affected_rows($link) >= 0) {
         $exito = 'La aerolínea se actualizó correctamente.';
       } else {
