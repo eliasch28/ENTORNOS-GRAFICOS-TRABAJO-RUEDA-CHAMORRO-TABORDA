@@ -19,9 +19,13 @@ $reservasConfirmadas = 0;
 $comprasTotales      = 0;
 $primerPendiente     = null;
 
-$usuariosRegistrados  = 0;
-$aerolineasActivas    = 0;
+$usuariosRegistrados   = 0;
+$aerolineasActivas     = 0;
 $promocionesPendientes = 0;
+$vuelosActivos         = 0;
+$promosAprobadas       = 0;
+$promosPendientesCeo   = 0;
+$nombreAerolineaCeo    = '';
 
 if ($tipo === 'administrador') {
     $r = mysqli_query($link, "SELECT COUNT(*) AS total FROM USUARIOS");
@@ -32,6 +36,34 @@ if ($tipo === 'administrador') {
 
     $r = mysqli_query($link, "SELECT COUNT(*) AS total FROM PROMOCIONES WHERE estadoPromocion = 'pendiente'");
     $promocionesPendientes = (int)(mysqli_fetch_assoc($r)['total'] ?? 0);
+}
+
+if ($tipo === 'ceo de aerolinea') {
+    $codUsuarioCeo = (int)$_SESSION['codUsuario'];
+    $resAeroCeo = mysqli_query($link,
+        "SELECT u.codAerolinea, a.nombreAerolinea FROM USUARIOS u
+         JOIN AEROLINEAS a ON u.codAerolinea = a.codAerolinea
+         WHERE u.codUsuario = $codUsuarioCeo");
+    $aeroCeo = $resAeroCeo ? mysqli_fetch_assoc($resAeroCeo) : null;
+    if ($aeroCeo) {
+        $codAerolineaCeo    = (int)$aeroCeo['codAerolinea'];
+        $nombreAerolineaCeo = htmlspecialchars($aeroCeo['nombreAerolinea'], ENT_QUOTES, 'UTF-8');
+
+        $r = mysqli_query($link,
+            "SELECT COUNT(*) AS total FROM VUELOS
+             WHERE codAerolinea = $codAerolineaCeo AND fechaSalidaVuelo >= CURDATE()");
+        $vuelosActivos = (int)(mysqli_fetch_assoc($r)['total'] ?? 0);
+
+        $r = mysqli_query($link,
+            "SELECT COUNT(*) AS total FROM PROMOCIONES
+             WHERE codAerolinea = $codAerolineaCeo AND estadoPromocion = 'aprobada'");
+        $promosAprobadas = (int)(mysqli_fetch_assoc($r)['total'] ?? 0);
+
+        $r = mysqli_query($link,
+            "SELECT COUNT(*) AS total FROM PROMOCIONES
+             WHERE codAerolinea = $codAerolineaCeo AND estadoPromocion = 'pendiente'");
+        $promosPendientesCeo = (int)(mysqli_fetch_assoc($r)['total'] ?? 0);
+    }
 }
 
 if ($tipo === 'usuario') {
@@ -176,9 +208,12 @@ if ($tipo === 'usuario') {
           <div class="card border-0 shadow">
             <div class="card-body p-4">
               <h2 class="h6 fw-bold text-dark mb-3"><i class="bi bi-speedometer2 me-2"></i>Resumen de mi aerolínea</h2>
-              <div class="fila-detalle"><span class="etiqueta-detalle">Vuelos activos</span><span class="fw-bold text-success">12</span></div>
-              <div class="fila-detalle"><span class="etiqueta-detalle">Promociones activas</span><span class="fw-bold text-primary">1</span></div>
-              <div class="fila-detalle"><span class="etiqueta-detalle">Promociones pendientes</span><span class="fw-bold text-warning">2</span></div>
+              <?php if ($nombreAerolineaCeo !== ''): ?>
+              <div class="fila-detalle"><span class="etiqueta-detalle">Aerolínea</span><span class="fw-bold text-secondary small"><?= $nombreAerolineaCeo ?></span></div>
+              <?php endif; ?>
+              <div class="fila-detalle"><span class="etiqueta-detalle">Vuelos futuros</span><span class="fw-bold text-success"><?= $vuelosActivos ?></span></div>
+              <div class="fila-detalle"><span class="etiqueta-detalle">Promociones aprobadas</span><span class="fw-bold text-primary"><?= $promosAprobadas ?></span></div>
+              <div class="fila-detalle"><span class="etiqueta-detalle">Promociones pendientes</span><span class="fw-bold text-warning"><?= $promosPendientesCeo ?></span></div>
               <a href="../FuncionesCEO/reportes-ceo.php" class="btn btn-outline-secondary btn-sm w-100 mt-3">
                 <i class="bi bi-bar-chart-line me-1"></i>Ver Reportes del Sistema
               </a>

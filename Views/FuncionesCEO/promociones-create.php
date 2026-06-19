@@ -1,6 +1,51 @@
 <?php
 include '../../config/conexion.php';
 require_once '../../config/requiere_ceo.php';
+
+$codUsuario = (int)$_SESSION['codUsuario'];
+
+// Obtener codAerolinea del CEO desde la DB
+$resU = mysqli_query($link, "SELECT codAerolinea FROM USUARIOS WHERE codUsuario = $codUsuario");
+$ceoData = $resU ? mysqli_fetch_assoc($resU) : null;
+if (!$ceoData || !$ceoData['codAerolinea']) {
+    header('Location: ../LandPage/LandUsuarioRegistrado.php');
+    exit;
+}
+$codAerolinea = (int)$ceoData['codAerolinea'];
+
+$error   = '';
+$exito   = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $descripcion = trim($_POST['descripcionPromocion'] ?? '');
+    $descuento   = (float)($_POST['descuentoPromocion'] ?? 0);
+
+    if ($descripcion === '') {
+        $error = 'La descripción es obligatoria.';
+    } elseif ($descuento <= 0 || $descuento > 100) {
+        $error = 'El descuento debe ser un número entre 1 y 100.';
+    } else {
+        // Verificar regla: no puede haber más de una promo pendiente o aprobada por aerolínea
+        $resCheck = mysqli_query($link,
+            "SELECT codPromocion FROM PROMOCIONES
+             WHERE codAerolinea = $codAerolinea
+               AND estadoPromocion IN ('pendiente', 'aprobada')");
+        if ($resCheck && mysqli_num_rows($resCheck) > 0) {
+            $error = 'Ya existe una promoción pendiente o aprobada para tu aerolínea. Solo puede haber una activa a la vez.';
+        } else {
+            $desc_esc = mysqli_real_escape_string($link, $descripcion);
+            $ins = mysqli_query($link,
+                "INSERT INTO PROMOCIONES (descripcionPromocion, descuentoPromocion, estadoPromocion, codAerolinea)
+                 VALUES ('$desc_esc', $descuento, 'pendiente', $codAerolinea)");
+            if ($ins) {
+                header('Location: promociones-index.php?creada=1');
+                exit;
+            } else {
+                $error = 'Error al guardar la promoción. Intentá nuevamente.';
+            }
+        }
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -16,43 +61,82 @@ require_once '../../config/requiere_ceo.php';
 
 <?php include '../Header/header.php'; ?>
 
-<main id="contenido-principal" tabindex="-1" class="container my-5">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h2">Alta de Nueva Promoción</h1>
-    <a href="promociones-index.php" class="btn btn-outline-secondary">Volver al Listado</a>
-  </div>
+<main id="contenido-principal" tabindex="-1">
+  <section class="py-5">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <p class="text-primary text-uppercase small fw-semibold mb-1">
+            <i class="bi bi-tag-fill me-1"></i>CEO · Promociones
+          </p>
+          <h1 class="h3 fw-bold mb-0">Nueva Promoción</h1>
+          <p class="text-secondary small mb-0">La promoción quedará pendiente hasta que el Administrador la apruebe.</p>
+        </div>
+        <a href="promociones-index.php" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left me-1"></i>Volver al listado
+        </a>
+      </div>
 
-  <div class="card shadow-sm">
-    <div class="card-body">
-      <form action="promociones-store.php" method="POST">
-        <div class="mb-3">
-          <label for="descripcion" class="form-label">Descripción <span class="text-danger">*</span></label>
-          <input type="text" class="form-control" id="descripcion" name="descripcion" required>
+      <?php if ($error !== ''): ?>
+        <div class="alert alert-danger mb-4" role="alert">
+          <i class="bi bi-exclamation-triangle me-2"></i><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?>
         </div>
-        <div class="mb-3">
-          <label for="descuento" class="form-label">Descuento (%) <span class="text-danger">*</span></label>
-          <div class="input-group">
-            <input type="number" class="form-control" id="descuento" name="descuento" min="1" max="100" required>
-            <span class="input-group-text">%</span>
+      <?php endif; ?>
+
+      <div class="row justify-content-center">
+        <div class="col-lg-7">
+          <div class="card border-0 shadow-sm">
+            <div class="card-body p-4 p-md-5">
+
+              <form action="promociones-create.php" method="post" aria-label="Formulario de nueva promoción">
+
+                <div class="mb-4">
+                  <label for="descripcionPromocion" class="form-label fw-semibold">
+                    Descripción <span class="text-danger">*</span>
+                  </label>
+                  <input type="text" id="descripcionPromocion" name="descripcionPromocion"
+                         class="form-control"
+                         placeholder="Ej: 20% de descuento en vuelos nacionales"
+                         maxlength="200" required
+                         value="<?= htmlspecialchars($_POST['descripcionPromocion'] ?? '', ENT_QUOTES, 'UTF-8') ?>"/>
+                  <div class="form-text">Máximo 200 caracteres.</div>
+                </div>
+
+                <div class="mb-4">
+                  <label for="descuentoPromocion" class="form-label fw-semibold">
+                    Descuento (%) <span class="text-danger">*</span>
+                  </label>
+                  <div class="input-group">
+                    <input type="number" id="descuentoPromocion" name="descuentoPromocion"
+                           class="form-control"
+                           min="1" max="100" step="0.01" required
+                           placeholder="Ej: 15"
+                           value="<?= htmlspecialchars($_POST['descuentoPromocion'] ?? '', ENT_QUOTES, 'UTF-8') ?>"/>
+                    <span class="input-group-text">%</span>
+                  </div>
+                  <div class="form-text">Entre 1% y 100%.</div>
+                </div>
+
+                <div class="alert alert-info py-2 small mb-4" role="note">
+                  <i class="bi bi-info-circle me-1"></i>
+                  Solo puede existir <strong>una promoción pendiente o aprobada</strong> por aerolínea a la vez.
+                  Esta promoción quedará en estado <strong>Pendiente</strong> hasta su aprobación.
+                </div>
+
+                <div class="d-flex gap-2 justify-content-end">
+                  <button type="reset" class="btn btn-outline-secondary">Limpiar</button>
+                  <button type="submit" class="btn btn-success">
+                    <i class="bi bi-send me-1"></i>Enviar para aprobación
+                  </button>
+                </div>
+
+              </form>
+            </div>
           </div>
         </div>
-        <div class="row mb-3">
-          <div class="col-md-6">
-            <label for="fecha_inicio" class="form-label">Fecha de Inicio <span class="text-danger">*</span></label>
-            <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio" required>
-          </div>
-          <div class="col-md-6">
-            <label for="fecha_fin" class="form-label">Fecha de Fin <span class="text-danger">*</span></label>
-            <input type="date" class="form-control" id="fecha_fin" name="fecha_fin" required>
-          </div>
-        </div>
-        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-          <button type="reset" class="btn btn-light me-md-2">Limpiar Campos</button>
-          <button type="submit" class="btn btn-success">Enviar para Aprobación</button>
-        </div>
-      </form>
+      </div>
     </div>
-  </div>
+  </section>
 </main>
 
 <?php include '../Footer/footer.php'; ?>
