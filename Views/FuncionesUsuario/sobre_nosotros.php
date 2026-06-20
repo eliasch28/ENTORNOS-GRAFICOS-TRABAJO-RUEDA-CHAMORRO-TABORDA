@@ -97,86 +97,6 @@
               </div>
             </div>
 
-            <div class="text-center mb-3">
-              <button class="btn btn-primary btn-lg"
-                      type="button"
-                      data-bs-toggle="collapse"
-                      data-bs-target="#formularioContacto"
-                      aria-expanded="false"
-                      aria-controls="formularioContacto">
-                <i class="bi bi-envelope me-2" aria-hidden="true"></i>Contáctanos
-              </button>
-            </div>
-
-            <div class="collapse" id="formularioContacto">
-              <div class="card border-0 shadow-sm">
-                <div class="card-body p-4">
-
-                  <h2 class="h6 fw-bold text-primary mb-3">
-                    <i class="bi bi-envelope me-2" aria-hidden="true"></i>
-                    Formulario de contacto
-                  </h2>
-
-                  <form action="sobre_nosotros.php" method="post"
-                        aria-label="Formulario de contacto">
-
-                    <div class="row g-3">
-
-                      <div class="col-md-6">
-                        <label for="contacto-nombre" class="form-label fw-semibold">
-                          Nombre completo
-                          <span class="text-danger" aria-hidden="true">*</span>
-                        </label>
-                        <input type="text" id="contacto-nombre" name="nombreContacto"
-                               class="form-control"
-                               placeholder="Tu nombre completo"
-                               required maxlength="100"/>
-                      </div>
-
-                      <div class="col-md-6">
-                        <label for="contacto-email" class="form-label fw-semibold">
-                          Correo electrónico
-                          <span class="text-danger" aria-hidden="true">*</span>
-                        </label>
-                        <input type="email" id="contacto-email" name="emailContacto"
-                               class="form-control"
-                               placeholder="tu@correo.com"
-                               required maxlength="100"/>
-                      </div>
-
-                      <div class="col-12">
-                        <label for="contacto-mensaje" class="form-label fw-semibold">
-                          Mensaje
-                          <span class="text-danger" aria-hidden="true">*</span>
-                        </label>
-                        <textarea id="contacto-mensaje" name="mensajeContacto"
-                                  class="form-control" rows="4"
-                                  placeholder="¿En qué podemos ayudarte?"
-                                  required maxlength="1000"></textarea>
-                      </div>
-
-                      <div class="col-12">
-                        <p class="text-secondary small mb-3">
-                          <span class="text-danger" aria-hidden="true">*</span>
-                          Todos los campos son obligatorios.
-                        </p>
-                        <button type="submit" class="btn btn-primary">
-                          <i class="bi bi-send me-2" aria-hidden="true"></i>Enviar mensaje
-                        </button>
-                        <button type="button"
-                                class="btn btn-outline-secondary ms-2"
-                                data-bs-toggle="collapse"
-                                data-bs-target="#formularioContacto">
-                          Cancelar
-                        </button>
-                      </div>
-
-                    </div>
-                  </form>
-
-                </div>
-              </div>
-            </div>
 
           </div>
 
@@ -197,7 +117,7 @@
                 </li>
                 <li class="mb-2">
                   <i class="bi bi-envelope me-2 text-primary" aria-hidden="true"></i>
-                  contacto@vuelalibre.edu.ar
+                  vuelalibredevs@gmail.com
                 </li>
                 <li>
                   <i class="bi bi-mortarboard me-2 text-primary" aria-hidden="true"></i>

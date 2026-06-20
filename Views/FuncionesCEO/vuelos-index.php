@@ -7,46 +7,45 @@ $resU = mysqli_query($link, "SELECT u.codAerolinea, a.nombreAerolinea, a.codigoI
                               JOIN AEROLINEAS a ON u.codAerolinea = a.codAerolinea
                               WHERE u.codUsuario = $codUsuario");
 $ceoData = $resU ? mysqli_fetch_assoc($resU) : null;
-if (!$ceoData || !$ceoData['codAerolinea']) {
-    header('Location: ../LandPage/LandUsuarioRegistrado.php');
-    exit;
-}
-$codAerolinea    = (int)$ceoData['codAerolinea'];
-$nombreAerolinea = htmlspecialchars($ceoData['nombreAerolinea'], ENT_QUOTES, 'UTF-8');
-$codigoIATA      = htmlspecialchars($ceoData['codigoIATA'], ENT_QUOTES, 'UTF-8');
+$sinAerolinea = (!$ceoData || !$ceoData['codAerolinea']);
 $mensajeExito = '';
 $mensajeError = '';
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['accion'] ?? '') === 'eliminar') {
-    $codVuelo = (int)($_POST['codVuelo'] ?? 0);
-    if ($codVuelo > 0) {
-        $resV = mysqli_query($link,
-            "SELECT codVuelo FROM VUELOS WHERE codVuelo = $codVuelo AND codAerolinea = $codAerolinea");
-        if ($resV && mysqli_num_rows($resV) > 0) {
-            $resRes = mysqli_query($link,
-                "SELECT COUNT(*) AS total FROM RESERVAS
-                 WHERE codVuelo = $codVuelo AND estadoReserva IN ('pendiente de pago','confirmada')");
-            $cntRes = (int)(mysqli_fetch_assoc($resRes)['total'] ?? 0);
-            if ($cntRes > 0) {
-                $mensajeError = 'No se puede eliminar: el vuelo tiene reservas activas.';
+$vuelos = [];
+if (!$sinAerolinea) {
+    $codAerolinea    = (int)$ceoData['codAerolinea'];
+    $nombreAerolinea = htmlspecialchars($ceoData['nombreAerolinea'], ENT_QUOTES, 'UTF-8');
+    $codigoIATA      = htmlspecialchars($ceoData['codigoIATA'], ENT_QUOTES, 'UTF-8');
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['accion'] ?? '') === 'eliminar') {
+        $codVuelo = (int)($_POST['codVuelo'] ?? 0);
+        if ($codVuelo > 0) {
+            $resV = mysqli_query($link,
+                "SELECT codVuelo FROM VUELOS WHERE codVuelo = $codVuelo AND codAerolinea = $codAerolinea");
+            if ($resV && mysqli_num_rows($resV) > 0) {
+                $resRes = mysqli_query($link,
+                    "SELECT COUNT(*) AS total FROM RESERVAS
+                     WHERE codVuelo = $codVuelo AND estadoReserva IN ('pendiente de pago','confirmada')");
+                $cntRes = (int)(mysqli_fetch_assoc($resRes)['total'] ?? 0);
+                if ($cntRes > 0) {
+                    $mensajeError = 'No se puede eliminar: el vuelo tiene reservas activas.';
+                } else {
+                    $del = mysqli_query($link, "DELETE FROM VUELOS WHERE codVuelo = $codVuelo AND codAerolinea = $codAerolinea");
+                    $mensajeExito = $del ? 'Vuelo eliminado correctamente.' : '';
+                    if (!$del) $mensajeError = 'Error al eliminar el vuelo.';
+                }
             } else {
-                $del = mysqli_query($link, "DELETE FROM VUELOS WHERE codVuelo = $codVuelo AND codAerolinea = $codAerolinea");
-                $mensajeExito = $del ? 'Vuelo eliminado correctamente.' : '';
-                if (!$del) $mensajeError = 'Error al eliminar el vuelo.';
+                $mensajeError = 'Vuelo no encontrado.';
             }
-        } else {
-            $mensajeError = 'Vuelo no encontrado.';
         }
     }
-}
-$resVuelos = mysqli_query($link,
-    "SELECT codVuelo, origenVuelo, destinoVuelo, fechaSalidaVuelo, horaSalidaVuelo,
-            precioVuelo, asientosDisponibles
-     FROM VUELOS
-     WHERE codAerolinea = $codAerolinea
-     ORDER BY fechaSalidaVuelo ASC, horaSalidaVuelo ASC");
-$vuelos = [];
-if ($resVuelos) {
-    while ($v = mysqli_fetch_assoc($resVuelos)) $vuelos[] = $v;
+    $resVuelos = mysqli_query($link,
+        "SELECT codVuelo, origenVuelo, destinoVuelo, fechaSalidaVuelo, horaSalidaVuelo,
+                precioVuelo, asientosDisponibles
+         FROM VUELOS
+         WHERE codAerolinea = $codAerolinea
+         ORDER BY fechaSalidaVuelo ASC, horaSalidaVuelo ASC");
+    if ($resVuelos) {
+        while ($v = mysqli_fetch_assoc($resVuelos)) $vuelos[] = $v;
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -66,6 +65,17 @@ if ($resVuelos) {
 <main id="contenido-principal" tabindex="-1">
   <section class="py-5">
     <div class="container">
+
+      <?php if ($sinAerolinea): ?>
+      <div class="py-5 text-center">
+        <i class="bi bi-building-x fs-1 text-secondary d-block mb-3" aria-hidden="true"></i>
+        <h2 class="h5 fw-bold mb-2">Sin aerolínea asociada</h2>
+        <p class="text-secondary mb-4">Tu cuenta de CEO no está asociada a ninguna aerolínea.<br>Contactá al administrador para que te asigne una.</p>
+        <a href="../LandPage/LandUsuarioRegistrado.php" class="btn btn-primary">
+          <i class="bi bi-house-fill me-1" aria-hidden="true"></i>Ir al Inicio
+        </a>
+      </div>
+      <?php else: ?>
 
       <div class="d-flex justify-content-between align-items-center mb-2">
         <div>
@@ -181,6 +191,7 @@ if ($resVuelos) {
         </div>
       </div>
 
+      <?php endif; ?>
     </div>
   </section>
 </main>

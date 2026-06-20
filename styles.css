@@ -92,13 +92,19 @@ footer {
 .lista-mapa-sitio li + li {
   margin-top: 0.4rem;
 }
-.lista-mapa-sitio a {
+.lista-mapa-sitio a,
+.lista-mapa-sitio button {
   text-decoration: none;
   color: #adb5bd !important;
   font-size: 0.9rem;
+  background: none;
+  border: none;
+  padding: 0;
 }
 .lista-mapa-sitio a:hover,
-.lista-mapa-sitio a:focus {
+.lista-mapa-sitio a:focus,
+.lista-mapa-sitio button:hover,
+.lista-mapa-sitio button:focus {
   color: var(--bs-primary) !important;
   text-decoration: underline;
 }

@@ -1,4 +1,5 @@
 ﻿<?php
+session_start();
 include '../../config/conexion.php';
 include '../../config/EnviarCorreo.php';
 $enviado = false;

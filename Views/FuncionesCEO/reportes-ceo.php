@@ -7,74 +7,75 @@ $resU = mysqli_query($link, "SELECT u.codAerolinea, a.nombreAerolinea, a.codigoI
                               JOIN AEROLINEAS a ON u.codAerolinea = a.codAerolinea
                               WHERE u.codUsuario = $codUsuario");
 $ceoData = $resU ? mysqli_fetch_assoc($resU) : null;
-if (!$ceoData || !$ceoData['codAerolinea']) {
-    header('Location: ../LandPage/LandUsuarioRegistrado.php');
-    exit;
-}
-$codAerolinea    = (int)$ceoData['codAerolinea'];
-$nombreAerolinea = htmlspecialchars($ceoData['nombreAerolinea'], ENT_QUOTES, 'UTF-8');
-$codigoIATA      = htmlspecialchars($ceoData['codigoIATA'], ENT_QUOTES, 'UTF-8');
-$r = mysqli_query($link,
-    "SELECT COUNT(*) AS total FROM VUELOS WHERE codAerolinea = $codAerolinea");
-$totalVuelos = (int)(mysqli_fetch_assoc($r)['total'] ?? 0);
-$r = mysqli_query($link,
-    "SELECT COUNT(*) AS total FROM VUELOS
-     WHERE codAerolinea = $codAerolinea AND fechaSalidaVuelo >= CURDATE()");
-$vuelosFuturos = (int)(mysqli_fetch_assoc($r)['total'] ?? 0);
-$r = mysqli_query($link,
-    "SELECT COUNT(*) AS total
-     FROM RESERVAS r JOIN VUELOS v ON r.codVuelo = v.codVuelo
-     WHERE v.codAerolinea = $codAerolinea");
-$totalReservas = (int)(mysqli_fetch_assoc($r)['total'] ?? 0);
-$r = mysqli_query($link,
-    "SELECT COUNT(*) AS total
-     FROM RESERVAS r JOIN VUELOS v ON r.codVuelo = v.codVuelo
-     WHERE v.codAerolinea = $codAerolinea AND r.estadoReserva = 'confirmada'");
-$reservasConfirmadas = (int)(mysqli_fetch_assoc($r)['total'] ?? 0);
-$r = mysqli_query($link,
-    "SELECT COUNT(*) AS total
-     FROM RESERVAS r JOIN VUELOS v ON r.codVuelo = v.codVuelo
-     WHERE v.codAerolinea = $codAerolinea AND r.estadoReserva = 'pendiente de pago'");
-$reservasPendientes = (int)(mysqli_fetch_assoc($r)['total'] ?? 0);
-$r = mysqli_query($link,
-    "SELECT COALESCE(SUM(v.precioVuelo * (1 - COALESCE(p.descuentoPromocion,0)/100)), 0) AS total
-     FROM RESERVAS r
-     JOIN VUELOS v ON r.codVuelo = v.codVuelo
-     LEFT JOIN PROMOCIONES p
-       ON p.codAerolinea = v.codAerolinea AND p.estadoPromocion = 'aprobada'
-     WHERE v.codAerolinea = $codAerolinea AND r.estadoReserva = 'confirmada'");
-$ingresosTotales = (float)(mysqli_fetch_assoc($r)['total'] ?? 0);
-$r = mysqli_query($link,
-    "SELECT codPromocion, descripcionPromocion, descuentoPromocion FROM PROMOCIONES
-     WHERE codAerolinea = $codAerolinea AND estadoPromocion = 'aprobada' LIMIT 1");
-$promoActiva = ($r && mysqli_num_rows($r) > 0) ? mysqli_fetch_assoc($r) : null;
-$resReservas = mysqli_query($link,
-    "SELECT r.codReserva, r.estadoReserva, r.fechaReserva,
-            u.nombreUsuario,
-            v.origenVuelo, v.destinoVuelo, v.fechaSalidaVuelo
-     FROM RESERVAS r
-     JOIN VUELOS v ON r.codVuelo = v.codVuelo
-     JOIN USUARIOS u ON r.codUsuario = u.codUsuario
-     WHERE v.codAerolinea = $codAerolinea
-     ORDER BY r.fechaReserva DESC, r.codReserva DESC
-     LIMIT 10");
-$ultimasReservas = [];
-if ($resReservas) {
-    while ($row = mysqli_fetch_assoc($resReservas)) $ultimasReservas[] = $row;
-}
-$resTop = mysqli_query($link,
-    "SELECT v.codVuelo, v.origenVuelo, v.destinoVuelo, v.fechaSalidaVuelo,
-            v.asientosDisponibles,
-            COUNT(r.codReserva) AS totalReservas
-     FROM VUELOS v
-     LEFT JOIN RESERVAS r ON v.codVuelo = r.codVuelo
-     WHERE v.codAerolinea = $codAerolinea
-     GROUP BY v.codVuelo
-     ORDER BY totalReservas DESC
-     LIMIT 5");
-$topVuelos = [];
-if ($resTop) {
-    while ($row = mysqli_fetch_assoc($resTop)) $topVuelos[] = $row;
+$sinAerolinea = (!$ceoData || !$ceoData['codAerolinea']);
+$nombreAerolinea = '';
+$codigoIATA = '';
+if (!$sinAerolinea) {
+    $codAerolinea    = (int)$ceoData['codAerolinea'];
+    $nombreAerolinea = htmlspecialchars($ceoData['nombreAerolinea'], ENT_QUOTES, 'UTF-8');
+    $codigoIATA      = htmlspecialchars($ceoData['codigoIATA'], ENT_QUOTES, 'UTF-8');
+    $r = mysqli_query($link,
+        "SELECT COUNT(*) AS total FROM VUELOS WHERE codAerolinea = $codAerolinea");
+    $totalVuelos = (int)(mysqli_fetch_assoc($r)['total'] ?? 0);
+    $r = mysqli_query($link,
+        "SELECT COUNT(*) AS total FROM VUELOS
+         WHERE codAerolinea = $codAerolinea AND fechaSalidaVuelo >= CURDATE()");
+    $vuelosFuturos = (int)(mysqli_fetch_assoc($r)['total'] ?? 0);
+    $r = mysqli_query($link,
+        "SELECT COUNT(*) AS total
+         FROM RESERVAS r JOIN VUELOS v ON r.codVuelo = v.codVuelo
+         WHERE v.codAerolinea = $codAerolinea");
+    $totalReservas = (int)(mysqli_fetch_assoc($r)['total'] ?? 0);
+    $r = mysqli_query($link,
+        "SELECT COUNT(*) AS total
+         FROM RESERVAS r JOIN VUELOS v ON r.codVuelo = v.codVuelo
+         WHERE v.codAerolinea = $codAerolinea AND r.estadoReserva = 'confirmada'");
+    $reservasConfirmadas = (int)(mysqli_fetch_assoc($r)['total'] ?? 0);
+    $r = mysqli_query($link,
+        "SELECT COUNT(*) AS total
+         FROM RESERVAS r JOIN VUELOS v ON r.codVuelo = v.codVuelo
+         WHERE v.codAerolinea = $codAerolinea AND r.estadoReserva = 'pendiente de pago'");
+    $reservasPendientes = (int)(mysqli_fetch_assoc($r)['total'] ?? 0);
+    $r = mysqli_query($link,
+        "SELECT COALESCE(SUM(v.precioVuelo * (1 - COALESCE(p.descuentoPromocion,0)/100)), 0) AS total
+         FROM RESERVAS r
+         JOIN VUELOS v ON r.codVuelo = v.codVuelo
+         LEFT JOIN PROMOCIONES p
+           ON p.codAerolinea = v.codAerolinea AND p.estadoPromocion = 'aprobada'
+         WHERE v.codAerolinea = $codAerolinea AND r.estadoReserva = 'confirmada'");
+    $ingresosTotales = (float)(mysqli_fetch_assoc($r)['total'] ?? 0);
+    $r = mysqli_query($link,
+        "SELECT codPromocion, descripcionPromocion, descuentoPromocion FROM PROMOCIONES
+         WHERE codAerolinea = $codAerolinea AND estadoPromocion = 'aprobada' LIMIT 1");
+    $promoActiva = ($r && mysqli_num_rows($r) > 0) ? mysqli_fetch_assoc($r) : null;
+    $resReservas = mysqli_query($link,
+        "SELECT r.codReserva, r.estadoReserva, r.fechaReserva,
+                u.nombreUsuario,
+                v.origenVuelo, v.destinoVuelo, v.fechaSalidaVuelo
+         FROM RESERVAS r
+         JOIN VUELOS v ON r.codVuelo = v.codVuelo
+         JOIN USUARIOS u ON r.codUsuario = u.codUsuario
+         WHERE v.codAerolinea = $codAerolinea
+         ORDER BY r.fechaReserva DESC, r.codReserva DESC
+         LIMIT 10");
+    $ultimasReservas = [];
+    if ($resReservas) {
+        while ($row = mysqli_fetch_assoc($resReservas)) $ultimasReservas[] = $row;
+    }
+    $resTop = mysqli_query($link,
+        "SELECT v.codVuelo, v.origenVuelo, v.destinoVuelo, v.fechaSalidaVuelo,
+                v.asientosDisponibles,
+                COUNT(r.codReserva) AS totalReservas
+         FROM VUELOS v
+         LEFT JOIN RESERVAS r ON v.codVuelo = r.codVuelo
+         WHERE v.codAerolinea = $codAerolinea
+         GROUP BY v.codVuelo
+         ORDER BY totalReservas DESC
+         LIMIT 5");
+    $topVuelos = [];
+    if ($resTop) {
+        while ($row = mysqli_fetch_assoc($resTop)) $topVuelos[] = $row;
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -94,6 +95,17 @@ if ($resTop) {
 <main id="contenido-principal" tabindex="-1">
   <section class="py-5">
     <div class="container">
+
+      <?php if ($sinAerolinea): ?>
+      <div class="py-5 text-center">
+        <i class="bi bi-building-x fs-1 text-secondary d-block mb-3" aria-hidden="true"></i>
+        <h2 class="h5 fw-bold mb-2">Sin aerolínea asociada</h2>
+        <p class="text-secondary mb-4">Tu cuenta de CEO no está asociada a ninguna aerolínea.<br>Contactá al administrador para que te asigne una.</p>
+        <a href="../LandPage/LandUsuarioRegistrado.php" class="btn btn-primary">
+          <i class="bi bi-house-fill me-1" aria-hidden="true"></i>Ir al Inicio
+        </a>
+      </div>
+      <?php else: ?>
 
       <div class="mb-2">
         <p class="text-primary text-uppercase small fw-semibold mb-1">
@@ -297,6 +309,8 @@ if ($resTop) {
         </div>
 
       </div>
+
+      <?php endif; ?>
     </div>
   </section>
 </main>

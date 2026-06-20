@@ -426,5 +426,15 @@ $categorias = [
 
   <?php include '../Footer/footer.php'; ?>
 
+<script>
+  if (window.location.hash === '#formularioContactoAyuda') {
+    var el = document.getElementById('formularioContactoAyuda');
+    if (el) {
+      new bootstrap.Collapse(el, { show: true });
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+</script>
+
 </body>
 </html>

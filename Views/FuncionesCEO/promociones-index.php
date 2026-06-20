@@ -4,36 +4,35 @@ require_once '../../config/requiere_ceo.php';
 $codUsuario = (int)$_SESSION['codUsuario'];
 $resU = mysqli_query($link, "SELECT codAerolinea FROM USUARIOS WHERE codUsuario = $codUsuario");
 $ceoData = $resU ? mysqli_fetch_assoc($resU) : null;
-if (!$ceoData || !$ceoData['codAerolinea']) {
-    header('Location: ../LandPage/LandUsuarioRegistrado.php');
-    exit;
-}
-$codAerolinea = (int)$ceoData['codAerolinea'];
+$sinAerolinea = (!$ceoData || !$ceoData['codAerolinea']);
 $mensajeExito = '';
 $mensajeError = '';
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['accion'] === 'eliminar') {
-    $codPromocion = (int)($_POST['codPromocion'] ?? 0);
-    if ($codPromocion > 0) {
-        $resV = mysqli_query($link,
-            "SELECT codPromocion FROM PROMOCIONES
-             WHERE codPromocion = $codPromocion AND codAerolinea = $codAerolinea");
-        if ($resV && mysqli_num_rows($resV) > 0) {
-            $del = mysqli_query($link, "DELETE FROM PROMOCIONES WHERE codPromocion = $codPromocion");
-            $mensajeExito = $del ? 'Promoción eliminada correctamente.' : 'Error al eliminar la promoción.';
-            if (!$del) $mensajeError = 'Error al eliminar la promoción.';
-        } else {
-            $mensajeError = 'Promoción no encontrada.';
+$promos = [];
+if (!$sinAerolinea) {
+    $codAerolinea = (int)$ceoData['codAerolinea'];
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['accion'] === 'eliminar') {
+        $codPromocion = (int)($_POST['codPromocion'] ?? 0);
+        if ($codPromocion > 0) {
+            $resV = mysqli_query($link,
+                "SELECT codPromocion FROM PROMOCIONES
+                 WHERE codPromocion = $codPromocion AND codAerolinea = $codAerolinea");
+            if ($resV && mysqli_num_rows($resV) > 0) {
+                $del = mysqli_query($link, "DELETE FROM PROMOCIONES WHERE codPromocion = $codPromocion");
+                $mensajeExito = $del ? 'Promoción eliminada correctamente.' : 'Error al eliminar la promoción.';
+                if (!$del) $mensajeError = 'Error al eliminar la promoción.';
+            } else {
+                $mensajeError = 'Promoción no encontrada.';
+            }
         }
     }
-}
-$resPromos = mysqli_query($link,
-    "SELECT codPromocion, descripcionPromocion, descuentoPromocion, estadoPromocion
-     FROM PROMOCIONES
-     WHERE codAerolinea = $codAerolinea
-     ORDER BY FIELD(estadoPromocion, 'aprobada', 'pendiente', 'denegada'), codPromocion DESC");
-$promos = [];
-if ($resPromos) {
-    while ($p = mysqli_fetch_assoc($resPromos)) $promos[] = $p;
+    $resPromos = mysqli_query($link,
+        "SELECT codPromocion, descripcionPromocion, descuentoPromocion, estadoPromocion
+         FROM PROMOCIONES
+         WHERE codAerolinea = $codAerolinea
+         ORDER BY FIELD(estadoPromocion, 'aprobada', 'pendiente', 'denegada'), codPromocion DESC");
+    if ($resPromos) {
+        while ($p = mysqli_fetch_assoc($resPromos)) $promos[] = $p;
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -53,6 +52,17 @@ if ($resPromos) {
 <main id="contenido-principal" tabindex="-1">
   <section class="py-5">
     <div class="container">
+
+      <?php if ($sinAerolinea): ?>
+      <div class="py-5 text-center">
+        <i class="bi bi-building-x fs-1 text-secondary d-block mb-3" aria-hidden="true"></i>
+        <h2 class="h5 fw-bold mb-2">Sin aerolínea asociada</h2>
+        <p class="text-secondary mb-4">Tu cuenta de CEO no está asociada a ninguna aerolínea.<br>Contactá al administrador para que te asigne una.</p>
+        <a href="../LandPage/LandUsuarioRegistrado.php" class="btn btn-primary">
+          <i class="bi bi-house-fill me-1" aria-hidden="true"></i>Ir al Inicio
+        </a>
+      </div>
+      <?php else: ?>
 
       <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
@@ -171,6 +181,7 @@ if ($resPromos) {
         </div>
       </div>
 
+      <?php endif; ?>
     </div>
   </section>
 </main>

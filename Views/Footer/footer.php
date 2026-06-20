@@ -51,6 +51,7 @@
             <li><a href="../FuncionesUsuario/novedades.php">Novedades</a></li>
             <li><a href="../FuncionesUsuario/sobre_nosotros.php">Sobre Nosotros</a></li>
             <li><a href="../FuncionesUsuario/ayuda.php">Centro de Ayuda</a></li>
+            <li><a href="../FuncionesUsuario/ayuda.php#formularioContactoAyuda">Contáctanos</a></li>
           </ul>
 
         <?php else: ?>
@@ -62,6 +63,7 @@
             <li><a href="../FlujoSesion/login.php">Iniciar Sesión</a></li>
             <li><a href="../FuncionesUsuario/sobre_nosotros.php">Sobre Nosotros</a></li>
             <li><a href="../FuncionesUsuario/ayuda.php">Centro de Ayuda</a></li>
+            <li><a href="../FuncionesUsuario/ayuda.php#formularioContactoAyuda">Contáctanos</a></li>
           </ul>
         <?php endif; ?>
 
@@ -77,10 +79,43 @@
             <li><a href="../FuncionesUsuario/historial_compras.php">Historial de Compras</a></li>
           <?php endif; ?>
           <li><a href="../FlujoSesion/recuperar_contrasena_.php">Recuperar Contraseña</a></li>
-          <li><a href="../FlujoSesion/logout.php">Cerrar Sesión</a></li>
+          <li>
+            <form action="../FlujoSesion/login.php" method="post" class="d-inline">
+              <input type="hidden" name="_logout" value="1"/>
+              <button type="submit">
+                Cerrar Sesión
+              </button>
+            </form>
+          </li>
         </ul>
       </nav>
       <?php endif; ?>
+
+      <div class="col-lg-3 col-md-6">
+        <h2 class="h6 text-uppercase text-secondary small fw-semibold mb-3">
+          <i class="bi bi-geo-alt me-1" aria-hidden="true"></i>Contacto
+        </h2>
+        <ul class="list-unstyled text-secondary small">
+          <li class="mb-2">
+            <i class="bi bi-building me-2 text-primary" aria-hidden="true"></i>
+            UTN – Facultad Regional Rosario
+          </li>
+          <li class="mb-2">
+            <i class="bi bi-geo-alt me-2 text-primary" aria-hidden="true"></i>
+            Zeballos 1341, Rosario, Santa Fe
+          </li>
+          <li class="mb-2">
+            <i class="bi bi-envelope me-2 text-primary" aria-hidden="true"></i>
+            <a href="mailto:vuelalibredevs@gmail.com" class="text-secondary text-decoration-none">
+              vuelalibredevs@gmail.com
+            </a>
+          </li>
+          <li>
+            <i class="bi bi-mortarboard me-2 text-primary" aria-hidden="true"></i>
+            Cátedra Entornos Gráficos 2026
+          </li>
+        </ul>
+      </div>
 
     </div>
 

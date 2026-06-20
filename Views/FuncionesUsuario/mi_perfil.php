@@ -115,26 +115,70 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               </h2>
               <nav aria-label="Accesos rápidos del usuario">
                 <ul class="lista-mapa-sitio" role="list">
-                  <li>
-                    <a href="buscar_vuelos.php">
-                      <i class="bi bi-search me-2 text-primary" aria-hidden="true"></i>Buscar Vuelos
-                    </a>
-                  </li>
-                  <li>
-                    <a href="mis_reservas.php">
-                      <i class="bi bi-calendar2-check me-2 text-primary" aria-hidden="true"></i>Mis Reservas
-                    </a>
-                  </li>
-                  <li>
-                    <a href="historial_compras.php">
-                      <i class="bi bi-clock-history me-2 text-primary" aria-hidden="true"></i>Historial de Compras
-                    </a>
-                  </li>
-                  <li>
-                    <a href="novedades.php">
-                      <i class="bi bi-megaphone me-2 text-primary" aria-hidden="true"></i>Ver Novedades
-                    </a>
-                  </li>
+                  <?php if ($usuario['tipoUsuario'] === 'administrador'): ?>
+                    <li>
+                      <a href="../FuncionesAdmin/aerolineas-index.php">
+                        <i class="bi bi-building me-2 text-primary" aria-hidden="true"></i>Aerolíneas
+                      </a>
+                    </li>
+                    <li>
+                      <a href="../FuncionesAdmin/auditoria-promociones.php">
+                        <i class="bi bi-tag me-2 text-primary" aria-hidden="true"></i>Promociones
+                      </a>
+                    </li>
+                    <li>
+                      <a href="../FuncionesAdmin/novedades-index.php">
+                        <i class="bi bi-megaphone me-2 text-primary" aria-hidden="true"></i>Novedades
+                      </a>
+                    </li>
+                    <li>
+                      <a href="../FuncionesAdmin/solicitudes-ceo.php">
+                        <i class="bi bi-person-check me-2 text-primary" aria-hidden="true"></i>Solicitudes CEO
+                      </a>
+                    </li>
+                    <li>
+                      <a href="../FuncionesAdmin/global-reports.php">
+                        <i class="bi bi-bar-chart-fill me-2 text-primary" aria-hidden="true"></i>Reportes
+                      </a>
+                    </li>
+                  <?php elseif ($usuario['tipoUsuario'] === 'ceo de aerolinea'): ?>
+                    <li>
+                      <a href="../FuncionesCEO/vuelos-index.php">
+                        <i class="bi bi-airplane me-2 text-primary" aria-hidden="true"></i>Mis Vuelos
+                      </a>
+                    </li>
+                    <li>
+                      <a href="../FuncionesCEO/promociones-index.php">
+                        <i class="bi bi-tag me-2 text-primary" aria-hidden="true"></i>Mis Promociones
+                      </a>
+                    </li>
+                    <li>
+                      <a href="../FuncionesCEO/reportes-ceo.php">
+                        <i class="bi bi-bar-chart-fill me-2 text-primary" aria-hidden="true"></i>Reportes
+                      </a>
+                    </li>
+                  <?php else: ?>
+                    <li>
+                      <a href="buscar_vuelos.php">
+                        <i class="bi bi-search me-2 text-primary" aria-hidden="true"></i>Buscar Vuelos
+                      </a>
+                    </li>
+                    <li>
+                      <a href="mis_reservas.php">
+                        <i class="bi bi-calendar2-check me-2 text-primary" aria-hidden="true"></i>Mis Reservas
+                      </a>
+                    </li>
+                    <li>
+                      <a href="historial_compras.php">
+                        <i class="bi bi-clock-history me-2 text-primary" aria-hidden="true"></i>Historial de Compras
+                      </a>
+                    </li>
+                    <li>
+                      <a href="novedades.php">
+                        <i class="bi bi-megaphone me-2 text-primary" aria-hidden="true"></i>Ver Novedades
+                      </a>
+                    </li>
+                  <?php endif; ?>
                 </ul>
               </nav>
             </div>
