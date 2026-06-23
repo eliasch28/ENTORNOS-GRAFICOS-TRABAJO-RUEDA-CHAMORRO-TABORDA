@@ -70,25 +70,25 @@
       </nav>
 
       <?php if ($tipoUsuario): ?>
-      <nav class="col-lg-3 col-md-6" aria-label="Mi cuenta">
-        <h2 class="h6 text-uppercase text-secondary small fw-semibold mb-3">Mi Cuenta</h2>
-        <ul class="lista-mapa-sitio" role="list">
-          <li><a href="../FuncionesUsuario/mi_perfil.php">Mi Perfil</a></li>
-          <?php if ($tipoUsuario === 'usuario'): ?>
-            <li><a href="../FuncionesUsuario/mis_reservas.php">Mis Reservas</a></li>
-            <li><a href="../FuncionesUsuario/historial_compras.php">Historial de Compras</a></li>
-          <?php endif; ?>
-          <li><a href="../FlujoSesion/recuperar_contrasena_.php">Recuperar Contraseña</a></li>
-          <li>
-            <form action="../FlujoSesion/login.php" method="post" class="d-inline">
-              <input type="hidden" name="_logout" value="1"/>
-              <button type="submit">
-                Cerrar Sesión
-              </button>
-            </form>
-          </li>
-        </ul>
-      </nav>
+        <nav class="col-lg-3 col-md-6" aria-label="Mi cuenta">
+          <h2 class="h6 text-uppercase text-secondary small fw-semibold mb-3">Mi Cuenta</h2>
+          <ul class="lista-mapa-sitio" role="list">
+            <li><a href="../FuncionesUsuario/mi_perfil.php">Mi Perfil</a></li>
+              <?php if ($tipoUsuario === 'usuario'): ?>
+              <li><a href="../FuncionesUsuario/mis_reservas.php">Mis Reservas</a></li>
+              <li><a href="../FuncionesUsuario/historial_compras.php">Historial de Compras</a></li>
+              <?php endif; ?>
+            <li><a href="../FlujoSesion/recuperar_contrasena_.php">Recuperar Contraseña</a></li>
+            <li>
+              <form action="../FlujoSesion/login.php" method="post" class="d-inline">
+                <input type="hidden" name="_logout" value="1">
+                <button type="submit" class="btn btn-link p-0 text-secondary">
+                  Cerrar Sesión
+                </button>
+              </form>
+            </li>
+          </ul>
+        </nav>
       <?php endif; ?>
 
       <div class="col-lg-3 col-md-6">
