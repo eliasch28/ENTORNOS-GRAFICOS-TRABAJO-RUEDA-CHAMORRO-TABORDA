@@ -4,10 +4,10 @@ require_once '../../config/requiere_admin.php';
 $error = '';
 $exito = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  $nombreAerolinea      = trim($_POST['nombreAerolinea'] ?? '');
-  $codigoIATA           = strtoupper(trim($_POST['codigoIATA'] ?? ''));
+  $nombreAerolinea = trim($_POST['nombreAerolinea'] ?? '');
+  $codigoIATA = strtoupper(trim($_POST['codigoIATA'] ?? ''));
   $descripcionAerolinea = trim($_POST['descripcionAerolinea'] ?? '');
-  $codigoPais           = strtoupper(trim($_POST['codigoPais'] ?? ''));
+  $codigoPais = strtoupper(trim($_POST['codigoPais'] ?? ''));
   if ($nombreAerolinea === '') {
     $error = 'El nombre de la aerolínea es obligatorio.';
   } elseif ($codigoIATA === '') {
@@ -25,10 +25,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   } elseif (mb_strlen($descripcionAerolinea) > 200) {
     $error = 'La descripción no puede superar los 200 caracteres.';
   } else {
-    $nombreEsc   = mysqli_real_escape_string($link, $nombreAerolinea);
-    $iataEsc     = mysqli_real_escape_string($link, $codigoIATA);
-    $descEsc     = mysqli_real_escape_string($link, $descripcionAerolinea);
-    $paisEsc     = mysqli_real_escape_string($link, $codigoPais);
+    $nombreEsc = mysqli_real_escape_string($link, $nombreAerolinea);
+    $iataEsc = mysqli_real_escape_string($link, $codigoIATA);
+    $descEsc = mysqli_real_escape_string($link, $descripcionAerolinea);
+    $paisEsc = mysqli_real_escape_string($link, $codigoPais);
     $checkIata = mysqli_query($link, "SELECT codAerolinea FROM AEROLINEAS WHERE codigoIATA = '$iataEsc'");
     if ($checkIata && mysqli_num_rows($checkIata) > 0) {
       $error = 'Ya existe una aerolínea registrada con ese código IATA.';
@@ -52,7 +52,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Nueva Aerolínea | VuelaLibre – UTN FRR</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="../../styles.css" />
 </head>
@@ -96,15 +97,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               Nombre de la aerolínea
               <span class="text-danger" aria-hidden="true">*</span>
             </label>
-            <input
-              type="text"
-              id="nombreAerolinea"
-              name="nombreAerolinea"
-              class="form-control"
-              required
-              maxlength="100"
-              value="<?= htmlspecialchars($nombreAerolinea ?? '', ENT_QUOTES, 'UTF-8') ?>"
-              aria-required="true" />
+            <input type="text" id="nombreAerolinea" name="nombreAerolinea" class="form-control" required maxlength="100"
+              value="<?= htmlspecialchars($nombreAerolinea ?? '', ENT_QUOTES, 'UTF-8') ?>" aria-required="true" />
             <div class="form-text">Máximo 100 caracteres.</div>
           </div>
 
@@ -115,17 +109,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 Código IATA
                 <span class="text-danger" aria-hidden="true">*</span>
               </label>
-              <input
-                type="text"
-                id="codigoIATA"
-                name="codigoIATA"
-                class="form-control text-uppercase"
-                required
-                maxlength="3"
-                pattern="[A-Za-z]{2,3}"
-                title="Ingresá un código IATA de 2 o 3 letras"
-                value="<?= htmlspecialchars($codigoIATA ?? '', ENT_QUOTES, 'UTF-8') ?>"
-                aria-required="true" />
+              <input type="text" id="codigoIATA" name="codigoIATA" class="form-control text-uppercase" required
+                maxlength="3" pattern="[A-Za-z]{2,3}" title="Ingresá un código IATA de 2 o 3 letras"
+                value="<?= htmlspecialchars($codigoIATA ?? '', ENT_QUOTES, 'UTF-8') ?>" aria-required="true" />
               <div class="form-text">
                 Código de 2 o 3 letras asignado por la IATA a la aerolínea (por ejemplo, <strong>AR</strong>).
               </div>
@@ -137,17 +123,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 Código de país
                 <span class="text-danger" aria-hidden="true">*</span>
               </label>
-              <input
-                type="text"
-                id="codigoPais"
-                name="codigoPais"
-                class="form-control text-uppercase"
-                required
-                maxlength="3"
-                pattern="[A-Za-z]{2,3}"
-                title="Ingresá un código de país de 2 o 3 letras (ej. AR, CL)"
-                value="<?= htmlspecialchars($codigoPais ?? '', ENT_QUOTES, 'UTF-8') ?>"
-                aria-required="true" />
+              <input type="text" id="codigoPais" name="codigoPais" class="form-control text-uppercase" required
+                maxlength="3" pattern="[A-Za-z]{2,3}" title="Ingresá un código de país de 2 o 3 letras (ej. AR, CL)"
+                value="<?= htmlspecialchars($codigoPais ?? '', ENT_QUOTES, 'UTF-8') ?>" aria-required="true" />
               <div class="form-text">
                 Código ISO del país (2 o 3 letras), por ejemplo <strong>AR</strong> para Argentina.
               </div>
@@ -160,13 +138,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               Descripción de la aerolínea
               <span class="text-danger" aria-hidden="true">*</span>
             </label>
-            <textarea
-              id="descripcionAerolinea"
-              name="descripcionAerolinea"
-              class="form-control"
-              rows="3"
-              maxlength="200"
-              required
+            <textarea id="descripcionAerolinea" name="descripcionAerolinea" class="form-control" rows="3"
+              maxlength="200" required
               aria-required="true"><?= htmlspecialchars($descripcionAerolinea ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
             <div class="form-text">Máximo 200 caracteres.</div>
           </div>
@@ -176,7 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           </p>
 
           <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-2">
-            <button type="reset" class="btn btn-light me-md-2">
+            <button type="button" id="btnLimpiar" class="btn btn-light me-md-2">
               <i class="bi bi-eraser me-1" aria-hidden="true"></i>Limpiar campos
             </button>
             <button type="submit" class="btn btn-success">
@@ -189,7 +162,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   </main>
 
   <?php include '../Footer/footer.php'; ?>
-
+  <script>
+    document.getElementById('btnLimpiar').addEventListener('click', function () {
+      document.getElementById('nombreAerolinea').value = '';
+      document.getElementById('codigoIATA').value = '';
+      document.getElementById('descripcionAerolinea').value = '';
+      document.getElementById('codigoPais').value = '';
+    });
+  </script>
 </body>
 
 </html>
