@@ -17,6 +17,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (mysqli_num_rows($checkEmail) > 0) {
         $error = "El correo electrónico ya está en uso por otro usuario.";
     } else {
+        if (!preg_match('/^\+54\d{11}$|^\+598\d{8}$|^\+56\d{9}$|^\+595\d{9}$|^\+591\d{8}$/', $telefonoUsuario)) {
+            $error = "El número de teléfono no es válido para el país seleccionado.";
+        }
         $query = "UPDATE USUARIOS SET emailUsuario = '$emailUsuario', telefonoUsuario = '$telefonoUsuario' WHERE codUsuario = $cod";
         if (!empty($claveActual) && !empty($claveNueva)) {
             if (md5($claveActual) !== $usuario['claveUsuario']) {
@@ -31,6 +34,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $usuario = mysqli_fetch_assoc($resultado);
             $exito = "Perfil actualizado correctamente.";
         }
+    }
+}
+// Parsear teléfono existente para pre-poblar el widget
+$telExistente = $usuario['telefonoUsuario'] ?? '';
+$paisParsed = '';
+$numeroParsed = '';
+foreach ([
+    'UY' => ['code' => '598', 'digits' => 8],
+    'PY' => ['code' => '595', 'digits' => 9],
+    'BO' => ['code' => '591', 'digits' => 8],
+    'AR' => ['code' => '54',  'digits' => 11],
+    'CL' => ['code' => '56',  'digits' => 9],
+] as $pk => $cfg) {
+    if (preg_match('/^\+' . $cfg['code'] . '(\d{' . $cfg['digits'] . '})$/', $telExistente, $m)) {
+        $paisParsed   = $pk;
+        $numeroParsed = $m[1];
+        break;
     }
 }
 ?>
@@ -243,15 +263,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <div class="col-md-6">
-                  <label for="telefonoUsuario" class="form-label fw-semibold">
+                  <label class="form-label fw-semibold">
                     <i class="bi bi-telephone me-1" aria-hidden="true"></i>
                     Teléfono
                     <span class="text-danger" aria-hidden="true">*</span>
                   </label>
-                  <input type="tel" id="telefonoUsuario" name="telefonoUsuario"
-                         class="form-control" value="<?= $usuario['telefonoUsuario'] ?? '' ?>"
-                         required autocomplete="tel"
-                         aria-required="true" maxlength="20"/>
+                  <input type="hidden" id="telefonoUsuario" name="telefonoUsuario"
+                         value="<?= htmlspecialchars($telExistente, ENT_QUOTES, 'UTF-8') ?>" />
+                  <div class="input-group">
+                    <select id="paisTelefono" class="form-select flex-grow-0" style="width:auto;"
+                            aria-label="País del teléfono">
+                      <option value="">— País —</option>
+                      <option value="AR"<?= $paisParsed === 'AR' ? ' selected' : '' ?>>Argentina (+54)</option>
+                      <option value="UY"<?= $paisParsed === 'UY' ? ' selected' : '' ?>>Uruguay (+598)</option>
+                      <option value="CL"<?= $paisParsed === 'CL' ? ' selected' : '' ?>>Chile (+56)</option>
+                      <option value="PY"<?= $paisParsed === 'PY' ? ' selected' : '' ?>>Paraguay (+595)</option>
+                      <option value="BO"<?= $paisParsed === 'BO' ? ' selected' : '' ?>>Bolivia (+591)</option>
+                    </select>
+                    <input type="text" id="numeroTelefono" class="form-control" inputmode="numeric"
+                           value="<?= htmlspecialchars($numeroParsed, ENT_QUOTES, 'UTF-8') ?>"
+                           placeholder="<?= $paisParsed ? 'Número registrado' : 'Seleccioná un país' ?>"
+                           <?= $paisParsed ? '' : 'disabled' ?>
+                           aria-label="Número de teléfono" />
+                  </div>
+                  <div id="ayudaTelefono" class="form-text">
+                    <?= $paisParsed ? 'Podés modificar el número o cambiar el país.' : 'Seleccioná un país para ingresar tu número.' ?>
+                  </div>
+                  <script>
+                  (function () {
+                    var PAISES = { AR:{code:'54',digits:11}, UY:{code:'598',digits:8}, CL:{code:'56',digits:9}, PY:{code:'595',digits:9}, BO:{code:'591',digits:8} };
+                    var sel = document.getElementById('paisTelefono');
+                    var num = document.getElementById('numeroTelefono');
+                    var hidden = document.getElementById('telefonoUsuario');
+                    var ayuda = document.getElementById('ayudaTelefono');
+                    function sync() { var p=PAISES[sel.value]; hidden.value=(p && num.value.length===p.digits)?'+'+p.code+num.value:''; }
+                    function update() {
+                      var p=PAISES[sel.value];
+                      if(!p){num.disabled=true;num.value='';num.placeholder='Seleccioná un país';ayuda.textContent='Seleccioná un país para ingresar tu número.';hidden.value='';return;}
+                      num.disabled=false;num.maxLength=p.digits;num.placeholder='Ingresá '+p.digits+' dígitos';
+                      ayuda.textContent='Ingresá exactamente '+p.digits+' dígitos (sin el código de país).';
+                      sync();
+                    }
+                    sel.addEventListener('change', update);
+                    num.addEventListener('input', function(){ this.value=this.value.replace(/\D/g,'').slice(0,PAISES[sel.value]?PAISES[sel.value].digits:0); sync(); });
+                    sel.closest('form').addEventListener('submit', function(e){
+                      var p=PAISES[sel.value];
+                      if(!p){e.preventDefault();sel.setCustomValidity('Seleccioná un país.');sel.reportValidity();return;}
+                      sel.setCustomValidity('');
+                      if(num.value.length!==p.digits){e.preventDefault();num.setCustomValidity('Ingresá exactamente '+p.digits+' dígitos.');num.reportValidity();return;}
+                      num.setCustomValidity('');
+                    });
+                    // Inicializar maxLength y sync si ya hay país seleccionado
+                    var p0=PAISES[sel.value];
+                    if(p0){num.maxLength=p0.digits;sync();}
+                  })();
+                  </script>
                 </div>
 
               </div>

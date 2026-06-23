@@ -154,7 +154,7 @@ $horaVal = substr($vuelo['horaSalidaVuelo'], 0, 5);
                       Fecha de salida <span class="text-danger">*</span>
                     </label>
                     <input type="date" id="fechaSalidaVuelo" name="fechaSalidaVuelo"
-                           class="form-control" required
+                           class="form-control" required min="<?= date('Y-m-d') ?>" max="9999-12-31"
                            value="<?= htmlspecialchars($vuelo['fechaSalidaVuelo'], ENT_QUOTES, 'UTF-8') ?>"/>
                   </div>
                   <div class="col-md-6">

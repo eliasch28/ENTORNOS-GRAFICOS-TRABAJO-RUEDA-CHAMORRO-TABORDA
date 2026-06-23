@@ -124,6 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               name="fechaPublicacionNovedad"
               class="form-control"
               required
+              max="9999-12-31"
               value="<?= htmlspecialchars($fechaPublicacionNovedad, ENT_QUOTES, 'UTF-8') ?>"
               aria-required="true" />
           </div>
@@ -139,6 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               name="fechaExpiracionNovedad"
               class="form-control"
               required
+              max="9999-12-31"
               value="<?= htmlspecialchars($fechaExpiracionNovedad, ENT_QUOTES, 'UTF-8') ?>"
               aria-required="true" />
             <div class="form-text">Debe ser posterior a la fecha de publicación.</div>

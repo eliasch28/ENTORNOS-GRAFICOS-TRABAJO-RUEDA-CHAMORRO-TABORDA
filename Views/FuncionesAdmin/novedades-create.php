@@ -103,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <span class="text-danger" aria-hidden="true">*</span>
               </label>
               <input type="date" id="fechaPublicacionNovedad" name="fechaPublicacionNovedad" class="form-control"
-                required min="<?= date('Y-m-d') ?>"
+                required min="<?= date('Y-m-d') ?>" max="9999-12-31"
                 value="<?= htmlspecialchars($fechaPublicacionNovedad, ENT_QUOTES, 'UTF-8') ?>" aria-required="true" />
               <div class="form-text">Debe ser de hoy en adelante.</div>
             </div>
@@ -113,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 Fecha de expiración
                 <span class="text-danger" aria-hidden="true">*</span>
               </label>
-              <input type="date" id="fechaExpiracionNovedad" name="fechaExpiracionNovedad" class="form-control" required
+              <input type="date" id="fechaExpiracionNovedad" name="fechaExpiracionNovedad" class="form-control" required max="9999-12-31"
                 value="<?= htmlspecialchars($fechaExpiracionNovedad, ENT_QUOTES, 'UTF-8') ?>" aria-required="true" />
               <div class="form-text">Debe ser posterior a la fecha de publicación.</div>
             </div>

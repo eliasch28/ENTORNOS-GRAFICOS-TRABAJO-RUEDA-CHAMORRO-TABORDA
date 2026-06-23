@@ -130,7 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         Fecha de salida <span class="text-danger">*</span>
                       </label>
                       <input type="date" id="fechaSalidaVuelo" name="fechaSalidaVuelo" class="form-control"
-                        min="<?= date('Y-m-d') ?>" required
+                        min="<?= date('Y-m-d') ?>" max="9999-12-31" required
                         value="<?= htmlspecialchars($_POST['fechaSalidaVuelo'] ?? '', ENT_QUOTES, 'UTF-8') ?>" />
                     </div>
                     <div class="col-md-6">
