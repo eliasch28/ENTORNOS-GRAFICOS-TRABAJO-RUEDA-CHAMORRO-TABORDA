@@ -79,7 +79,7 @@ $iconosAero = ['bi-airplane', 'bi-globe2', 'bi-lightning-charge', 'bi-stars', 'b
                 <i class="bi bi-search me-2" aria-hidden="true"></i>Buscar Vuelos
               </a>
               <a href="../FlujoSesion/registrarse_.php" class="btn btn-outline-light btn-lg">
-                <i class="bi bi-person-plus me-2" aria-hidden="true"></i>Crear Cuenta
+                <i class="bi bi-person-plus me-2" aria-hidden="true"></i>Registrarse
               </a>
             </div>
             <ul class="d-flex gap-5 mt-5 pt-4 border-top border-white border-opacity-25 list-unstyled"
@@ -289,7 +289,7 @@ $iconosAero = ['bi-airplane', 'bi-globe2', 'bi-lightning-charge', 'bi-stars', 'b
         </p>
         <div class="d-flex gap-3 justify-content-center flex-wrap">
           <a href="../FlujoSesion/registrarse_.php" class="btn btn-light btn-lg text-primary fw-semibold">
-            <i class="bi bi-person-plus-fill me-2" aria-hidden="true"></i>Registrarse gratis
+            <i class="bi bi-person-plus-fill me-2" aria-hidden="true"></i>Registrarse
           </a>
           <a href="../FlujoSesion/login.php" class="btn btn-outline-light btn-lg">
             <i class="bi bi-box-arrow-in-right me-2" aria-hidden="true"></i>Ya tengo cuenta

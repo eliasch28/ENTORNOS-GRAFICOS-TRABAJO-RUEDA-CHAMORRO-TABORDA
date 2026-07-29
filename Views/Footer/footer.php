@@ -127,3 +127,16 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.querySelectorAll('.btn-ver-contrasena').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    var input = btn.closest('.input-group').querySelector('input');
+    var icon = btn.querySelector('i');
+    var visible = input.type === 'text';
+    input.type = visible ? 'password' : 'text';
+    icon.classList.toggle('bi-eye', visible);
+    icon.classList.toggle('bi-eye-slash', !visible);
+    btn.setAttribute('aria-label', visible ? 'Mostrar contraseña' : 'Ocultar contraseña');
+  });
+});
+</script>

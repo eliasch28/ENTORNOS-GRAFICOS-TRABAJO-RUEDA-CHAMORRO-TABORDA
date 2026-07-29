@@ -129,14 +129,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <label for="claveUsuario" class="form-label fw-semibold">
                   <i class="bi bi-lock me-1" aria-hidden="true"></i>Contraseña
                 </label>
-                <input type="password"
-                       id="claveUsuario" name="claveUsuario"
-                       class="form-control"
-                       placeholder="Tu contraseña"
-                       required
-                       autocomplete="current-password"
-                       aria-required="true"
-                       maxlength="8"/>
+                <div class="input-group">
+                  <input type="password"
+                         id="claveUsuario" name="claveUsuario"
+                         class="form-control"
+                         placeholder="Tu contraseña"
+                         required
+                         autocomplete="current-password"
+                         aria-required="true"
+                         maxlength="8"/>
+                  <button type="button" class="btn btn-outline-secondary btn-ver-contrasena"
+                          aria-label="Mostrar contraseña" aria-controls="claveUsuario">
+                    <i class="bi bi-eye" aria-hidden="true"></i>
+                  </button>
+                </div>
               </div>
 
               <div class="text-end mb-4">
@@ -152,7 +158,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               <div class="my-4 separador-texto">¿No tenés cuenta?</div>
 
               <a href="registrarse_.php" class="btn btn-outline-secondary w-100">
-                <i class="bi bi-person-plus me-2" aria-hidden="true"></i>Crear una cuenta nueva
+                <i class="bi bi-person-plus me-2" aria-hidden="true"></i>Registrarse
               </a>
 
             </form>

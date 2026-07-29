@@ -14,7 +14,7 @@ if (isset($_SESSION['codUsuario'])) {
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $nombreUsuario = trim($_POST['nombreUsuario']);
-  $claveUsuario = md5($_POST['claveUsuario']);
+  $clavePlano = $_POST['claveUsuario'];
   $tipoUsuario = $_POST['tipoUsuario'];
   $emailUsuario = trim($_POST['emailUsuario']);
   $telefonoUsuario = trim($_POST['telefonoUsuario']);
@@ -43,7 +43,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if (empty($error) && !preg_match('/^\+54\d{11}$|^\+598\d{8}$|^\+56\d{9}$|^\+595\d{9}$|^\+591\d{8}$/', $telefonoUsuario)) {
     $error = "El número de teléfono no es válido para el país seleccionado.";
   }
+  if (empty($error) && !preg_match('/^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{1,8}$/', $clavePlano)) {
+    $error = "La contraseña debe tener máximo 8 caracteres e incluir al menos 1 mayúscula, 1 dígito y 1 carácter especial.";
+  }
   if (empty($error)) {
+    $claveUsuario = md5($clavePlano);
     $esCliente = ($tipoUsuario !== 'ceo de aerolinea');
     $verificado = 0;
     $tokenVerificacion = $esCliente ? bin2hex(random_bytes(32)) : null;
@@ -102,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div class="text-center mb-4">
               <i class="bi bi-person-circle text-primary icono-seccion" aria-hidden="true"></i>
-              <h1 id="registro-titulo" class="h3 fw-bold mt-2">Crear una cuenta</h1>
+              <h1 id="registro-titulo" class="h3 fw-bold mt-2">Registrarse</h1>
               <p class="text-secondary">Completá el formulario para registrarte en VuelaLibre.</p>
             </div>
 
@@ -133,12 +137,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                   Contraseña
                   <span class="text-danger" aria-hidden="true">*</span>
                 </label>
-                <input type="password" id="claveUsuario" name="claveUsuario" class="form-control"
-                  placeholder="Máximo 8 caracteres" required autocomplete="new-password" aria-required="true"
-                  aria-describedby="claveUsuario-ayuda" pattern=".{1,8}"
-                  title="La contraseña debe tener entre 1 y 8 caracteres" maxlength="8" />
+                <div class="input-group">
+                  <input type="password" id="claveUsuario" name="claveUsuario" class="form-control"
+                    placeholder="Máximo 8 caracteres" required autocomplete="new-password" aria-required="true"
+                    aria-describedby="claveUsuario-ayuda" maxlength="8"
+                    title="La contraseña debe tener máximo 8 caracteres e incluir al menos 1 mayúscula, 1 dígito y 1 carácter especial." />
+                  <button type="button" class="btn btn-outline-secondary btn-ver-contrasena"
+                          aria-label="Mostrar contraseña" aria-controls="claveUsuario">
+                    <i class="bi bi-eye" aria-hidden="true"></i>
+                  </button>
+                </div>
                 <div id="claveUsuario-ayuda" class="form-text">
-                  Máximo 8 caracteres.
+                  Máximo 8 caracteres. Debe incluir al menos 1 mayúscula, 1 dígito y 1 carácter especial.
                 </div>
               </div>
 
@@ -262,7 +272,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               </p>
 
               <button type="submit" class="btn btn-primary w-100 btn-lg">
-                <i class="bi bi-person-check-fill me-2" aria-hidden="true"></i>Crear cuenta
+                <i class="bi bi-person-check-fill me-2" aria-hidden="true"></i>Registrarse
               </button>
 
               <div class="my-4 separador-texto">¿Ya tenés cuenta?</div>
