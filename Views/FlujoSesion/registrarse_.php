@@ -15,6 +15,7 @@ $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $nombreUsuario = trim($_POST['nombreUsuario']);
   $clavePlano = $_POST['claveUsuario'];
+  $claveConfirmacion = $_POST['confirmarClave'] ?? '';
   $tipoUsuario = $_POST['tipoUsuario'];
   $emailUsuario = trim($_POST['emailUsuario']);
   $telefonoUsuario = trim($_POST['telefonoUsuario']);
@@ -45,6 +46,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
   if (empty($error) && !preg_match('/^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{1,8}$/', $clavePlano)) {
     $error = "La contraseña debe tener máximo 8 caracteres e incluir al menos 1 mayúscula, 1 dígito y 1 carácter especial.";
+  }
+  if (empty($error) && $claveConfirmacion !== $clavePlano) {
+    $error = "Las contraseñas no coinciden.";
   }
   if (empty($error)) {
     $claveUsuario = md5($clavePlano);
@@ -149,6 +153,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 <div id="claveUsuario-ayuda" class="form-text">
                   Máximo 8 caracteres. Debe incluir al menos 1 mayúscula, 1 dígito y 1 carácter especial.
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="confirmarClave" class="form-label fw-semibold">
+                  <i class="bi bi-lock me-1" aria-hidden="true"></i>
+                  Confirmar contraseña
+                  <span class="text-danger" aria-hidden="true">*</span>
+                </label>
+                <div class="input-group">
+                  <input type="password" id="confirmarClave" name="confirmarClave" class="form-control"
+                    placeholder="Repetí tu contraseña" required autocomplete="new-password" aria-required="true"
+                    aria-describedby="confirmarClave-ayuda" maxlength="8"
+                    title="Debe coincidir con la contraseña ingresada." />
+                  <button type="button" class="btn btn-outline-secondary btn-ver-contrasena"
+                          aria-label="Mostrar contraseña" aria-controls="confirmarClave">
+                    <i class="bi bi-eye" aria-hidden="true"></i>
+                  </button>
+                </div>
+                <div id="confirmarClave-ayuda" class="form-text">
+                  Repetí la misma contraseña para confirmarla.
                 </div>
               </div>
 

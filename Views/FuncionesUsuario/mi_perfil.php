@@ -382,25 +382,37 @@ foreach ([
               <div class="row g-3 mb-4">
                 <div class="col-md-6">
                   <label for="claveActual" class="form-label fw-semibold">Contraseña actual</label>
-                  <input type="password" id="claveActual" name="claveActual"
-                         class="form-control"
-                         placeholder="Ingresá tu contraseña actual"
-                         autocomplete="current-password"
-                         aria-describedby="claveActual-ayuda"
-                         maxlength="8"/>
+                  <div class="input-group">
+                    <input type="password" id="claveActual" name="claveActual"
+                           class="form-control"
+                           placeholder="Ingresá tu contraseña actual"
+                           autocomplete="current-password"
+                           aria-describedby="claveActual-ayuda"
+                           maxlength="8"/>
+                    <button type="button" class="btn btn-outline-secondary btn-ver-contrasena"
+                            aria-label="Mostrar contraseña" aria-controls="claveActual">
+                      <i class="bi bi-eye" aria-hidden="true"></i>
+                    </button>
+                  </div>
                   <div id="claveActual-ayuda" class="form-text">
                     Requerida solo si querés cambiar tu contraseña.
                   </div>
                 </div>
                 <div class="col-md-6">
                   <label for="claveNueva" class="form-label fw-semibold">Nueva contraseña</label>
-                  <input type="password" id="claveNueva" name="claveNueva"
-                         class="form-control"
-                         placeholder="Máximo 8 caracteres"
-                         autocomplete="new-password"
-                         aria-describedby="claveNueva-ayuda"
-                         title="La contraseña debe tener máximo 8 caracteres e incluir al menos 1 mayúscula, 1 dígito y 1 carácter especial."
-                         maxlength="8"/>
+                  <div class="input-group">
+                    <input type="password" id="claveNueva" name="claveNueva"
+                           class="form-control"
+                           placeholder="Máximo 8 caracteres"
+                           autocomplete="new-password"
+                           aria-describedby="claveNueva-ayuda"
+                           title="La contraseña debe tener máximo 8 caracteres e incluir al menos 1 mayúscula, 1 dígito y 1 carácter especial."
+                           maxlength="8"/>
+                    <button type="button" class="btn btn-outline-secondary btn-ver-contrasena"
+                            aria-label="Mostrar contraseña" aria-controls="claveNueva">
+                      <i class="bi bi-eye" aria-hidden="true"></i>
+                    </button>
+                  </div>
                   <div id="claveNueva-ayuda" class="form-text">
                     Máximo 8 caracteres. Debe incluir al menos 1 mayúscula, 1 dígito y 1 carácter especial.
                   </div>

@@ -138,6 +138,7 @@ $urlBaseVuelos = 'buscar_vuelos.php' . ($queryFiltros ? '?' . $queryFiltros . '&
                   <input type="date"
                          id="fechaSalidaVuelo" name="fechaSalidaVuelo"
                          class="form-control form-control-sm"
+                         min="<?= date('Y-m-d') ?>"
                          value="<?= htmlspecialchars($_GET['fechaSalidaVuelo'] ?? '') ?>"/>
                 </div>
 

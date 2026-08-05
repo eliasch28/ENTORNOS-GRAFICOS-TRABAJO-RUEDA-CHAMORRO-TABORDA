@@ -1,20 +1,65 @@
 ﻿<?php
 include '../../config/conexion.php';
+
+$iconosAero = ['bi-airplane', 'bi-globe2', 'bi-lightning-charge', 'bi-stars', 'bi-building'];
+
+/* ── TOTALES PARA LA PORTADA ───────────────────────────────────────── */
+$resTotalAerolineas = mysqli_query($link, "SELECT COUNT(*) AS total FROM AEROLINEAS");
+$totalAerolineas = (int) (mysqli_fetch_assoc($resTotalAerolineas)['total'] ?? 0);
+$resTotalVuelos = mysqli_query($link, "SELECT COUNT(*) AS total FROM VUELOS");
+$totalVuelos = (int) (mysqli_fetch_assoc($resTotalVuelos)['total'] ?? 0);
+
+/* ════ SECCIÓN AEROLÍNEAS (paginadas de a 3) ════ */
+$porPagAero = 3;
+$resCantAero = mysqli_query($link, "SELECT COUNT(*) AS total FROM AEROLINEAS");
+$cantAero = (int) (mysqli_fetch_assoc($resCantAero)['total'] ?? 0);
+$totPaginasAero = max(1, (int) ceil($cantAero / $porPagAero));
+$paginaAero = max(1, min($totPaginasAero, (int) ($_GET['paginaAero'] ?? 1)));
+$offsetAero = ($paginaAero - 1) * $porPagAero;
 $resAero = mysqli_query(
   $link,
   "SELECT codAerolinea, nombreAerolinea, codigoIATA, descripcionAerolinea, codPais
-     FROM AEROLINEAS ORDER BY codAerolinea ASC LIMIT 3"
+     FROM AEROLINEAS ORDER BY codAerolinea ASC LIMIT $offsetAero, $porPagAero"
 );
 $aerolineas = [];
 if ($resAero) {
   while ($a = mysqli_fetch_assoc($resAero))
     $aerolineas[] = $a;
 }
-$resTotalAerolineas = mysqli_query($link, "SELECT COUNT(*) AS total FROM AEROLINEAS");
-$totalAerolineas = (int) (mysqli_fetch_assoc($resTotalAerolineas)['total'] ?? 0);
+$getAero = $_GET;
+unset($getAero['paginaAero']);
+$urlBaseAero = 'LandUsuarioNoRegistrado.php' . (http_build_query($getAero) ? '?' . http_build_query($getAero) . '&' : '?');
 
-$resTotalVuelos = mysqli_query($link, "SELECT COUNT(*) AS total FROM VUELOS");
-$totalVuelos = (int) (mysqli_fetch_assoc($resTotalVuelos)['total'] ?? 0);
+/* ── TODAS LAS AEROLÍNEAS (para el select de filtros de vuelos) ──── */
+$resAeroTodas = mysqli_query($link, "SELECT codAerolinea, nombreAerolinea FROM AEROLINEAS ORDER BY nombreAerolinea ASC");
+$aerolineasTodas = [];
+if ($resAeroTodas) {
+  while ($a = mysqli_fetch_assoc($resAeroTodas))
+    $aerolineasTodas[] = $a;
+}
+
+/* ════ SECCIÓN VUELOS (paginados de a 2 + filtros) ════ */
+$origenInput  = trim($_GET['origenVuelo']      ?? '');
+$destinoInput = trim($_GET['destinoVuelo']     ?? '');
+$fechaInput   = trim($_GET['fechaSalidaVuelo'] ?? '');
+$codAeroInput = isset($_GET['codAerolinea']) ? (int) $_GET['codAerolinea'] : 0;
+$conds = ["v.asientosDisponibles > 0", "v.fechaSalidaVuelo >= CURDATE()"];
+if ($origenInput !== '') {
+  $e = mysqli_real_escape_string($link, $origenInput);
+  $conds[] = "v.origenVuelo LIKE '%$e%'";
+}
+if ($destinoInput !== '') {
+  $e = mysqli_real_escape_string($link, $destinoInput);
+  $conds[] = "v.destinoVuelo LIKE '%$e%'";
+}
+if ($fechaInput !== '') {
+  $e = mysqli_real_escape_string($link, $fechaInput);
+  $conds[] = "v.fechaSalidaVuelo = '$e'";
+}
+if ($codAeroInput > 0) {
+  $conds[] = "v.codAerolinea = $codAeroInput";
+}
+$whereVuelos = implode(' AND ', $conds);
 $resVuelos = mysqli_query(
   $link,
   "SELECT v.codVuelo, v.origenVuelo, v.destinoVuelo,
@@ -26,16 +71,22 @@ $resVuelos = mysqli_query(
      JOIN AEROLINEAS a ON v.codAerolinea = a.codAerolinea
      LEFT JOIN PROMOCIONES p
        ON p.codAerolinea = v.codAerolinea AND p.estadoPromocion = 'aprobada'
-     WHERE v.asientosDisponibles > 0 AND v.fechaSalidaVuelo >= CURDATE()
-     ORDER BY v.fechaSalidaVuelo ASC, v.horaSalidaVuelo ASC
-     LIMIT 2"
+     WHERE $whereVuelos
+     ORDER BY v.fechaSalidaVuelo ASC, v.horaSalidaVuelo ASC"
 );
-$vuelos = [];
+$vuelosFiltrados = [];
 if ($resVuelos) {
   while ($v = mysqli_fetch_assoc($resVuelos))
-    $vuelos[] = $v;
+    $vuelosFiltrados[] = $v;
 }
-$iconosAero = ['bi-airplane', 'bi-globe2', 'bi-lightning-charge', 'bi-stars', 'bi-building'];
+$totalVuelosFiltrados = count($vuelosFiltrados);
+$porPagVuelo = 2;
+$totPaginasVuelo = max(1, (int) ceil($totalVuelosFiltrados / $porPagVuelo));
+$paginaVuelos = max(1, min($totPaginasVuelo, (int) ($_GET['paginaVuelo'] ?? 1)));
+$vuelos = array_slice($vuelosFiltrados, ($paginaVuelos - 1) * $porPagVuelo, $porPagVuelo);
+$getVuelos = $_GET;
+unset($getVuelos['paginaVuelo']);
+$urlBaseVuelos = 'LandUsuarioNoRegistrado.php' . (http_build_query($getVuelos) ? '?' . http_build_query($getVuelos) . '&' : '?');
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -141,15 +192,40 @@ $iconosAero = ['bi-airplane', 'bi-globe2', 'bi-lightning-charge', 'bi-stars', 'b
                     <?php else: ?>
                       <p class="flex-grow-1"></p>
                     <?php endif; ?>
-                    <a href="#seccion-vuelos" class="btn btn-outline-primary btn-sm mt-3">
-                      Ver vuelos de <?= $nombre ?>
-                      <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
-                    </a>
                   </div>
                 </article>
               </li>
             <?php endforeach; ?>
+            <?php for ($h = count($aerolineas); $h < $porPagAero; $h++): ?>
+              <li class="col-sm-6 col-lg-4" role="listitem">
+                <div class="card h-100 border-0 shadow-sm bg-light bg-opacity-50 d-flex align-items-center justify-content-center text-center p-4" style="min-height: 250px;">
+                  <div>
+                    <i class="bi bi-cloud-sun text-secondary fs-2 d-block mb-2" aria-hidden="true"></i>
+                    <p class="mb-0 text-secondary fw-semibold">Nada que ver por ahora</p>
+                  </div>
+                </div>
+              </li>
+            <?php endfor; ?>
           </ul>
+
+          <?php if ($totPaginasAero > 1): ?>
+            <nav aria-label="Paginación de aerolíneas" class="mt-4">
+              <ul class="pagination justify-content-center">
+                <li class="page-item <?= $paginaAero <= 1 ? 'disabled' : '' ?>">
+                  <a class="page-link" href="<?= $urlBaseAero ?>paginaAero=<?= $paginaAero - 1 ?>">Anterior</a>
+                </li>
+                <?php for ($i = 1; $i <= $totPaginasAero; $i++): ?>
+                  <li class="page-item <?= $i === $paginaAero ? 'active' : '' ?>">
+                    <a class="page-link" href="<?= $urlBaseAero ?>paginaAero=<?= $i ?>"
+                       <?= $i === $paginaAero ? 'aria-current="page"' : '' ?>><?= $i ?></a>
+                  </li>
+                <?php endfor; ?>
+                <li class="page-item <?= $paginaAero >= $totPaginasAero ? 'disabled' : '' ?>">
+                  <a class="page-link" href="<?= $urlBaseAero ?>paginaAero=<?= $paginaAero + 1 ?>">Siguiente</a>
+                </li>
+              </ul>
+            </nav>
+          <?php endif; ?>
         <?php else: ?>
           <div class="alert alert-light border text-center py-4" role="status">
             <i class="bi bi-building text-secondary fs-2 d-block mb-2" aria-hidden="true"></i>
@@ -168,6 +244,66 @@ $iconosAero = ['bi-airplane', 'bi-globe2', 'bi-lightning-charge', 'bi-stars', 'b
           <h2 id="vuelos-titulo" class="h2 fw-bold">Vuelos disponibles</h2>
           <p class="text-secondary">Encontrá el vuelo ideal. Iniciá sesión para reservar.</p>
         </header>
+
+        <div class="card border-0 shadow-sm p-4 mb-4 tarjeta-filtros">
+          <form action="LandUsuarioNoRegistrado.php" method="get"
+                class="row g-3 align-items-end"
+                aria-label="Filtros de búsqueda de vuelos">
+            <div class="col-md-3">
+              <label for="origenVuelo" class="form-label fw-semibold small">
+                <i class="bi bi-geo me-1" aria-hidden="true"></i>Origen
+              </label>
+              <input type="text" id="origenVuelo" name="origenVuelo" class="form-control form-control-sm"
+                     placeholder="Ciudad o aeropuerto" value="<?= htmlspecialchars($origenInput, ENT_QUOTES, 'UTF-8') ?>"/>
+            </div>
+            <div class="col-md-3">
+              <label for="destinoVuelo" class="form-label fw-semibold small">
+                <i class="bi bi-geo-fill me-1" aria-hidden="true"></i>Destino
+              </label>
+              <input type="text" id="destinoVuelo" name="destinoVuelo" class="form-control form-control-sm"
+                     placeholder="Ciudad o aeropuerto"
+                     value="<?= htmlspecialchars($destinoInput, ENT_QUOTES, 'UTF-8') ?>"/>
+            </div>
+            <div class="col-md-2">
+              <label for="fechaSalidaVuelo" class="form-label fw-semibold small">
+                <i class="bi bi-calendar3 me-1" aria-hidden="true"></i>Fecha de salida
+              </label>
+              <input type="date" id="fechaSalidaVuelo" name="fechaSalidaVuelo"
+                     class="form-control form-control-sm"
+                     min="<?= date('Y-m-d') ?>"
+                     value="<?= htmlspecialchars($fechaInput, ENT_QUOTES, 'UTF-8') ?>"/>
+            </div>
+            <div class="col-md-2">
+              <label for="codAerolineaVuelo" class="form-label fw-semibold small">
+                <i class="bi bi-building me-1" aria-hidden="true"></i>Aerolínea
+              </label>
+              <select id="codAerolineaVuelo" name="codAerolinea" class="form-select form-select-sm">
+                <option value="">Todas</option>
+                <?php foreach ($aerolineasTodas as $aero): ?>
+                  <option value="<?= (int) $aero['codAerolinea'] ?>"
+                          <?= $codAeroInput === (int) $aero['codAerolinea'] ? 'selected' : '' ?>>
+                    <?= htmlspecialchars($aero['nombreAerolinea'], ENT_QUOTES, 'UTF-8') ?>
+                  </option>
+                <?php endforeach; ?>
+              </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+              <button type="submit" class="btn btn-primary btn-sm flex-fill">
+                <i class="bi bi-search me-1" aria-hidden="true"></i>Filtrar
+              </button>
+              <a href="LandUsuarioNoRegistrado.php" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-x-circle" aria-hidden="true"></i>
+              </a>
+            </div>
+          </form>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <p class="text-secondary small mb-0">
+            Mostrando <strong><?= $totalVuelosFiltrados ?></strong>
+              vuelo<?= $totalVuelosFiltrados !== 1 ? 's' : '' ?> disponible<?= $totalVuelosFiltrados !== 1 ? 's' : '' ?>
+          </p>
+        </div>
 
         <?php if (!empty($vuelos)): ?>
           <ul class="list-unstyled" role="list" aria-label="Lista de vuelos disponibles">
@@ -254,6 +390,25 @@ $iconosAero = ['bi-airplane', 'bi-globe2', 'bi-lightning-charge', 'bi-stars', 'b
               </li>
             <?php endforeach; ?>
           </ul>
+
+          <?php if ($totPaginasVuelo > 1): ?>
+            <nav aria-label="Paginación de vuelos" class="mt-4">
+              <ul class="pagination justify-content-center">
+                <li class="page-item <?= $paginaVuelos <= 1 ? 'disabled' : '' ?>">
+                  <a class="page-link" href="<?= $urlBaseVuelos ?>paginaVuelo=<?= $paginaVuelos - 1 ?>">Anterior</a>
+                </li>
+                <?php for ($i = 1; $i <= $totPaginasVuelo; $i++): ?>
+                  <li class="page-item <?= $i === $paginaVuelos ? 'active' : '' ?>">
+                    <a class="page-link" href="<?= $urlBaseVuelos ?>paginaVuelo=<?= $i ?>"
+                       <?= $i === $paginaVuelos ? 'aria-current="page"' : '' ?>><?= $i ?></a>
+                  </li>
+                <?php endfor; ?>
+                <li class="page-item <?= $paginaVuelos >= $totPaginasVuelo ? 'disabled' : '' ?>">
+                  <a class="page-link" href="<?= $urlBaseVuelos ?>paginaVuelo=<?= $paginaVuelos + 1 ?>">Siguiente</a>
+                </li>
+              </ul>
+            </nav>
+          <?php endif; ?>
         <?php else: ?>
           <div class="alert alert-light border text-center py-4" role="status">
             <i class="bi bi-airplane text-secondary fs-2 d-block mb-2" aria-hidden="true"></i>
