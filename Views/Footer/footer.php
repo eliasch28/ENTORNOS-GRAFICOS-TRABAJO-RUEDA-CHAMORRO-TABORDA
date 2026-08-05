@@ -22,7 +22,7 @@
         </h2>
 
         <?php if ($tipoUsuario === 'administrador'): ?>
-          <ul class="lista-mapa-sitio" role="list">
+          <ul class="lista-mapa-sitio">
             <li><a href="../LandPage/LandUsuarioRegistrado.php">Inicio</a></li>
             <li><a href="../FuncionesAdmin/aerolineas-index.php">Aerolíneas</a></li>
             <li><a href="../FuncionesAdmin/auditoria-promociones.php">Promociones</a></li>
@@ -34,7 +34,7 @@
           </ul>
 
         <?php elseif ($tipoUsuario === 'ceo de aerolinea'): ?>
-          <ul class="lista-mapa-sitio" role="list">
+          <ul class="lista-mapa-sitio">
             <li><a href="../LandPage/LandUsuarioRegistrado.php">Inicio</a></li>
             <li><a href="../FuncionesCEO/vuelos-index.php">Vuelos</a></li>
             <li><a href="../FuncionesCEO/promociones-index.php">Promociones</a></li>
@@ -44,7 +44,7 @@
           </ul>
 
         <?php elseif ($tipoUsuario === 'usuario'): ?>
-          <ul class="lista-mapa-sitio" role="list">
+          <ul class="lista-mapa-sitio">
             <li><a href="../LandPage/LandUsuarioRegistrado.php">Inicio</a></li>
             <li><a href="../FuncionesUsuario/buscar_vuelos.php">Buscar Vuelos</a></li>
             <li><a href="../FuncionesUsuario/promociones.php">Promociones</a></li>
@@ -55,7 +55,7 @@
           </ul>
 
         <?php else: ?>
-          <ul class="lista-mapa-sitio" role="list">
+          <ul class="lista-mapa-sitio">
             <li><a href="../LandPage/LandUsuarioNoRegistrado.php">Inicio</a></li>
             <li><a href="../LandPage/LandUsuarioNoRegistrado.php#seccion-aerolineas">Aerolíneas</a></li>
             <li><a href="../LandPage/LandUsuarioNoRegistrado.php#seccion-vuelos">Vuelos disponibles</a></li>
@@ -70,7 +70,7 @@
       <?php if ($tipoUsuario): ?>
         <nav class="col-lg-3 col-md-6" aria-label="Mi cuenta">
           <h2 class="h6 text-uppercase text-secondary small fw-semibold mb-3">Mi Cuenta</h2>
-          <ul class="lista-mapa-sitio" role="list">
+          <ul class="lista-mapa-sitio">
             <li><a href="../FuncionesUsuario/mi_perfil.php">Mi Perfil</a></li>
               <?php if ($tipoUsuario === 'usuario'): ?>
               <li><a href="../FuncionesUsuario/mis_reservas.php">Mis Reservas</a></li>

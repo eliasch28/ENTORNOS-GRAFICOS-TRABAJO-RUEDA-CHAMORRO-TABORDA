@@ -1,4 +1,4 @@
-﻿<?php
+?php
 include '../../config/conexion.php';
 session_start();
 if (!isset($_SESSION['codUsuario'])) {
@@ -111,7 +111,7 @@ $resHistorial = mysqli_query($link, $sqlHistorial);
           </div>
         </div>
 
-        <ul class="list-unstyled" role="list" aria-label="Historial de compras">
+        <ul class="list-unstyled" aria-label="Historial de compras">
 
           <?php if ($resHistorial && mysqli_num_rows($resHistorial) > 0): ?>
             <?php while ($c = mysqli_fetch_assoc($resHistorial)):
@@ -126,7 +126,7 @@ $resHistorial = mysqli_query($link, $sqlHistorial);
               $horaFmt      = substr($c['horaSalidaVuelo'], 0, 5);
               $fechaConfFmt = date('j \d\e F \d\e Y', strtotime($c['fechaReserva']));
             ?>
-            <li class="mb-4" role="listitem">
+            <li class="mb-4">
               <article class="card border-0 shadow-sm tarjeta-compra"
                        aria-label="Compra N°<?= $codFmt ?>: <?= htmlspecialchars($c['origenVuelo'], ENT_QUOTES, 'UTF-8') ?> a <?= htmlspecialchars($c['destinoVuelo'], ENT_QUOTES, 'UTF-8') ?>">
                 <div class="card-body p-4">
@@ -231,7 +231,7 @@ $resHistorial = mysqli_query($link, $sqlHistorial);
             </li>
             <?php endwhile; ?>
           <?php else: ?>
-            <li role="listitem">
+            <li>
               <div class="alert alert-info" role="status">
                 <i class="bi bi-info-circle me-2" aria-hidden="true"></i>
                 Todavía no tenés compras confirmadas.

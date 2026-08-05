@@ -1,4 +1,4 @@
-﻿<?php
+?php
 include '../../config/conexion.php';
 include '../../config/EnviarCorreo.php';
 session_start();
@@ -182,7 +182,7 @@ $resReservas = mysqli_query($link, $sqlReservas);
           </div>
         <?php endif; ?>
 
-        <ul class="list-unstyled" role="list" aria-label="Lista de mis reservas">
+        <ul class="list-unstyled" aria-label="Lista de mis reservas">
 
           <?php if ($resReservas && mysqli_num_rows($resReservas) > 0): ?>
             <?php while ($r = mysqli_fetch_assoc($resReservas)):
@@ -223,7 +223,7 @@ $resReservas = mysqli_query($link, $sqlReservas);
                   $iconColor  = 'text-secondary';
               }
             ?>
-            <li class="mb-4" role="listitem">
+            <li class="mb-4">
               <article class="card border-0 shadow-sm <?= $cardClass ?>"
                        aria-label="Reserva <?= $codFmt ?>: <?= htmlspecialchars($r['origenVuelo'], ENT_QUOTES, 'UTF-8') ?> a <?= htmlspecialchars($r['destinoVuelo'], ENT_QUOTES, 'UTF-8') ?>, <?= htmlspecialchars($badgeLabel, ENT_QUOTES, 'UTF-8') ?>">
                 <div class="card-body p-4">
@@ -353,7 +353,7 @@ $resReservas = mysqli_query($link, $sqlReservas);
             </li>
             <?php endwhile; ?>
           <?php else: ?>
-            <li role="listitem">
+            <li>
               <div class="alert alert-info" role="status">
                 <i class="bi bi-info-circle me-2" aria-hidden="true"></i>
                 No tenés reservas<?= $estadoFiltro !== '' ? ' con ese estado' : '' ?>.

@@ -165,7 +165,7 @@ $urlBaseVuelos = 'LandUsuarioNoRegistrado.php' . (http_build_query($getVuelos) ?
         </header>
 
         <?php if (!empty($aerolineas)): ?>
-          <ul class="row g-4 list-unstyled" role="list" aria-label="Lista de aerolíneas">
+          <ul class="row g-4 list-unstyled" aria-label="Lista de aerolíneas">
             <?php foreach ($aerolineas as $i => $aero):
               $icono = $iconosAero[$i % count($iconosAero)];
               $codFmt = str_pad((string) $aero['codAerolinea'], 3, '0', STR_PAD_LEFT);
@@ -174,7 +174,7 @@ $urlBaseVuelos = 'LandUsuarioNoRegistrado.php' . (http_build_query($getVuelos) ?
               $pais = htmlspecialchars($aero['codPais'] ?? '', ENT_QUOTES, 'UTF-8');
               $iata = htmlspecialchars($aero['codigoIATA'], ENT_QUOTES, 'UTF-8');
               ?>
-              <li class="col-sm-6 col-lg-4" role="listitem">
+              <li class="col-sm-6 col-lg-4">
                 <article class="card tarjeta-aerolinea h-100 border-0 shadow-sm" aria-label="<?= $nombre ?>">
                   <div class="card-body d-flex flex-column p-4">
                     <i class="bi <?= $icono ?> text-primary fs-1 mb-3 icono-aerolinea" aria-hidden="true"></i>
@@ -197,7 +197,7 @@ $urlBaseVuelos = 'LandUsuarioNoRegistrado.php' . (http_build_query($getVuelos) ?
               </li>
             <?php endforeach; ?>
             <?php for ($h = count($aerolineas); $h < $porPagAero; $h++): ?>
-              <li class="col-sm-6 col-lg-4" role="listitem">
+              <li class="col-sm-6 col-lg-4">
                 <div class="card h-100 border-0 shadow-sm bg-light bg-opacity-50 d-flex align-items-center justify-content-center text-center p-4" style="min-height: 250px;">
                   <div>
                     <i class="bi bi-cloud-sun text-secondary fs-2 d-block mb-2" aria-hidden="true"></i>
@@ -212,16 +212,16 @@ $urlBaseVuelos = 'LandUsuarioNoRegistrado.php' . (http_build_query($getVuelos) ?
             <nav aria-label="Paginación de aerolíneas" class="mt-4">
               <ul class="pagination justify-content-center">
                 <li class="page-item <?= $paginaAero <= 1 ? 'disabled' : '' ?>">
-                  <a class="page-link" href="<?= $urlBaseAero ?>paginaAero=<?= $paginaAero - 1 ?>">Anterior</a>
+                  <a class="page-link" href="<?= $urlBaseAero ?>paginaAero=<?= $paginaAero - 1 ?>#seccion-aerolineas">Anterior</a>
                 </li>
                 <?php for ($i = 1; $i <= $totPaginasAero; $i++): ?>
                   <li class="page-item <?= $i === $paginaAero ? 'active' : '' ?>">
-                    <a class="page-link" href="<?= $urlBaseAero ?>paginaAero=<?= $i ?>"
+                    <a class="page-link" href="<?= $urlBaseAero ?>paginaAero=<?= $i ?>#seccion-aerolineas"
                        <?= $i === $paginaAero ? 'aria-current="page"' : '' ?>><?= $i ?></a>
                   </li>
                 <?php endfor; ?>
                 <li class="page-item <?= $paginaAero >= $totPaginasAero ? 'disabled' : '' ?>">
-                  <a class="page-link" href="<?= $urlBaseAero ?>paginaAero=<?= $paginaAero + 1 ?>">Siguiente</a>
+                  <a class="page-link" href="<?= $urlBaseAero ?>paginaAero=<?= $paginaAero + 1 ?>#seccion-aerolineas">Siguiente</a>
                 </li>
               </ul>
             </nav>
@@ -246,7 +246,7 @@ $urlBaseVuelos = 'LandUsuarioNoRegistrado.php' . (http_build_query($getVuelos) ?
         </header>
 
         <div class="card border-0 shadow-sm p-4 mb-4 tarjeta-filtros">
-          <form action="LandUsuarioNoRegistrado.php" method="get"
+          <form action="LandUsuarioNoRegistrado.php#seccion-vuelos" method="get"
                 class="row g-3 align-items-end"
                 aria-label="Filtros de búsqueda de vuelos">
             <div class="col-md-3">
@@ -291,7 +291,7 @@ $urlBaseVuelos = 'LandUsuarioNoRegistrado.php' . (http_build_query($getVuelos) ?
               <button type="submit" class="btn btn-primary btn-sm flex-fill">
                 <i class="bi bi-search me-1" aria-hidden="true"></i>Filtrar
               </button>
-              <a href="LandUsuarioNoRegistrado.php" class="btn btn-outline-secondary btn-sm">
+              <a href="LandUsuarioNoRegistrado.php#seccion-vuelos" class="btn btn-outline-secondary btn-sm">
                 <i class="bi bi-x-circle" aria-hidden="true"></i>
               </a>
             </div>
@@ -306,7 +306,7 @@ $urlBaseVuelos = 'LandUsuarioNoRegistrado.php' . (http_build_query($getVuelos) ?
         </div>
 
         <?php if (!empty($vuelos)): ?>
-          <ul class="list-unstyled" role="list" aria-label="Lista de vuelos disponibles">
+          <ul class="list-unstyled" aria-label="Lista de vuelos disponibles">
             <?php foreach ($vuelos as $v):
               $codFmt = str_pad((string) $v['codVuelo'], 4, '0', STR_PAD_LEFT);
               $origenCod = mb_strtoupper(mb_substr($v['origenVuelo'], 0, 3));
@@ -319,7 +319,7 @@ $urlBaseVuelos = 'LandUsuarioNoRegistrado.php' . (http_build_query($getVuelos) ?
               $fechaFmt = date('j M Y', strtotime($v['fechaSalidaVuelo']));
               $horaFmt = substr($v['horaSalidaVuelo'], 0, 5);
               ?>
-              <li class="mb-3" role="listitem">
+              <li class="mb-3">
                 <article class="card tarjeta-vuelo border-0 shadow-sm"
                   aria-label="Vuelo <?= $codFmt ?>: <?= htmlspecialchars($v['origenVuelo'], ENT_QUOTES, 'UTF-8') ?> a <?= htmlspecialchars($v['destinoVuelo'], ENT_QUOTES, 'UTF-8') ?>, <?= $fechaFmt ?>">
                   <div class="card-body">
@@ -395,16 +395,16 @@ $urlBaseVuelos = 'LandUsuarioNoRegistrado.php' . (http_build_query($getVuelos) ?
             <nav aria-label="Paginación de vuelos" class="mt-4">
               <ul class="pagination justify-content-center">
                 <li class="page-item <?= $paginaVuelos <= 1 ? 'disabled' : '' ?>">
-                  <a class="page-link" href="<?= $urlBaseVuelos ?>paginaVuelo=<?= $paginaVuelos - 1 ?>">Anterior</a>
+                  <a class="page-link" href="<?= $urlBaseVuelos ?>paginaVuelo=<?= $paginaVuelos - 1 ?>#seccion-vuelos">Anterior</a>
                 </li>
-                <?php for ($i = 1; $i <= $totPaginasVuelo; $i++): ?>
+                <?php for ($i = 1; $i <= $totPaginasVuelos; $i++): ?>
                   <li class="page-item <?= $i === $paginaVuelos ? 'active' : '' ?>">
-                    <a class="page-link" href="<?= $urlBaseVuelos ?>paginaVuelo=<?= $i ?>"
+                    <a class="page-link" href="<?= $urlBaseVuelos ?>paginaVuelo=<?= $i ?>#seccion-vuelos"
                        <?= $i === $paginaVuelos ? 'aria-current="page"' : '' ?>><?= $i ?></a>
                   </li>
                 <?php endfor; ?>
                 <li class="page-item <?= $paginaVuelos >= $totPaginasVuelo ? 'disabled' : '' ?>">
-                  <a class="page-link" href="<?= $urlBaseVuelos ?>paginaVuelo=<?= $paginaVuelos + 1 ?>">Siguiente</a>
+                  <a class="page-link" href="<?= $urlBaseVuelos ?>paginaVuelo=<?= $paginaVuelos + 1 ?>#seccion-vuelos">Siguiente</a>
                 </li>
               </ul>
             </nav>

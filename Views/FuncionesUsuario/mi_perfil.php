@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 include '../../config/conexion.php';
 session_start();
 if (!isset($_SESSION['codUsuario'])) {
@@ -145,7 +145,7 @@ foreach ([
                 <i class="bi bi-grid-fill me-2" aria-hidden="true"></i>Accesos rápidos
               </h2>
               <nav aria-label="Accesos rápidos del usuario">
-                <ul class="lista-mapa-sitio" role="list">
+                <ul class="lista-mapa-sitio">
                   <?php if ($usuario['tipoUsuario'] === 'administrador'): ?>
                     <li>
                       <a href="../FuncionesAdmin/aerolineas-index.php">

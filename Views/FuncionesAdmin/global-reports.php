@@ -98,6 +98,17 @@ $queryReporte = $reporteValido ? '&reporte=' . urlencode($reporteActivo) : '';
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
   <link rel="stylesheet" href="../../styles.css"/>
+  <style>
+    @media print {
+      body { background: #fff !important; }
+      header, footer, nav { display: none !important; }
+      .no-print { display: none !important; }
+      main > *:not(#zona-impresion-reporte) { display: none !important; }
+      #zona-impresion-reporte { box-shadow: none !important; border: none !important; }
+      #zona-impresion-reporte .card-header { display: none !important; }
+      #zona-impresion-reporte .table { font-size: 12px; }
+    }
+  </style>
 </head>
 <body class="bg-light">
 
@@ -156,13 +167,13 @@ $queryReporte = $reporteValido ? '&reporte=' . urlencode($reporteActivo) : '';
     </div>
   </div>
 
-  <div class="card shadow-sm mb-5">
-    <div class="card-header fw-semibold">
+  <div class="card shadow-sm mb-5" id="zona-impresion-reporte">
+    <div class="card-header fw-semibold no-print">
       <i class="bi bi-file-earmark-bar-graph me-2" aria-hidden="true"></i>Generar reportes
     </div>
     <div class="card-body">
-      <p class="text-secondary small mb-3">Seleccioná el tipo de reporte para visualizar el detalle completo.</p>
-      <div class="d-flex flex-wrap gap-2">
+      <p class="text-secondary small mb-3 no-print">Seleccioná el tipo de reporte para visualizar el detalle completo.</p>
+      <div class="d-flex flex-wrap gap-2 no-print">
         <a href="?reporte=ventas" class="btn btn-outline-success<?= $reporteActivo === 'ventas' ? ' active' : '' ?>">
           <i class="bi bi-cash-stack me-1" aria-hidden="true"></i>Reporte de Ventas
         </a>
@@ -175,7 +186,12 @@ $queryReporte = $reporteValido ? '&reporte=' . urlencode($reporteActivo) : '';
       </div>
 
       <?php if ($reporteValido): ?>
-        <hr class="my-4">
+        <hr class="my-4 no-print">
+        <div class="no-print d-flex justify-content-end mb-3">
+          <button type="button" class="btn btn-primary" onclick="window.print();">
+            <i class="bi bi-printer me-1" aria-hidden="true"></i>Imprimir
+          </button>
+        </div>
 
         <?php if ($reporteActivo === 'ventas'): ?>
           <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">

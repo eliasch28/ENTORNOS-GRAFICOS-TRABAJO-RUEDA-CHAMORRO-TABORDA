@@ -1,4 +1,4 @@
-﻿<?php
+?php
 include '../../config/conexion.php';
 session_start();
 $sqlAero = "SELECT codAerolinea, nombreAerolinea FROM AEROLINEAS ORDER BY nombreAerolinea ASC";
@@ -179,7 +179,7 @@ $urlBaseVuelos = 'buscar_vuelos.php' . ($queryFiltros ? '?' . $queryFiltros . '&
               </p>
             </div>
 
-            <ul class="list-unstyled" role="list" aria-label="Vuelos encontrados">
+            <ul class="list-unstyled" aria-label="Vuelos encontrados">
 
               <?php if ($totalVuelos > 0): ?>
                 <?php foreach ($vuelosPag as $v):
@@ -196,7 +196,7 @@ $urlBaseVuelos = 'buscar_vuelos.php' . ($queryFiltros ? '?' . $queryFiltros . '&
                   $fechaFmt   = date('j M Y', strtotime($v['fechaSalidaVuelo']));
                   $horaFmt    = substr($v['horaSalidaVuelo'], 0, 5);
                 ?>
-                <li class="mb-3" role="listitem">
+                <li class="mb-3">
                   <article class="card tarjeta-vuelo border border-2 border-transparent shadow-sm"
                            aria-label="Vuelo <?= $codFmt ?>: <?= htmlspecialchars($v['origenVuelo'], ENT_QUOTES, 'UTF-8') ?> a <?= htmlspecialchars($v['destinoVuelo'], ENT_QUOTES, 'UTF-8') ?>, <?= $fechaFmt ?>">
                     <div class="card-body p-4">
@@ -276,7 +276,7 @@ $urlBaseVuelos = 'buscar_vuelos.php' . ($queryFiltros ? '?' . $queryFiltros . '&
                 </li>
                 <?php endforeach; ?>
               <?php else: ?>
-                <li role="listitem">
+                <li>
                   <div class="alert alert-info" role="status">
                     <i class="bi bi-info-circle me-2" aria-hidden="true"></i>
                     No se encontraron vuelos disponibles con los filtros seleccionados.

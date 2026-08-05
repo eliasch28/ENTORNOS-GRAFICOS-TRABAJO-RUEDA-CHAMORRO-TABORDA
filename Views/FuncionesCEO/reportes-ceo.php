@@ -76,6 +76,31 @@ if (!$sinAerolinea) {
     if ($resTop) {
         while ($row = mysqli_fetch_assoc($resTop)) $topVuelos[] = $row;
     }
+    $resVuelosActivos = mysqli_query($link,
+        "SELECT v.codVuelo, v.origenVuelo, v.destinoVuelo, v.fechaSalidaVuelo,
+                v.horaSalidaVuelo, v.asientosDisponibles,
+                SUM(CASE WHEN r.estadoReserva = 'confirmada' THEN 1 ELSE 0 END)  AS confirmadas,
+                SUM(CASE WHEN r.estadoReserva = 'pendiente de pago' THEN 1 ELSE 0 END) AS pendientes,
+                SUM(CASE WHEN r.estadoReserva = 'cancelada' THEN 1 ELSE 0 END) AS canceladas,
+                COUNT(r.codReserva) AS ocupados
+         FROM VUELOS v
+         LEFT JOIN RESERVAS r ON v.codVuelo = r.codVuelo
+         WHERE v.codAerolinea = $codAerolinea
+           AND v.fechaSalidaVuelo >= CURDATE()
+           AND v.asientosDisponibles > 0
+         GROUP BY v.codVuelo
+         ORDER BY v.fechaSalidaVuelo ASC, v.horaSalidaVuelo ASC");
+    $vuelosActivos = [];
+    if ($resVuelosActivos) {
+        while ($row = mysqli_fetch_assoc($resVuelosActivos)) $vuelosActivos[] = $row;
+    }
+    $totalVuelosActivos = count($vuelosActivos);
+    $totalAsientosOcupados = 0;
+    $totalAsientosConfirmados = 0;
+    foreach ($vuelosActivos as $va) {
+        $totalAsientosOcupados += (int)$va['ocupados'];
+        $totalAsientosConfirmados += (int)$va['confirmadas'];
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -87,6 +112,18 @@ if (!$sinAerolinea) {
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
   <link rel="stylesheet" href="../../styles.css"/>
+  <style>
+    @media print {
+      body { background: #fff !important; }
+      header, footer, nav { display: none !important; }
+      .no-print { display: none !important; }
+      main > *:not(#zona-impresion-ceo) { display: none !important; }
+      #zona-impresion-ceo { box-shadow: none !important; border: none !important; }
+      #zona-impresion-ceo .card-header { display: none !important; }
+      #zona-impresion-ceo .card-header.d-none { display: block !important; }
+      #zona-impresion-ceo .table { font-size: 12px; }
+    }
+  </style>
 </head>
 <body class="bg-light">
 
@@ -195,6 +232,85 @@ if (!$sinAerolinea) {
         </div>
       </div>
       <?php endif; ?>
+
+      <div class="card border-0 shadow-sm mb-5" id="zona-impresion-ceo">
+        <div class="card-header bg-white fw-semibold border-bottom no-print">
+          <i class="bi bi-printer me-2 text-primary" aria-hidden="true"></i>Reporte de la aerolínea
+        </div>
+        <div class="card-header bg-white fw-semibold border-bottom d-none" aria-hidden="true">
+          <i class="bi bi-building me-2" aria-hidden="true"></i><?= $nombreAerolinea ?> · IATA: <?= $codigoIATA ?>
+        </div>
+        <div class="card-body">
+          <div class="no-print d-flex justify-content-end mb-3">
+            <button type="button" class="btn btn-primary" onclick="window.print();">
+              <i class="bi bi-printer me-1" aria-hidden="true"></i>Imprimir
+            </button>
+          </div>
+
+          <div class="row g-3 mb-4">
+            <div class="col-6 col-lg-3">
+              <div class="border rounded-3 p-3 text-center h-100">
+                <div class="fs-4 fw-bold"><?= $totalVuelosActivos ?></div>
+                <div class="text-secondary small">Vuelos activos</div>
+              </div>
+            </div>
+            <div class="col-6 col-lg-3">
+              <div class="border rounded-3 p-3 text-center h-100">
+                <div class="fs-4 fw-bold"><?= $totalAsientosOcupados ?></div>
+                <div class="text-secondary small">Asientos ocupados</div>
+              </div>
+            </div>
+            <div class="col-6 col-lg-3">
+              <div class="border rounded-3 p-3 text-center h-100">
+                <div class="fs-4 fw-bold"><?= $totalAsientosConfirmados ?></div>
+                <div class="text-secondary small">Asientos confirmados</div>
+              </div>
+            </div>
+            <div class="col-6 col-lg-3">
+              <div class="border rounded-3 p-3 text-center h-100">
+                <div class="fs-4 fw-bold">ARS <?= number_format($ingresosTotales, 0, ',', '.') ?></div>
+                <div class="text-secondary small">Ingreso total</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-bordered align-middle mb-0 small">
+              <thead class="table-dark">
+                <tr>
+                  <th scope="col">Vuelo</th>
+                  <th scope="col">Fecha</th>
+                  <th scope="col" class="text-center">Asientos disp.</th>
+                  <th scope="col" class="text-center">Confirmados</th>
+                  <th scope="col" class="text-center">Pendientes</th>
+                  <th scope="col" class="text-center">Cancelados</th>
+                  <th scope="col" class="text-center">Ocupados</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php if (!empty($vuelosActivos)): ?>
+                  <?php foreach ($vuelosActivos as $va):
+                    $orig = mb_strtoupper(mb_substr($va['origenVuelo'], 0, 3));
+                    $dest = mb_strtoupper(mb_substr($va['destinoVuelo'], 0, 3));
+                  ?>
+                    <tr>
+                      <td class="fw-semibold"><?= $orig ?> → <?= $dest ?></td>
+                      <td><?= date('d/m/Y', strtotime($va['fechaSalidaVuelo'])) ?></td>
+                      <td class="text-center"><?= (int)$va['asientosDisponibles'] ?></td>
+                      <td class="text-center"><?= (int)$va['confirmadas'] ?></td>
+                      <td class="text-center"><?= (int)$va['pendientes'] ?></td>
+                      <td class="text-center"><?= (int)$va['canceladas'] ?></td>
+                      <td class="text-center fw-bold"><?= (int)$va['ocupados'] ?></td>
+                    </tr>
+                  <?php endforeach; ?>
+                <?php else: ?>
+                  <tr><td colspan="7" class="text-center text-muted py-4">No hay vuelos activos en este momento.</td></tr>
+                <?php endif; ?>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
 
       <div class="row g-4">
 
