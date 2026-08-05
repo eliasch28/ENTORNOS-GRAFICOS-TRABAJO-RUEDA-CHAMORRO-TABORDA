@@ -20,7 +20,7 @@ mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 //   Solo se usa si la conexión de Hostinger NO llegó a establecerse.
 // ─────────────────────────────────────────────────────────────────────
 if (!$link) {
-    $link = mysqli_connect('localhost', 'root', '', 'entornos_graficos');
+    $link = mysqli_connect('localhost', 'root', '', 'u963608887_vuelalibre');
 }
 
 if (!$link) {

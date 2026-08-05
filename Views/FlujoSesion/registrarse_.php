@@ -14,6 +14,7 @@ if (isset($_SESSION['codUsuario'])) {
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $nombreUsuario = trim($_POST['nombreUsuario']);
+  $apellidoUsuario = trim($_POST['apellidoUsuario']);
   $clavePlano = $_POST['claveUsuario'];
   $claveConfirmacion = $_POST['confirmarClave'] ?? '';
   $tipoUsuario = $_POST['tipoUsuario'];
@@ -21,11 +22,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $telefonoUsuario = trim($_POST['telefonoUsuario']);
   $codigoIATA = isset($_POST['codigoIATA']) ? strtoupper(trim($_POST['codigoIATA'])) : '';
   $codAerolinea = null;
-  $checkUser = mysqli_query($link, "SELECT codUsuario FROM USUARIOS WHERE nombreUsuario = '$nombreUsuario'");
   $checkEmail = mysqli_query($link, "SELECT codUsuario FROM USUARIOS WHERE emailUsuario = '$emailUsuario'");
-  if (mysqli_num_rows($checkUser) > 0) {
-    $error = "El nombre de usuario ya está en uso.";
-  } elseif (mysqli_num_rows($checkEmail) > 0) {
+  if (mysqli_num_rows($checkEmail) > 0) {
     $error = "El correo electrónico ya está registrado.";
   } elseif ($tipoUsuario === 'ceo de aerolinea') {
     if ($codigoIATA === '') {
@@ -44,8 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if (empty($error) && !preg_match('/^\+54\d{11}$|^\+598\d{8}$|^\+56\d{9}$|^\+595\d{9}$|^\+591\d{8}$/', $telefonoUsuario)) {
     $error = "El número de teléfono no es válido para el país seleccionado.";
   }
-  if (empty($error) && !preg_match('/^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{1,8}$/', $clavePlano)) {
-    $error = "La contraseña debe tener máximo 8 caracteres e incluir al menos 1 mayúscula, 1 dígito y 1 carácter especial.";
+  if (empty($error) && !preg_match('/^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,32}$/', $clavePlano)) {
+    $error = "La contraseña debe tener entre 8 y 32 caracteres e incluir al menos 1 mayúscula, 1 dígito y 1 carácter especial.";
   }
   if (empty($error) && $claveConfirmacion !== $clavePlano) {
     $error = "Las contraseñas no coinciden.";
@@ -58,17 +56,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $tokenVerificacionSql = $esCliente ? "'$tokenVerificacion'" : "NULL";
     $tokenVerificacionExpSql = $esCliente ? "DATE_ADD(NOW(), INTERVAL 24 HOUR)" : "NULL";
     $codAerolineaSql = ($codAerolinea !== null) ? $codAerolinea : "NULL";
-    $query = "INSERT INTO USUARIOS (nombreUsuario, claveUsuario, tipoUsuario, emailUsuario, telefonoUsuario, verificado, tokenVerificacion, tokenVerificacionExp, codAerolinea)
-          VALUES ('$nombreUsuario', '$claveUsuario', '$tipoUsuario', '$emailUsuario', '$telefonoUsuario', $verificado, $tokenVerificacionSql, $tokenVerificacionExpSql, $codAerolineaSql)";
+    $query = "INSERT INTO USUARIOS (nombreUsuario, apellidoUsuario, claveUsuario, tipoUsuario, emailUsuario, telefonoUsuario, verificado, tokenVerificacion, tokenVerificacionExp, codAerolinea)
+          VALUES ('$nombreUsuario', '$apellidoUsuario', '$claveUsuario', '$tipoUsuario', '$emailUsuario', '$telefonoUsuario', $verificado, $tokenVerificacionSql, $tokenVerificacionExpSql, $codAerolineaSql)";
     if (mysqli_query($link, $query)) {
       if (!$esCliente) {
         header('Location: login.php?pendiente=1');
         exit;
       }
       $enlace = BASE_URL . '/Views/FlujoSesion/verificar_email.php?token=' . $tokenVerificacion;
-      $cuerpo = "<p>Hola <strong>$nombreUsuario</strong>,</p>"
-          . "<p>Gracias por registrarte en VuelaLibre. Confirmá tu cuenta haciendo clic en el siguiente enlace (válido por 24 horas):</p>"
-          . "<p><a href=\"$enlace\">$enlace</a></p>";
+      $cuerpo = "<p>Hola <strong>$nombreUsuario $apellidoUsuario</strong>,</p>"
+        . "<p>Gracias por registrarte en VuelaLibre. Confirmá tu cuenta haciendo clic en el siguiente enlace (válido por 24 horas):</p>"
+        . "<p><a href=\"$enlace\">$enlace</a></p>";
       $enviado = enviarCorreo($emailUsuario, 'Verificá tu cuenta en VuelaLibre', $cuerpo);
       if ($enviado) {
         header('Location: login.php?registro=1');
@@ -126,13 +124,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               <div class="mb-3">
                 <label for="nombreUsuario" class="form-label fw-semibold">
                   <i class="bi bi-person me-1" aria-hidden="true"></i>
-                  Nombre de usuario
+                  Nombre
                   <span class="text-danger" aria-hidden="true">*</span>
                 </label>
-                <input type="text" id="nombreUsuario" name="nombreUsuario" class="form-control"
-                  placeholder="Ej: juan_perez" required autofocus autocomplete="username" aria-required="true"
+                <input type="text" id="nombreUsuario" name="nombreUsuario" class="form-control" placeholder="Ej: Juan"
+                  required autofocus autocomplete="given-name" aria-required="true"
                   aria-describedby="nombreUsuario-ayuda" maxlength="100" />
                 <div id="nombreUsuario-ayuda" class="form-text">Máximo 100 caracteres.</div>
+              </div>
+
+              <div class="mb-3">
+                <label for="apellidoUsuario" class="form-label fw-semibold">
+                  <i class="bi bi-person me-1" aria-hidden="true"></i>
+                  Apellido
+                  <span class="text-danger" aria-hidden="true">*</span>
+                </label>
+                <input type="text" id="apellidoUsuario" name="apellidoUsuario" class="form-control"
+                  placeholder="Ej: Pérez" required autocomplete="family-name" aria-required="true"
+                  aria-describedby="apellidoUsuario-ayuda" maxlength="100" />
+                <div id="apellidoUsuario-ayuda" class="form-text">Máximo 100 caracteres.</div>
               </div>
 
               <div class="mb-3">
@@ -143,16 +153,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </label>
                 <div class="input-group">
                   <input type="password" id="claveUsuario" name="claveUsuario" class="form-control"
-                    placeholder="Máximo 8 caracteres" required autocomplete="new-password" aria-required="true"
-                    aria-describedby="claveUsuario-ayuda" maxlength="8"
-                    title="La contraseña debe tener máximo 8 caracteres e incluir al menos 1 mayúscula, 1 dígito y 1 carácter especial." />
+                    placeholder="Máximo 32 caracteres" required autocomplete="new-password" aria-required="true"
+                    aria-describedby="claveUsuario-ayuda" minlength="8" maxlength="32"
+                    title="La contraseña debe tener entre 8 y 32 caracteres e incluir al menos 1 mayúscula, 1 dígito y 1 carácter especial." />
                   <button type="button" class="btn btn-outline-secondary btn-ver-contrasena"
-                          aria-label="Mostrar contraseña" aria-controls="claveUsuario">
+                    aria-label="Mostrar contraseña" aria-controls="claveUsuario">
                     <i class="bi bi-eye" aria-hidden="true"></i>
                   </button>
                 </div>
                 <div id="claveUsuario-ayuda" class="form-text">
-                  Máximo 8 caracteres. Debe incluir al menos 1 mayúscula, 1 dígito y 1 carácter especial.
+                  La contraseña debe tener entre 8 y 32 caracteres e incluir al menos una mayúscula, un dígito y un
+                  carácter especial.
                 </div>
               </div>
 
@@ -165,10 +176,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="input-group">
                   <input type="password" id="confirmarClave" name="confirmarClave" class="form-control"
                     placeholder="Repetí tu contraseña" required autocomplete="new-password" aria-required="true"
-                    aria-describedby="confirmarClave-ayuda" maxlength="8"
+                    aria-describedby="confirmarClave-ayuda" minlength="8" maxlength="32"
                     title="Debe coincidir con la contraseña ingresada." />
                   <button type="button" class="btn btn-outline-secondary btn-ver-contrasena"
-                          aria-label="Mostrar contraseña" aria-controls="confirmarClave">
+                    aria-label="Mostrar contraseña" aria-controls="confirmarClave">
                     <i class="bi bi-eye" aria-hidden="true"></i>
                   </button>
                 </div>
@@ -251,7 +262,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <input type="hidden" id="telefonoUsuario" name="telefonoUsuario" />
                 <div class="input-group">
                   <select id="paisTelefono" class="form-select flex-grow-0" style="width:auto;"
-                          aria-label="País del teléfono">
+                    aria-label="País del teléfono">
                     <option value="">— País —</option>
                     <option value="AR">Argentina (+54)</option>
                     <option value="UY">Uruguay (+598)</option>
@@ -260,65 +271,65 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <option value="BO">Bolivia (+591)</option>
                   </select>
                   <input type="text" id="numeroTelefono" class="form-control" inputmode="numeric"
-                         placeholder="Seleccioná un país" disabled aria-label="Número de teléfono" />
+                    placeholder="Seleccioná un país" disabled aria-label="Número de teléfono" />
                 </div>
                 <div id="ayudaTelefono" class="form-text">Seleccioná un país para ingresar tu número.</div>
               </div>
               <script>
-              (function () {
-                var PAISES = { AR:{code:'54',digits:11}, UY:{code:'598',digits:8}, CL:{code:'56',digits:9}, PY:{code:'595',digits:9}, BO:{code:'591',digits:8} };
-                var sel = document.getElementById('paisTelefono');
-                var num = document.getElementById('numeroTelefono');
-                var hidden = document.getElementById('telefonoUsuario');
-                var ayuda = document.getElementById('ayudaTelefono');
-                function sync() {
-                  var p = PAISES[sel.value];
-                  hidden.value = (p && num.value.length === p.digits) ? '+' + p.code + num.value : '';
-                }
-                function limpiarValidez() {
-                  sel.setCustomValidity('');
-                  num.setCustomValidity('');
-                }
-                function update() {
-                  var p = PAISES[sel.value];
-                  limpiarValidez();
-                  if (!p) {
-                    num.disabled = true;
-                    num.value = '';
-                    num.placeholder = 'Seleccioná un país';
-                    ayuda.textContent = 'Seleccioná un país para ingresar tu número.';
-                    hidden.value = '';
-                    return;
+                (function () {
+                  var PAISES = { AR: { code: '54', digits: 11 }, UY: { code: '598', digits: 8 }, CL: { code: '56', digits: 9 }, PY: { code: '595', digits: 9 }, BO: { code: '591', digits: 8 } };
+                  var sel = document.getElementById('paisTelefono');
+                  var num = document.getElementById('numeroTelefono');
+                  var hidden = document.getElementById('telefonoUsuario');
+                  var ayuda = document.getElementById('ayudaTelefono');
+                  function sync() {
+                    var p = PAISES[sel.value];
+                    hidden.value = (p && num.value.length === p.digits) ? '+' + p.code + num.value : '';
                   }
-                  num.disabled = false;
-                  num.maxLength = p.digits;
-                  num.placeholder = 'Ingresá ' + p.digits + ' dígitos';
-                  ayuda.textContent = 'Ingresá exactamente ' + p.digits + ' dígitos (sin el código de país).';
-                  sync();
-                }
-                sel.addEventListener('change', update);
-                num.addEventListener('input', function () {
-                  limpiarValidez();
-                  this.value = this.value.replace(/\D/g, '').slice(0, PAISES[sel.value] ? PAISES[sel.value].digits : 0);
-                  sync();
-                });
-                sel.closest('form').addEventListener('submit', function (e) {
-                  limpiarValidez();
-                  sync();
-                  var p = PAISES[sel.value];
-                  if (!p) {
-                    e.preventDefault();
-                    sel.setCustomValidity('Seleccioná un país.');
-                    sel.reportValidity();
-                    return;
+                  function limpiarValidez() {
+                    sel.setCustomValidity('');
+                    num.setCustomValidity('');
                   }
-                  if (!hidden.value) {
-                    e.preventDefault();
-                    num.setCustomValidity('Ingresá exactamente ' + p.digits + ' dígitos.');
-                    num.reportValidity();
+                  function update() {
+                    var p = PAISES[sel.value];
+                    limpiarValidez();
+                    if (!p) {
+                      num.disabled = true;
+                      num.value = '';
+                      num.placeholder = 'Seleccioná un país';
+                      ayuda.textContent = 'Seleccioná un país para ingresar tu número.';
+                      hidden.value = '';
+                      return;
+                    }
+                    num.disabled = false;
+                    num.maxLength = p.digits;
+                    num.placeholder = 'Ingresá ' + p.digits + ' dígitos';
+                    ayuda.textContent = 'Ingresá exactamente ' + p.digits + ' dígitos (sin el código de país).';
+                    sync();
                   }
-                });
-              })();
+                  sel.addEventListener('change', update);
+                  num.addEventListener('input', function () {
+                    limpiarValidez();
+                    this.value = this.value.replace(/\D/g, '').slice(0, PAISES[sel.value] ? PAISES[sel.value].digits : 0);
+                    sync();
+                  });
+                  sel.closest('form').addEventListener('submit', function (e) {
+                    limpiarValidez();
+                    sync();
+                    var p = PAISES[sel.value];
+                    if (!p) {
+                      e.preventDefault();
+                      sel.setCustomValidity('Seleccioná un país.');
+                      sel.reportValidity();
+                      return;
+                    }
+                    if (!hidden.value) {
+                      e.preventDefault();
+                      num.setCustomValidity('Ingresá exactamente ' + p.digits + ' dígitos.');
+                      num.reportValidity();
+                    }
+                  });
+                })();
               </script>
 
               <p class="text-secondary small mb-3">
@@ -340,7 +351,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <?php include '../Footer/footer.php'; ?>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       const tipoUsuario = document.getElementById('tipo-usuario');
       const tipoAerolinea = document.getElementById('tipo-aerolinea');
       const campoIata = document.getElementById('campo-codigo-iata');
