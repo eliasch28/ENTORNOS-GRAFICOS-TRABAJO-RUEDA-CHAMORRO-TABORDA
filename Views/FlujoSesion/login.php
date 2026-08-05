@@ -155,12 +155,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <i class="bi bi-box-arrow-in-right me-2" aria-hidden="true"></i>Ingresar
               </button>
 
-              <div class="my-4 separador-texto">¿No tenés cuenta?</div>
-
-              <a href="registrarse_.php" class="btn btn-outline-secondary w-100">
-                <i class="bi bi-person-plus me-2" aria-hidden="true"></i>Registrarse
-              </a>
-
             </form>
           </div>
         </div>

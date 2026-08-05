@@ -59,8 +59,6 @@
             <li><a href="../LandPage/LandUsuarioNoRegistrado.php">Inicio</a></li>
             <li><a href="../LandPage/LandUsuarioNoRegistrado.php#seccion-aerolineas">Aerolíneas</a></li>
             <li><a href="../LandPage/LandUsuarioNoRegistrado.php#seccion-vuelos">Vuelos disponibles</a></li>
-            <li><a href="../FlujoSesion/registrarse_.php">Registrarse</a></li>
-            <li><a href="../FlujoSesion/login.php">Iniciar Sesión</a></li>
             <li><a href="../FuncionesUsuario/sobre_nosotros.php">Sobre Nosotros</a></li>
             <li><a href="../FuncionesUsuario/ayuda.php">Centro de Ayuda</a></li>
             <li><a href="../FuncionesUsuario/ayuda.php#formularioContactoAyuda">Contáctanos</a></li>

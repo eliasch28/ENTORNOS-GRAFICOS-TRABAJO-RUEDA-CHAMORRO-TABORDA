@@ -71,9 +71,6 @@ if ($tokenValido && $_SERVER['REQUEST_METHOD'] === 'POST') {
                     <i class="bi bi-check-circle me-2" aria-hidden="true"></i>
                     Tu contraseña fue actualizada con éxito.
                   </div>
-                  <a href="login.php" class="btn btn-primary w-100">
-                    <i class="bi bi-box-arrow-in-right me-2" aria-hidden="true"></i>Iniciar Sesión
-                  </a>
                 </div>
             <?php elseif (!$tokenValido): ?>
                 <div class="card border-0 shadow-sm p-4 p-md-5 text-center">

@@ -60,11 +60,7 @@ if ($token === '') {
                 <i class="bi bi-<?= $exito ? 'check-circle' : 'exclamation-triangle' ?> me-2" aria-hidden="true"></i><?= $mensaje ?>
               </div>
 
-              <?php if ($exito): ?>
-                <a href="login.php" class="btn btn-primary w-100">
-                  <i class="bi bi-box-arrow-in-right me-2" aria-hidden="true"></i>Iniciar Sesión
-                </a>
-              <?php else: ?>
+              <?php if (!$exito): ?>
                 <a href="reenviar_verificacion.php" class="btn btn-primary w-100">
                   <i class="bi bi-arrow-repeat me-2" aria-hidden="true"></i>Reenviar enlace de verificación
                 </a>

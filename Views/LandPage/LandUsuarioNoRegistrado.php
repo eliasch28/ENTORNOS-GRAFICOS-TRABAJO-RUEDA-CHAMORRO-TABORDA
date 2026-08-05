@@ -78,9 +78,6 @@ $iconosAero = ['bi-airplane', 'bi-globe2', 'bi-lightning-charge', 'bi-stars', 'b
               <a href="#seccion-vuelos" class="btn btn-light btn-lg text-primary fw-semibold">
                 <i class="bi bi-search me-2" aria-hidden="true"></i>Buscar Vuelos
               </a>
-              <a href="../FlujoSesion/registrarse_.php" class="btn btn-outline-light btn-lg">
-                <i class="bi bi-person-plus me-2" aria-hidden="true"></i>Registrarse
-              </a>
             </div>
             <ul class="d-flex gap-5 mt-5 pt-4 border-top border-white border-opacity-25 list-unstyled"
               aria-label="Estadísticas del sistema">
@@ -156,11 +153,7 @@ $iconosAero = ['bi-airplane', 'bi-globe2', 'bi-lightning-charge', 'bi-stars', 'b
         <?php else: ?>
           <div class="alert alert-light border text-center py-4" role="status">
             <i class="bi bi-building text-secondary fs-2 d-block mb-2" aria-hidden="true"></i>
-            <p class="mb-2 text-secondary">Aún no hay aerolíneas registradas en el sistema.</p>
-            <a href="../FlujoSesion/login.php" class="btn btn-outline-primary btn-sm">
-              <i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>
-              Iniciá sesión para conocer más
-            </a>
+            <p class="mb-0 text-secondary">Aún no hay aerolíneas registradas en el sistema.</p>
           </div>
         <?php endif; ?>
       </div>
@@ -250,10 +243,9 @@ $iconosAero = ['bi-airplane', 'bi-globe2', 'bi-lightning-charge', 'bi-stars', 'b
                           <small class="text-secondary fw-normal fs-6">ARS</small>
                           <?= number_format($precioFinal, 0, ',', '.') ?>
                         </div>
-                        <a href="../FlujoSesion/login.php" class="btn btn-primary btn-sm mt-2">
-                          <i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>
-                          Iniciar sesión para reservar
-                        </a>
+                        <p class="text-secondary small mt-2 mb-0">
+                          Iniciá sesión para reservar
+                        </p>
                       </div>
 
                     </div>
@@ -262,39 +254,12 @@ $iconosAero = ['bi-airplane', 'bi-globe2', 'bi-lightning-charge', 'bi-stars', 'b
               </li>
             <?php endforeach; ?>
           </ul>
-          <div class="text-center mt-3">
-            <a href="../FlujoSesion/login.php" class="btn btn-outline-primary">
-              Iniciar sesión para ver todos los vuelos
-              <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
-            </a>
-          </div>
         <?php else: ?>
           <div class="alert alert-light border text-center py-4" role="status">
             <i class="bi bi-airplane text-secondary fs-2 d-block mb-2" aria-hidden="true"></i>
-            <p class="mb-2 text-secondary">No hay vuelos disponibles en este momento.</p>
-            <a href="../FlujoSesion/login.php" class="btn btn-outline-primary btn-sm">
-              <i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>
-              Iniciá sesión para conocer más
-            </a>
+            <p class="mb-0 text-secondary">No hay vuelos disponibles en este momento.</p>
           </div>
         <?php endif; ?>
-      </div>
-    </section>
-
-    <section class="py-5 bg-primary text-white text-center" aria-labelledby="cta-titulo">
-      <div class="container py-3">
-        <h2 id="cta-titulo" class="display-6 fw-bold mb-3">¿Listo para despegar?</h2>
-        <p class="lead text-white-50 mb-4">
-          Creá tu cuenta gratis y empezá a explorar vuelos y promociones exclusivas.
-        </p>
-        <div class="d-flex gap-3 justify-content-center flex-wrap">
-          <a href="../FlujoSesion/registrarse_.php" class="btn btn-light btn-lg text-primary fw-semibold">
-            <i class="bi bi-person-plus-fill me-2" aria-hidden="true"></i>Registrarse
-          </a>
-          <a href="../FlujoSesion/login.php" class="btn btn-outline-light btn-lg">
-            <i class="bi bi-box-arrow-in-right me-2" aria-hidden="true"></i>Ya tengo cuenta
-          </a>
-        </div>
       </div>
     </section>
 

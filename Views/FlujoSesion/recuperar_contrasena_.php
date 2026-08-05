@@ -100,13 +100,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 Enviar enlace de recuperación
               </button>
 
-              <div class="my-4 separador-texto">¿Recordaste tu contraseña?</div>
-
-              <a href="login.php" class="btn btn-outline-secondary w-100">
-                <i class="bi bi-box-arrow-in-right me-2" aria-hidden="true"></i>
-                Volver a Iniciar Sesión
-              </a>
-
             </form>
           </div>
 

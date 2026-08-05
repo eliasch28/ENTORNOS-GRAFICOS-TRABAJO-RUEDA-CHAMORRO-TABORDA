@@ -246,24 +246,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 var num = document.getElementById('numeroTelefono');
                 var hidden = document.getElementById('telefonoUsuario');
                 var ayuda = document.getElementById('ayudaTelefono');
-                function sync() { var p=PAISES[sel.value]; hidden.value=(p && num.value.length===p.digits)?'+'+p.code+num.value:''; }
+                function sync() {
+                  var p = PAISES[sel.value];
+                  hidden.value = (p && num.value.length === p.digits) ? '+' + p.code + num.value : '';
+                }
+                function limpiarValidez() {
+                  sel.setCustomValidity('');
+                  num.setCustomValidity('');
+                }
                 function update() {
-                  var p=PAISES[sel.value];
-                  if(!p){num.disabled=true;num.value='';num.placeholder='Seleccioná un país';ayuda.textContent='Seleccioná un país para ingresar tu número.';hidden.value='';return;}
-                  num.disabled=false;num.maxLength=p.digits;num.placeholder='Ingresá '+p.digits+' dígitos';
-                  ayuda.textContent='Ingresá exactamente '+p.digits+' dígitos (sin el código de país).';
+                  var p = PAISES[sel.value];
+                  limpiarValidez();
+                  if (!p) {
+                    num.disabled = true;
+                    num.value = '';
+                    num.placeholder = 'Seleccioná un país';
+                    ayuda.textContent = 'Seleccioná un país para ingresar tu número.';
+                    hidden.value = '';
+                    return;
+                  }
+                  num.disabled = false;
+                  num.maxLength = p.digits;
+                  num.placeholder = 'Ingresá ' + p.digits + ' dígitos';
+                  ayuda.textContent = 'Ingresá exactamente ' + p.digits + ' dígitos (sin el código de país).';
                   sync();
                 }
                 sel.addEventListener('change', update);
-                num.addEventListener('input', function(){ this.value=this.value.replace(/\D/g,'').slice(0,PAISES[sel.value]?PAISES[sel.value].digits:0); sync(); });
-                sel.closest('form').addEventListener('submit', function(e){
-                  var p=PAISES[sel.value];
-                  if(!p){e.preventDefault();sel.setCustomValidity('Seleccioná un país.');sel.reportValidity();return;}
-                  sel.setCustomValidity('');
-                  if(num.value.length!==p.digits){e.preventDefault();num.setCustomValidity('Ingresá exactamente '+p.digits+' dígitos.');num.reportValidity();return;}
-                  num.setCustomValidity('');
+                num.addEventListener('input', function () {
+                  limpiarValidez();
+                  this.value = this.value.replace(/\D/g, '').slice(0, PAISES[sel.value] ? PAISES[sel.value].digits : 0);
+                  sync();
                 });
-                update();
+                sel.closest('form').addEventListener('submit', function (e) {
+                  limpiarValidez();
+                  sync();
+                  var p = PAISES[sel.value];
+                  if (!p) {
+                    e.preventDefault();
+                    sel.setCustomValidity('Seleccioná un país.');
+                    sel.reportValidity();
+                    return;
+                  }
+                  if (!hidden.value) {
+                    e.preventDefault();
+                    num.setCustomValidity('Ingresá exactamente ' + p.digits + ' dígitos.');
+                    num.reportValidity();
+                  }
+                });
               })();
               </script>
 
@@ -274,12 +303,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               <button type="submit" class="btn btn-primary w-100 btn-lg">
                 <i class="bi bi-person-check-fill me-2" aria-hidden="true"></i>Registrarse
               </button>
-
-              <div class="my-4 separador-texto">¿Ya tenés cuenta?</div>
-
-              <a href="login.php" class="btn btn-outline-secondary w-100">
-                <i class="bi bi-box-arrow-in-right me-2" aria-hidden="true"></i>Iniciar Sesión
-              </a>
 
             </form>
 

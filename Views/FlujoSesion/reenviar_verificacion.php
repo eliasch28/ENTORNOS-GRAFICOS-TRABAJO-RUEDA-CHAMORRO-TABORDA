@@ -91,13 +91,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 Reenviar enlace
               </button>
 
-              <div class="my-4 separador-texto">¿Ya verificaste tu cuenta?</div>
-
-              <a href="login.php" class="btn btn-outline-secondary w-100">
-                <i class="bi bi-box-arrow-in-right me-2" aria-hidden="true"></i>
-                Iniciar Sesión
-              </a>
-
             </form>
           </div>
         </div>
