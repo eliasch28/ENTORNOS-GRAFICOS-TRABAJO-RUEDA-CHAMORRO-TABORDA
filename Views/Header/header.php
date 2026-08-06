@@ -1,9 +1,9 @@
 <?php
 $tipoUsuario = $_SESSION['tipoUsuario'] ?? '';
 $nombreMostrado = trim($_SESSION['nombreCompleto'] ?? ($_SESSION['nombreUsuario'] ?? ''));
-$paginaActual = basename($_SERVER['PHP_SELF']);
-$seccionActiva = function (array $paginas) use ($paginaActual) {
-    return in_array($paginaActual, $paginas, true);
+$archivoHeaderActual = basename($_SERVER['PHP_SELF']);
+$seccionActiva = function (array $paginas) use ($archivoHeaderActual) {
+    return in_array($archivoHeaderActual, $paginas, true);
 };
 $etiquetaRol = [
     'administrador'    => 'Administrador',
