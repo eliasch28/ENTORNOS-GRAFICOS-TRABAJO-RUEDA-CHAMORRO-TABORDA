@@ -177,7 +177,9 @@ $solicitudesResult = mysqli_query($link, $sqlSolicitudes);
       aceptarBtn.addEventListener('click', function() {
         if (!formIdPendiente) return;
         const form = document.getElementById(formIdPendiente);
-        if (form) form.submit();
+        if (!form) return;
+        aceptarBtn.disabled = true;
+        form.submit();
       });
     });
   </script>

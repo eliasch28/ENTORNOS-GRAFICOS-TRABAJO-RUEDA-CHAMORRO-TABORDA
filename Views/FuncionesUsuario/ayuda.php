@@ -3,14 +3,23 @@ session_start();
 require_once '../../config/EnviarCorreo.php';
 $contactoExito = '';
 $contactoError = '';
+$campoError = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mensajeContacto'])) {
     $nombreContacto  = trim($_POST['nombreContacto'] ?? '');
     $emailContacto   = trim($_POST['emailContacto'] ?? '');
     $mensajeContacto = trim($_POST['mensajeContacto'] ?? '');
-    if ($nombreContacto === '' || $emailContacto === '' || $mensajeContacto === '') {
-        $contactoError = 'Completá todos los campos para enviar tu consulta.';
+    if ($nombreContacto === '') {
+        $contactoError = 'Ingresá tu nombre para que podamos responderte.';
+        $campoError = 'nombreContacto';
+    } elseif ($emailContacto === '') {
+        $contactoError = 'Ingresá tu correo electrónico.';
+        $campoError = 'emailContacto';
     } elseif (!filter_var($emailContacto, FILTER_VALIDATE_EMAIL)) {
         $contactoError = 'Ingresá un correo electrónico válido.';
+        $campoError = 'emailContacto';
+    } elseif ($mensajeContacto === '') {
+        $contactoError = 'Escribí tu consulta antes de enviarla.';
+        $campoError = 'mensajeContacto';
     } else {
         $nombreSafe  = htmlspecialchars($nombreContacto, ENT_QUOTES, 'UTF-8');
         $emailSafe   = htmlspecialchars($emailContacto, ENT_QUOTES, 'UTF-8');
@@ -309,9 +318,13 @@ $categorias = [
                           <span class="text-danger" aria-hidden="true">*</span>
                         </label>
                         <input type="text" id="ayuda-nombre" name="nombreContacto"
-                               class="form-control"
+                               class="form-control<?= $campoError === 'nombreContacto' ? ' is-invalid' : '' ?>"
                                placeholder="Tu nombre completo"
+                               value="<?= htmlspecialchars($contactoError !== '' ? ($nombreContacto ?? '') : '', ENT_QUOTES, 'UTF-8') ?>"
                                required maxlength="100"/>
+                        <?php if ($campoError === 'nombreContacto'): ?>
+                          <div class="invalid-feedback d-block"><?= htmlspecialchars($contactoError, ENT_QUOTES, 'UTF-8') ?></div>
+                        <?php endif; ?>
                       </div>
 
                       <div class="col-md-6">
@@ -320,9 +333,13 @@ $categorias = [
                           <span class="text-danger" aria-hidden="true">*</span>
                         </label>
                         <input type="email" id="ayuda-email" name="emailContacto"
-                               class="form-control"
+                               class="form-control<?= $campoError === 'emailContacto' ? ' is-invalid' : '' ?>"
                                placeholder="tu@correo.com"
+                               value="<?= htmlspecialchars($contactoError !== '' ? ($emailContacto ?? '') : '', ENT_QUOTES, 'UTF-8') ?>"
                                required maxlength="100"/>
+                        <?php if ($campoError === 'emailContacto'): ?>
+                          <div class="invalid-feedback d-block"><?= htmlspecialchars($contactoError, ENT_QUOTES, 'UTF-8') ?></div>
+                        <?php endif; ?>
                       </div>
 
                       <div class="col-12">
@@ -331,9 +348,12 @@ $categorias = [
                           <span class="text-danger" aria-hidden="true">*</span>
                         </label>
                         <textarea id="ayuda-mensaje" name="mensajeContacto"
-                                  class="form-control" rows="4"
+                                  class="form-control<?= $campoError === 'mensajeContacto' ? ' is-invalid' : '' ?>" rows="4"
                                   placeholder="Describí tu consulta en detalle..."
-                                  required maxlength="1000"></textarea>
+                                  required maxlength="1000"><?= htmlspecialchars($contactoError !== '' ? ($mensajeContacto ?? '') : '', ENT_QUOTES, 'UTF-8') ?></textarea>
+                        <?php if ($campoError === 'mensajeContacto'): ?>
+                          <div class="invalid-feedback d-block"><?= htmlspecialchars($contactoError, ENT_QUOTES, 'UTF-8') ?></div>
+                        <?php endif; ?>
                       </div>
 
                       <div class="col-12">

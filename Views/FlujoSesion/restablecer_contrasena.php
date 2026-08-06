@@ -3,6 +3,7 @@ include '../../config/conexion.php';
 $token = isset($_GET['token']) ? $_GET['token'] : (isset($_POST['token']) ? $_POST['token'] : '');
 $tokenValido = false;
 $error = '';
+$campoError = '';
 $exito = false;
 if ($token === '') {
     $error = "Enlace de recuperación inválido.";
@@ -21,8 +22,9 @@ if ($token === '') {
 }
 if ($tokenValido && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $claveUsuario = $_POST['claveUsuario'];
-    if ($claveUsuario === '' || strlen($claveUsuario) > 8) {
-        $error = "La contraseña debe tener entre 1 y 8 caracteres.";
+    if (!preg_match('/^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,32}$/', $claveUsuario)) {
+        $error = "La contraseña debe tener entre 8 y 32 caracteres e incluir al menos 1 mayúscula, 1 dígito y 1 carácter especial.";
+        $campoError = "claveUsuario";
     } else {
         $claveHash = md5($claveUsuario);
         mysqli_query($link, "UPDATE USUARIOS
@@ -103,17 +105,19 @@ if ($tokenValido && $_SERVER['REQUEST_METHOD'] === 'POST') {
                     </label>
                     <input type="password"
                            id="claveUsuario" name="claveUsuario"
-                           class="form-control"
-                           placeholder="Máximo 8 caracteres"
+                           class="form-control<?= $campoError === 'claveUsuario' ? ' is-invalid' : '' ?>"
+                           placeholder="Entre 8 y 32 caracteres"
                            required autofocus
                            autocomplete="new-password"
                            aria-required="true"
                            aria-describedby="claveUsuario-ayuda"
-                           pattern=".{1,8}"
-                           title="La contraseña debe tener entre 1 y 8 caracteres"
-                           maxlength="8"/>
+                           minlength="8" maxlength="32"
+                           title="La contraseña debe tener entre 8 y 32 caracteres e incluir al menos 1 mayúscula, 1 dígito y 1 carácter especial."/>
+                    <?php if ($campoError === 'claveUsuario'): ?>
+                      <div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
+                    <?php endif; ?>
                     <div id="claveUsuario-ayuda" class="form-text">
-                      Máximo 8 caracteres (modelo de datos de la cátedra).
+                      La contraseña debe tener entre 8 y 32 caracteres e incluir al menos una mayúscula, un dígito y un carácter especial.
                     </div>
                   </div>
 

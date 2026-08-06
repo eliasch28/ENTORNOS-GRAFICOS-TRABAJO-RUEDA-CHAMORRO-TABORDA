@@ -1,5 +1,6 @@
 ﻿<?php
 include '../../config/conexion.php';
+include '../../config/fechas.php';
 
 $iconosAero = ['bi-airplane', 'bi-globe2', 'bi-lightning-charge', 'bi-stars', 'bi-building'];
 
@@ -316,7 +317,7 @@ $urlBaseVuelos = 'LandUsuarioNoRegistrado.php' . (http_build_query($getVuelos) ?
               $precioFinal = $descuento > 0 ? $precioBase * (1 - $descuento / 100) : $precioBase;
               $asientos = (int) $v['asientosDisponibles'];
               $claseAsientos = $asientos > 20 ? 'text-success' : ($asientos > 5 ? 'text-warning' : 'text-danger');
-              $fechaFmt = date('j M Y', strtotime($v['fechaSalidaVuelo']));
+              $fechaFmt = formatearFechaCorta($v['fechaSalidaVuelo']);
               $horaFmt = substr($v['horaSalidaVuelo'], 0, 5);
               ?>
               <li class="mb-3" role="listitem">

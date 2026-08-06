@@ -1,8 +1,13 @@
 ﻿<?php
 include '../../config/conexion.php';
+include '../../config/fechas.php';
 session_start();
 if (!isset($_SESSION['codUsuario'])) {
     header('Location: ../FlujoSesion/login.php');
+    exit;
+}
+if (($_SESSION['tipoUsuario'] ?? '') !== 'usuario') {
+    header('Location: ../LandPage/LandUsuarioRegistrado.php');
     exit;
 }
 $mensajeError = '';
@@ -11,9 +16,16 @@ $sqlUser = "SELECT nombreUsuario, apellidoUsuario, emailUsuario, telefonoUsuario
             FROM USUARIOS WHERE codUsuario = $codUsuario";
 $resUser = mysqli_query($link, $sqlUser);
 $usuario = mysqli_fetch_assoc($resUser);
+$codVueloPost = 0;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $codVuelo = isset($_POST['codVuelo']) ? (int)$_POST['codVuelo'] : 0;
-    if ($codVuelo > 0) {
+    $codVueloPost = $codVuelo;
+    $tokenEnviado = $_POST['tokenReserva'] ?? '';
+    $tokenEsperado = $_SESSION['tokenReserva'] ?? '';
+    unset($_SESSION['tokenReserva']);
+    if ($tokenEsperado === '' || !hash_equals($tokenEsperado, $tokenEnviado)) {
+        $mensajeError = 'Esta reserva ya fue enviada. Revisá Mis Reservas antes de volver a intentar.';
+    } elseif ($codVuelo > 0) {
         $sqlCheck = "SELECT codVuelo, asientosDisponibles FROM VUELOS
                      WHERE codVuelo = $codVuelo AND asientosDisponibles > 0
                      AND fechaSalidaVuelo >= CURDATE()";
@@ -37,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $mensajeError = 'Vuelo inválido.';
     }
 }
-$codVueloGet = isset($_GET['codVuelo']) ? (int)$_GET['codVuelo'] : 0;
+$codVueloGet = isset($_GET['codVuelo']) ? (int)$_GET['codVuelo'] : $codVueloPost;
 $vuelo = null;
 if ($codVueloGet > 0) {
     $sqlVuelo = "SELECT v.codVuelo, v.origenVuelo, v.destinoVuelo,
@@ -67,7 +79,8 @@ $descuento   = (float)($vuelo['descuentoPromocion'] ?? 0);
 $precioBase  = (float)$vuelo['precioVuelo'];
 $precioFinal = $descuento > 0 ? $precioBase * (1 - $descuento / 100) : $precioBase;
 $ahorro      = $precioBase - $precioFinal;
-$fechaFmt    = date('j \d\e F \d\e Y', strtotime($vuelo['fechaSalidaVuelo']));
+$_SESSION['tokenReserva'] = bin2hex(random_bytes(16));
+$fechaFmt    = formatearFechaLarga($vuelo['fechaSalidaVuelo']);
 $horaFmt     = substr($vuelo['horaSalidaVuelo'], 0, 5);
 ?>
 
@@ -298,6 +311,8 @@ $horaFmt     = substr($vuelo['horaSalidaVuelo'], 0, 5);
 
               <input type="hidden" name="codVuelo"
                      value="<?= (int)$vuelo['codVuelo'] ?>"/>
+              <input type="hidden" name="tokenReserva"
+                     value="<?= htmlspecialchars($_SESSION['tokenReserva'], ENT_QUOTES, 'UTF-8') ?>"/>
 
               <h2 class="h6 fw-bold mb-3">
                 <i class="bi bi-check2-circle me-2 text-primary" aria-hidden="true"></i>

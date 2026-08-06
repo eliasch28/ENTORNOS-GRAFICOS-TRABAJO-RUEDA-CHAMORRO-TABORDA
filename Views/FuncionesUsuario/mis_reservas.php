@@ -1,6 +1,7 @@
 ﻿<?php
 include '../../config/conexion.php';
 include '../../config/EnviarCorreo.php';
+include '../../config/fechas.php';
 session_start();
 if (!isset($_SESSION['codUsuario'])) {
     header('Location: ../FlujoSesion/login.php');
@@ -193,13 +194,13 @@ $resReservas = mysqli_query($link, $sqlReservas);
               $descuento  = (float)($r['descuentoPromocion'] ?? 0);
               $precioBase = (float)$r['precioVuelo'];
               $precioFinal = $descuento > 0 ? $precioBase * (1 - $descuento / 100) : $precioBase;
-              $fechaVueloFmt  = date('j M Y', strtotime($r['fechaSalidaVuelo']));
+              $fechaVueloFmt  = formatearFechaCorta($r['fechaSalidaVuelo']);
               $horaVueloFmt   = substr($r['horaSalidaVuelo'], 0, 5);
-              $fechaReservaFmt = date('j \d\e F \d\e Y', strtotime($r['fechaReserva']));
+              $fechaReservaFmt = formatearFechaLarga($r['fechaReserva']);
               $salidaTs   = strtotime($r['fechaSalidaVuelo'] . ' ' . $r['horaSalidaVuelo']);
               $limiteTs   = $salidaTs - (72 * 3600);
               $puedeCancelar = ($estado !== 'cancelada' && time() <= $limiteTs);
-              $limiteStr  = date('j \d\e F \d\e Y \a \l\a\s H:i \h\s', $limiteTs);
+              $limiteStr  = formatearTimestampLargoConHora($limiteTs);
               switch ($estado) {
                 case 'pendiente de pago':
                   $cardClass  = 'reserva-estado-pendiente';
@@ -316,10 +317,13 @@ $resReservas = mysqli_query($link, $sqlReservas);
                         </form>
                       <?php endif; ?>
                       <?php if ($puedeCancelar): ?>
-                        <form action="mis_reservas.php" method="post">
+                        <form action="mis_reservas.php" method="post"
+                              id="form-cancelar-<?= (int)$r['codReserva'] ?>">
                           <input type="hidden" name="accion" value="cancelar"/>
                           <input type="hidden" name="codReserva" value="<?= (int)$r['codReserva'] ?>"/>
-                          <button type="submit" class="btn btn-outline-danger w-100 btn-sm">
+                          <button type="button" class="btn btn-outline-danger w-100 btn-sm"
+                                  data-confirm-form-id="form-cancelar-<?= (int)$r['codReserva'] ?>"
+                                  data-confirm-text="¿Cancelar la reserva N° <?= $codFmt ?> de <?= htmlspecialchars($origenCod . ' a ' . $destinoCod, ENT_QUOTES, 'UTF-8') ?>? Esta acción no se puede deshacer.">
                             <i class="bi bi-x-circle me-1" aria-hidden="true"></i>
                             Cancelar reserva
                           </button>
@@ -367,7 +371,55 @@ $resReservas = mysqli_query($link, $sqlReservas);
     </section>
   </main>
 
+  <div class="modal fade" id="modalConfirmacion" tabindex="-1"
+       aria-labelledby="modalConfirmacionLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalConfirmacionLabel">Confirmar cancelación</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <div id="modalConfirmacionTexto" class="text-muted">¿Confirmás?</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Volver</button>
+          <button type="button" class="btn btn-danger" id="modalConfirmacionAceptar">
+            <i class="bi bi-x-circle me-1" aria-hidden="true"></i>Cancelar reserva
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <?php include '../Footer/footer.php'; ?>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const modalEl = document.getElementById('modalConfirmacion');
+      const modalConfirmacion = new bootstrap.Modal(modalEl);
+      const textoEl = document.getElementById('modalConfirmacionTexto');
+      const aceptarBtn = document.getElementById('modalConfirmacionAceptar');
+      let formIdPendiente = null;
+      document.querySelectorAll('[data-confirm-form-id]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          formIdPendiente = btn.getAttribute('data-confirm-form-id');
+          textoEl.textContent = btn.getAttribute('data-confirm-text') || '¿Confirmás?';
+          modalConfirmacion.show();
+        });
+      });
+      aceptarBtn.addEventListener('click', function () {
+        if (!formIdPendiente) return;
+        const form = document.getElementById(formIdPendiente);
+        if (!form) return;
+        aceptarBtn.disabled = true;
+        form.submit();
+      });
+      modalEl.addEventListener('hidden.bs.modal', function () {
+        formIdPendiente = null;
+      });
+    });
+  </script>
 
 </body>
 </html>

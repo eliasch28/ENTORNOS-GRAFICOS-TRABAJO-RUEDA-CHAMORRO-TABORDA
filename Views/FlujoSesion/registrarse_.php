@@ -3,7 +3,7 @@ include '../../config/conexion.php';
 include '../../config/EnviarCorreo.php';
 session_start();
 if (isset($_SESSION['codUsuario'])) {
-  $check = mysqli_query($link, "SELECT codUsuario FROM USUARIOS WHERE codUsuario = " . $_SESSION['codUsuario']);
+  $check = mysqli_query($link, "SELECT codUsuario FROM USUARIOS WHERE codUsuario = " . (int) $_SESSION['codUsuario']);
   if (mysqli_num_rows($check) > 0) {
     header('Location: ../LandPage/LandUsuarioRegistrado.php');
     exit;
@@ -12,6 +12,7 @@ if (isset($_SESSION['codUsuario'])) {
   }
 }
 $error = '';
+$campoError = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $nombreUsuario = trim($_POST['nombreUsuario']);
   $apellidoUsuario = trim($_POST['apellidoUsuario']);
@@ -22,49 +23,71 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $telefonoUsuario = trim($_POST['telefonoUsuario']);
   $codigoIATA = isset($_POST['codigoIATA']) ? strtoupper(trim($_POST['codigoIATA'])) : '';
   $codAerolinea = null;
-  $checkEmail = mysqli_query($link, "SELECT codUsuario FROM USUARIOS WHERE emailUsuario = '$emailUsuario'");
+  $stmtEmail = mysqli_prepare($link, "SELECT codUsuario FROM USUARIOS WHERE emailUsuario = ?");
+  mysqli_stmt_bind_param($stmtEmail, 's', $emailUsuario);
+  mysqli_stmt_execute($stmtEmail);
+  $checkEmail = mysqli_stmt_get_result($stmtEmail);
   if (mysqli_num_rows($checkEmail) > 0) {
     $error = "El correo electrónico ya está registrado.";
+    $campoError = "emailUsuario";
   } elseif ($tipoUsuario === 'ceo de aerolinea') {
     if ($codigoIATA === '') {
       $error = "Debés ingresar el código IATA de la aerolínea.";
+      $campoError = "codigoIATA";
     } else {
-      $codigoIATA_esc = mysqli_real_escape_string($link, $codigoIATA);
-      $checkAerolinea = mysqli_query($link, "SELECT codAerolinea FROM AEROLINEAS WHERE codigoIATA = '$codigoIATA_esc'");
+      $stmtAerolinea = mysqli_prepare($link, "SELECT codAerolinea FROM AEROLINEAS WHERE codigoIATA = ?");
+      mysqli_stmt_bind_param($stmtAerolinea, 's', $codigoIATA);
+      mysqli_stmt_execute($stmtAerolinea);
+      $checkAerolinea = mysqli_stmt_get_result($stmtAerolinea);
       if (mysqli_num_rows($checkAerolinea) === 0) {
         $error = "No existe una aerolínea registrada con el código IATA ingresado.";
+        $campoError = "codigoIATA";
       } else {
         $rowAerolinea = mysqli_fetch_assoc($checkAerolinea);
-        $codAerolinea = $rowAerolinea['codAerolinea'];
+        $codAerolinea = (int) $rowAerolinea['codAerolinea'];
       }
     }
   }
   if (empty($error) && !preg_match('/^\+54\d{11}$|^\+598\d{8}$|^\+56\d{9}$|^\+595\d{9}$|^\+591\d{8}$/', $telefonoUsuario)) {
     $error = "El número de teléfono no es válido para el país seleccionado.";
+    $campoError = "telefonoUsuario";
   }
   if (empty($error) && !preg_match('/^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,32}$/', $clavePlano)) {
     $error = "La contraseña debe tener entre 8 y 32 caracteres e incluir al menos 1 mayúscula, 1 dígito y 1 carácter especial.";
+    $campoError = "claveUsuario";
   }
   if (empty($error) && $claveConfirmacion !== $clavePlano) {
     $error = "Las contraseñas no coinciden.";
+    $campoError = "confirmarClave";
   }
   if (empty($error)) {
     $claveUsuario = md5($clavePlano);
     $esCliente = ($tipoUsuario !== 'ceo de aerolinea');
-    $verificado = 0;
     $tokenVerificacion = $esCliente ? bin2hex(random_bytes(32)) : null;
-    $tokenVerificacionSql = $esCliente ? "'$tokenVerificacion'" : "NULL";
-    $tokenVerificacionExpSql = $esCliente ? "DATE_ADD(NOW(), INTERVAL 24 HOUR)" : "NULL";
-    $codAerolineaSql = ($codAerolinea !== null) ? $codAerolinea : "NULL";
     $query = "INSERT INTO USUARIOS (nombreUsuario, apellidoUsuario, claveUsuario, tipoUsuario, emailUsuario, telefonoUsuario, verificado, tokenVerificacion, tokenVerificacionExp, codAerolinea)
-          VALUES ('$nombreUsuario', '$apellidoUsuario', '$claveUsuario', '$tipoUsuario', '$emailUsuario', '$telefonoUsuario', $verificado, $tokenVerificacionSql, $tokenVerificacionExpSql, $codAerolineaSql)";
-    if (mysqli_query($link, $query)) {
+          VALUES (?, ?, ?, ?, ?, ?, 0, ?, IF(? IS NULL, NULL, DATE_ADD(NOW(), INTERVAL 24 HOUR)), ?)";
+    $stmtInsert = mysqli_prepare($link, $query);
+    mysqli_stmt_bind_param(
+      $stmtInsert,
+      'ssssssssi',
+      $nombreUsuario,
+      $apellidoUsuario,
+      $claveUsuario,
+      $tipoUsuario,
+      $emailUsuario,
+      $telefonoUsuario,
+      $tokenVerificacion,
+      $tokenVerificacion,
+      $codAerolinea
+    );
+    if (mysqli_stmt_execute($stmtInsert)) {
       if (!$esCliente) {
         header('Location: login.php?pendiente=1');
         exit;
       }
       $enlace = BASE_URL . '/Views/FlujoSesion/verificar_email.php?token=' . $tokenVerificacion;
-      $cuerpo = "<p>Hola <strong>$nombreUsuario $apellidoUsuario</strong>,</p>"
+      $nombreCompletoSafe = htmlspecialchars(trim("$nombreUsuario $apellidoUsuario"), ENT_QUOTES, 'UTF-8');
+      $cuerpo = "<p>Hola <strong>$nombreCompletoSafe</strong>,</p>"
         . "<p>Gracias por registrarte en VuelaLibre. Confirmá tu cuenta haciendo clic en el siguiente enlace (válido por 24 horas):</p>"
         . "<p><a href=\"$enlace\">$enlace</a></p>";
       $enviado = enviarCorreo($emailUsuario, 'Verificá tu cuenta en VuelaLibre', $cuerpo);
@@ -129,6 +152,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </label>
                 <input type="text" id="nombreUsuario" name="nombreUsuario" class="form-control" placeholder="Ej: Juan"
                   required autofocus autocomplete="given-name" aria-required="true"
+                  value="<?= htmlspecialchars($_POST['nombreUsuario'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
                   aria-describedby="nombreUsuario-ayuda" maxlength="100" />
                 <div id="nombreUsuario-ayuda" class="form-text">Máximo 100 caracteres.</div>
               </div>
@@ -141,6 +165,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </label>
                 <input type="text" id="apellidoUsuario" name="apellidoUsuario" class="form-control"
                   placeholder="Ej: Pérez" required autocomplete="family-name" aria-required="true"
+                  value="<?= htmlspecialchars($_POST['apellidoUsuario'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
                   aria-describedby="apellidoUsuario-ayuda" maxlength="100" />
                 <div id="apellidoUsuario-ayuda" class="form-text">Máximo 100 caracteres.</div>
               </div>
@@ -152,7 +177,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                   <span class="text-danger" aria-hidden="true">*</span>
                 </label>
                 <div class="input-group">
-                  <input type="password" id="claveUsuario" name="claveUsuario" class="form-control"
+                  <input type="password" id="claveUsuario" name="claveUsuario" class="form-control<?= $campoError === 'claveUsuario' ? ' is-invalid' : '' ?>"
                     placeholder="Máximo 32 caracteres" required autocomplete="new-password" aria-required="true"
                     aria-describedby="claveUsuario-ayuda" minlength="8" maxlength="32"
                     title="La contraseña debe tener entre 8 y 32 caracteres e incluir al menos 1 mayúscula, 1 dígito y 1 carácter especial." />
@@ -161,6 +186,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <i class="bi bi-eye" aria-hidden="true"></i>
                   </button>
                 </div>
+                <?php if ($campoError === 'claveUsuario'): ?>
+                  <div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
+                <?php endif; ?>
                 <div id="claveUsuario-ayuda" class="form-text">
                   La contraseña debe tener entre 8 y 32 caracteres e incluir al menos una mayúscula, un dígito y un
                   carácter especial.
@@ -174,7 +202,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                   <span class="text-danger" aria-hidden="true">*</span>
                 </label>
                 <div class="input-group">
-                  <input type="password" id="confirmarClave" name="confirmarClave" class="form-control"
+                  <input type="password" id="confirmarClave" name="confirmarClave" class="form-control<?= $campoError === 'confirmarClave' ? ' is-invalid' : '' ?>"
                     placeholder="Repetí tu contraseña" required autocomplete="new-password" aria-required="true"
                     aria-describedby="confirmarClave-ayuda" minlength="8" maxlength="32"
                     title="Debe coincidir con la contraseña ingresada." />
@@ -183,6 +211,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <i class="bi bi-eye" aria-hidden="true"></i>
                   </button>
                 </div>
+                <?php if ($campoError === 'confirmarClave'): ?>
+                  <div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
+                <?php endif; ?>
                 <div id="confirmarClave-ayuda" class="form-text">
                   Repetí la misma contraseña para confirmarla.
                 </div>
@@ -223,11 +254,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     Código IATA de la aerolínea
                     <span class="text-danger" aria-hidden="true">*</span>
                   </label>
-                  <input type="text" id="codigoIATA" name="codigoIATA" class="form-control text-uppercase"
+                  <input type="text" id="codigoIATA" name="codigoIATA" class="form-control text-uppercase<?= $campoError === 'codigoIATA' ? ' is-invalid' : '' ?>"
                     placeholder="Ej: AR" maxlength="3" pattern="[A-Za-z]{2,3}"
                     title="Ingresá un código IATA de 2 o 3 letras" autocomplete="off"
                     aria-describedby="codigoIATA-ayuda"
                     value="<?= htmlspecialchars($_POST['codigoIATA'] ?? '', ENT_QUOTES, 'UTF-8') ?>" />
+                  <?php if ($campoError === 'codigoIATA'): ?>
+                    <div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
+                  <?php endif; ?>
                   <div id="codigoIATA-ayuda" class="form-text">
                     Código de 2 o 3 letras asignado por la IATA a la aerolínea.
                   </div>
@@ -245,9 +279,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                   Correo electrónico
                   <span class="text-danger" aria-hidden="true">*</span>
                 </label>
-                <input type="email" id="emailUsuario" name="emailUsuario" class="form-control"
+                <input type="email" id="emailUsuario" name="emailUsuario" class="form-control<?= $campoError === 'emailUsuario' ? ' is-invalid' : '' ?>"
                   placeholder="ejemplo@correo.com" required autocomplete="email" aria-required="true"
+                  value="<?= htmlspecialchars($_POST['emailUsuario'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
                   aria-describedby="emailUsuario-ayuda" maxlength="100" />
+                <?php if ($campoError === 'emailUsuario'): ?>
+                  <div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
+                <?php endif; ?>
                 <div id="emailUsuario-ayuda" class="form-text">
                   Los Clientes recibirán un enlace de validación en esta dirección.
                 </div>
@@ -259,7 +297,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                   Teléfono
                   <span class="text-danger" aria-hidden="true">*</span>
                 </label>
-                <input type="hidden" id="telefonoUsuario" name="telefonoUsuario" />
+                <input type="hidden" id="telefonoUsuario" name="telefonoUsuario"
+                  value="<?= htmlspecialchars($_POST['telefonoUsuario'] ?? '', ENT_QUOTES, 'UTF-8') ?>" />
                 <div class="input-group">
                   <select id="paisTelefono" class="form-select flex-grow-0" style="width:auto;"
                     aria-label="País del teléfono">
@@ -270,9 +309,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <option value="PY">Paraguay (+595)</option>
                     <option value="BO">Bolivia (+591)</option>
                   </select>
-                  <input type="text" id="numeroTelefono" class="form-control" inputmode="numeric"
+                  <input type="text" id="numeroTelefono" class="form-control<?= $campoError === 'telefonoUsuario' ? ' is-invalid' : '' ?>" inputmode="numeric"
                     placeholder="Seleccioná un país" disabled aria-label="Número de teléfono" />
                 </div>
+                <?php if ($campoError === 'telefonoUsuario'): ?>
+                  <div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
+                <?php endif; ?>
                 <div id="ayudaTelefono" class="form-text">Seleccioná un país para ingresar tu número.</div>
               </div>
               <script>
@@ -307,6 +349,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ayuda.textContent = 'Ingresá exactamente ' + p.digits + ' dígitos (sin el código de país).';
                     sync();
                   }
+                  function restaurar() {
+                    if (!hidden.value) return;
+                    for (var clave in PAISES) {
+                      var prefijo = '+' + PAISES[clave].code;
+                      if (hidden.value.indexOf(prefijo) === 0) {
+                        sel.value = clave;
+                        update();
+                        num.value = hidden.value.slice(prefijo.length);
+                        sync();
+                        return;
+                      }
+                    }
+                  }
+                  restaurar();
                   sel.addEventListener('change', update);
                   num.addEventListener('input', function () {
                     limpiarValidez();

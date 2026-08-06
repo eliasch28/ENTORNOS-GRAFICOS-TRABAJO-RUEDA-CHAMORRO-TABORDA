@@ -79,7 +79,7 @@ if ($paginaActual > $totalPaginas) {
   $paginaActual = $totalPaginas;
   $offset = ($paginaActual - 1) * $porPagina;
 }
-$sqlUltimasReservas = "SELECT r.codReserva, u.nombreUsuario, v.origenVuelo, v.destinoVuelo,
+$sqlUltimasReservas = "SELECT r.codReserva, u.nombreUsuario, u.apellidoUsuario, v.origenVuelo, v.destinoVuelo,
                               r.fechaReserva, r.estadoReserva
                        FROM RESERVAS r
                        INNER JOIN USUARIOS u ON r.codUsuario = u.codUsuario

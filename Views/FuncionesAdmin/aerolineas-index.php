@@ -102,7 +102,7 @@ $resAerolineas = mysqli_query($link, $sqlAerolineas);
                         <input type="hidden" name="codAerolinea" value="<?= (int) $row['codAerolinea'] ?>">
                         <button type="button" class="btn btn-sm btn-outline-danger"
                           data-confirm-form-id="form-eliminar-<?= (int) $row['codAerolinea'] ?>"
-                          data-confirm-text="¿Eliminár la aerolínea «<?= htmlspecialchars($row['nombreAerolinea'], ENT_QUOTES, 'UTF-8') ?>»? Esta acción no se puede deshacer.">
+                          data-confirm-text="¿Eliminar la aerolínea «<?= htmlspecialchars($row['nombreAerolinea'], ENT_QUOTES, 'UTF-8') ?>»? Esta acción no se puede deshacer.">
                           <i class="bi bi-trash" aria-hidden="true"></i> Eliminar
                         </button>
                       </form>
@@ -182,7 +182,9 @@ $resAerolineas = mysqli_query($link, $sqlAerolineas);
       aceptarBtn.addEventListener('click', function () {
         if (!formIdPendiente) return;
         const form = document.getElementById(formIdPendiente);
-        if (form) form.submit();
+        if (!form) return;
+        aceptarBtn.disabled = true;
+        form.submit();
       });
       modalEl.addEventListener('hidden.bs.modal', function () {
         formIdPendiente = null;

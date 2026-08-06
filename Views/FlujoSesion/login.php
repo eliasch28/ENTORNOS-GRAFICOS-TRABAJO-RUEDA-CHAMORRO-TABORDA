@@ -8,7 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['_logout'])) {
     exit;
 }
 if (isset($_SESSION['codUsuario'])) {
-    $check = mysqli_query($link, "SELECT codUsuario FROM USUARIOS WHERE codUsuario = " . $_SESSION['codUsuario']);
+    $check = mysqli_query($link, "SELECT codUsuario FROM USUARIOS WHERE codUsuario = " . (int) $_SESSION['codUsuario']);
     if (mysqli_num_rows($check) > 0) {
         header('Location: ../LandPage/LandUsuarioRegistrado.php');
         exit;
@@ -16,11 +16,15 @@ if (isset($_SESSION['codUsuario'])) {
         session_destroy();
     }
 }
+$campoError = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nombreUsuario = trim($_POST['nombreUsuario']);
     $claveUsuario  = $_POST['claveUsuario'];
-    $query = "SELECT * FROM USUARIOS WHERE BINARY nombreUsuario = '$nombreUsuario'";
-    $resultado = mysqli_query($link, $query);
+    $query = "SELECT * FROM USUARIOS WHERE BINARY nombreUsuario = ?";
+    $stmtLogin = mysqli_prepare($link, $query);
+    mysqli_stmt_bind_param($stmtLogin, 's', $nombreUsuario);
+    mysqli_stmt_execute($stmtLogin);
+    $resultado = mysqli_stmt_get_result($stmtLogin);
     if ($resultado && mysqli_num_rows($resultado) === 1) {
         $usuario = mysqli_fetch_assoc($resultado);
         if (md5($claveUsuario) === $usuario['claveUsuario']) {
@@ -41,9 +45,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         } else {
             $error = "Contraseña incorrecta.";
+            $campoError = "claveUsuario";
         }
     } else {
         $error = "Usuario no encontrado.";
+        $campoError = "nombreUsuario";
     }
 }
 ?>
@@ -119,12 +125,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </label>
                 <input type="text"
                        id="nombreUsuario" name="nombreUsuario"
-                       class="form-control"
+                       class="form-control<?= $campoError === 'nombreUsuario' ? ' is-invalid' : '' ?>"
                        placeholder="Tu nombre de usuario"
                        required autofocus
                        autocomplete="username"
                        aria-required="true"
+                       value="<?= htmlspecialchars($_POST['nombreUsuario'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
                        maxlength="100"/>
+                <?php if ($campoError === 'nombreUsuario'): ?>
+                  <div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
+                <?php endif; ?>
               </div>
 
               <div class="mb-2">
@@ -134,17 +144,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="input-group">
                   <input type="password"
                          id="claveUsuario" name="claveUsuario"
-                         class="form-control"
+                         class="form-control<?= $campoError === 'claveUsuario' ? ' is-invalid' : '' ?>"
                          placeholder="Tu contraseña"
                          required
                          autocomplete="current-password"
                          aria-required="true"
-                         maxlength="8"/>
+                         maxlength="32"/>
                   <button type="button" class="btn btn-outline-secondary btn-ver-contrasena"
                           aria-label="Mostrar contraseña" aria-controls="claveUsuario">
                     <i class="bi bi-eye" aria-hidden="true"></i>
                   </button>
                 </div>
+                <?php if ($campoError === 'claveUsuario'): ?>
+                  <div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
+                <?php endif; ?>
               </div>
 
               <div class="text-end mb-4">

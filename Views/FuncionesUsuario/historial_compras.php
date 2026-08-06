@@ -1,5 +1,6 @@
 ﻿<?php
 include '../../config/conexion.php';
+include '../../config/fechas.php';
 session_start();
 if (!isset($_SESSION['codUsuario'])) {
     header('Location: ../FlujoSesion/login.php');
@@ -122,9 +123,9 @@ $resHistorial = mysqli_query($link, $sqlHistorial);
               $precioBase   = (float)$c['precioVuelo'];
               $precioFinal  = $descuento > 0 ? $precioBase * (1 - $descuento / 100) : $precioBase;
               $ahorro       = $precioBase - $precioFinal;
-              $fechaVFmt    = date('j M Y', strtotime($c['fechaSalidaVuelo']));
+              $fechaVFmt    = formatearFechaCorta($c['fechaSalidaVuelo']);
               $horaFmt      = substr($c['horaSalidaVuelo'], 0, 5);
-              $fechaConfFmt = date('j \d\e F \d\e Y', strtotime($c['fechaReserva']));
+              $fechaConfFmt = formatearFechaLarga($c['fechaReserva']);
             ?>
             <li class="mb-4" role="listitem">
               <article class="card border-0 shadow-sm tarjeta-compra"

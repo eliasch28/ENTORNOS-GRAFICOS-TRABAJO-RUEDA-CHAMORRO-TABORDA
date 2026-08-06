@@ -31,13 +31,16 @@ if (!$promo) {
   exit;
 }
 $error = '';
+$campoError = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $descripcion = trim($_POST['descripcionPromocion'] ?? '');
   $descuento = (float) ($_POST['descuentoPromocion'] ?? 0);
   if ($descripcion === '') {
     $error = 'La descripción es obligatoria.';
+    $campoError = 'descripcionPromocion';
   } elseif ($descuento <= 0 || $descuento > 100) {
     $error = 'El descuento debe ser un número entre 1 y 100.';
+    $campoError = 'descuentoPromocion';
   } elseif (
     $descripcion === $promo['descripcionPromocion'] &&
     (float) $descuento == (float) $promo['descuentoPromocion']
@@ -137,7 +140,10 @@ $codFmt = str_pad((string) $promo['codPromocion'], 3, '0', STR_PAD_LEFT);
                     <label for="descripcionPromocion" class="form-label fw-semibold">
                       Descripción <span class="text-danger">*</span>
                     </label>
-                    <input type="text" id="descripcionPromocion" name="descripcionPromocion" class="form-control"
+                    <input type="text" id="descripcionPromocion" name="descripcionPromocion" class="form-control<?= $campoError === 'descripcionPromocion' ? ' is-invalid' : '' ?>
+<?php if ($campoError === 'descripcionPromocion'): ?>
+<div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
+<?php endif; ?>"
                       maxlength="200" required
                       value="<?= htmlspecialchars($promo['descripcionPromocion'] ?? '', ENT_QUOTES, 'UTF-8') ?>" />
                     <div class="form-text">Máximo 200 caracteres.</div>
@@ -148,7 +154,10 @@ $codFmt = str_pad((string) $promo['codPromocion'], 3, '0', STR_PAD_LEFT);
                       Descuento (%) <span class="text-danger">*</span>
                     </label>
                     <div class="input-group">
-                      <input type="number" id="descuentoPromocion" name="descuentoPromocion" class="form-control"
+                      <input type="number" id="descuentoPromocion" name="descuentoPromocion" class="form-control<?= $campoError === 'descuentoPromocion' ? ' is-invalid' : '' ?>
+<?php if ($campoError === 'descuentoPromocion'): ?>
+<div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
+<?php endif; ?>"
                         min="1" max="100" step="0.01" required
                         value="<?= htmlspecialchars((string) $promo['descuentoPromocion'], ENT_QUOTES, 'UTF-8') ?>" />
                       <span class="input-group-text">%</span>

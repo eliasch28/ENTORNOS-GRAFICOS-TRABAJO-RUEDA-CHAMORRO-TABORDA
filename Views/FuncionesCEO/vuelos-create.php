@@ -15,6 +15,7 @@ $codAerolinea = (int) $ceoData['codAerolinea'];
 $nombreAerolinea = htmlspecialchars($ceoData['nombreAerolinea'], ENT_QUOTES, 'UTF-8');
 $codigoIATA = htmlspecialchars($ceoData['codigoIATA'], ENT_QUOTES, 'UTF-8');
 $error = '';
+$campoError = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $origen = trim($_POST['origenVuelo'] ?? '');
   $destino = trim($_POST['destinoVuelo'] ?? '');
@@ -24,14 +25,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $asientos = (int) ($_POST['asientosDisponibles'] ?? 0);
   if ($origen === '' || $destino === '') {
     $error = 'Origen y destino son obligatorios.';
+    $campoError = 'origenVuelo';
   } elseif ($fecha === '' || $hora === '') {
     $error = 'Fecha y hora de salida son obligatorias.';
+    $campoError = 'fechaSalidaVuelo';
   } elseif ($fecha < date('Y-m-d')) {
     $error = 'La fecha de salida no puede ser en el pasado.';
+    $campoError = 'fechaSalidaVuelo';
   } elseif ($precio <= 0) {
     $error = 'El precio debe ser mayor a cero.';
+    $campoError = 'precioVuelo';
   } elseif ($asientos <= 0) {
     $error = 'Los asientos disponibles deben ser al menos 1.';
+    $campoError = 'asientosDisponibles';
   } else {
     $orig_esc = mysqli_real_escape_string($link, $origen);
     $dest_esc = mysqli_real_escape_string($link, $destino);
@@ -110,7 +116,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                       <label for="origenVuelo" class="form-label fw-semibold">
                         Origen <span class="text-danger">*</span>
                       </label>
-                      <input type="text" id="origenVuelo" name="origenVuelo" class="form-control"
+                      <input type="text" id="origenVuelo" name="origenVuelo" class="form-control<?= $campoError === 'origenVuelo' ? ' is-invalid' : '' ?>
+<?php if ($campoError === 'origenVuelo'): ?>
+<div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
+<?php endif; ?>"
                         placeholder="Ej: Buenos Aires" maxlength="50" required
                         value="<?= htmlspecialchars($_POST['origenVuelo'] ?? '', ENT_QUOTES, 'UTF-8') ?>" />
                     </div>
@@ -118,7 +127,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                       <label for="destinoVuelo" class="form-label fw-semibold">
                         Destino <span class="text-danger">*</span>
                       </label>
-                      <input type="text" id="destinoVuelo" name="destinoVuelo" class="form-control"
+                      <input type="text" id="destinoVuelo" name="destinoVuelo" class="form-control<?= $campoError === 'destinoVuelo' ? ' is-invalid' : '' ?>
+<?php if ($campoError === 'destinoVuelo'): ?>
+<div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
+<?php endif; ?>"
                         placeholder="Ej: Madrid" maxlength="50" required
                         value="<?= htmlspecialchars($_POST['destinoVuelo'] ?? '', ENT_QUOTES, 'UTF-8') ?>" />
                     </div>
@@ -129,7 +141,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                       <label for="fechaSalidaVuelo" class="form-label fw-semibold">
                         Fecha de salida <span class="text-danger">*</span>
                       </label>
-                      <input type="date" id="fechaSalidaVuelo" name="fechaSalidaVuelo" class="form-control"
+                      <input type="date" id="fechaSalidaVuelo" name="fechaSalidaVuelo" class="form-control<?= $campoError === 'fechaSalidaVuelo' ? ' is-invalid' : '' ?>
+<?php if ($campoError === 'fechaSalidaVuelo'): ?>
+<div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
+<?php endif; ?>"
                         min="<?= date('Y-m-d') ?>" max="9999-12-31" required
                         value="<?= htmlspecialchars($_POST['fechaSalidaVuelo'] ?? '', ENT_QUOTES, 'UTF-8') ?>" />
                     </div>
@@ -137,7 +152,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                       <label for="horaSalidaVuelo" class="form-label fw-semibold">
                         Hora de salida <span class="text-danger">*</span>
                       </label>
-                      <input type="time" id="horaSalidaVuelo" name="horaSalidaVuelo" class="form-control" required
+                      <input type="time" id="horaSalidaVuelo" name="horaSalidaVuelo" class="form-control<?= $campoError === 'horaSalidaVuelo' ? ' is-invalid' : '' ?>
+<?php if ($campoError === 'horaSalidaVuelo'): ?>
+<div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
+<?php endif; ?>" required
                         value="<?= htmlspecialchars($_POST['horaSalidaVuelo'] ?? '', ENT_QUOTES, 'UTF-8') ?>" />
                     </div>
                   </div>
@@ -149,7 +167,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                       </label>
                       <div class="input-group">
                         <span class="input-group-text">ARS</span>
-                        <input type="number" id="precioVuelo" name="precioVuelo" class="form-control" min="1"
+                        <input type="number" id="precioVuelo" name="precioVuelo" class="form-control<?= $campoError === 'precioVuelo' ? ' is-invalid' : '' ?>
+<?php if ($campoError === 'precioVuelo'): ?>
+<div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
+<?php endif; ?>" min="1"
                           step="0.01" required placeholder="Ej: 85000"
                           value="<?= htmlspecialchars($_POST['precioVuelo'] ?? '', ENT_QUOTES, 'UTF-8') ?>" />
                       </div>
@@ -158,7 +179,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                       <label for="asientosDisponibles" class="form-label fw-semibold">
                         Asientos disponibles <span class="text-danger">*</span>
                       </label>
-                      <input type="number" id="asientosDisponibles" name="asientosDisponibles" class="form-control"
+                      <input type="number" id="asientosDisponibles" name="asientosDisponibles" class="form-control<?= $campoError === 'asientosDisponibles' ? ' is-invalid' : '' ?>
+<?php if ($campoError === 'asientosDisponibles'): ?>
+<div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
+<?php endif; ?>"
                         min="1" required placeholder="Ej: 120"
                         value="<?= htmlspecialchars($_POST['asientosDisponibles'] ?? '', ENT_QUOTES, 'UTF-8') ?>" />
                     </div>

@@ -30,6 +30,7 @@ if (!$vuelo) {
     exit;
 }
 $error = '';
+$campoError = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $origen   = trim($_POST['origenVuelo']         ?? '');
     $destino  = trim($_POST['destinoVuelo']        ?? '');
@@ -39,12 +40,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $asientos = (int)($_POST['asientosDisponibles'] ?? 0);
     if ($origen === '' || $destino === '') {
         $error = 'Origen y destino son obligatorios.';
+        $campoError = 'origenVuelo';
     } elseif ($fecha === '' || $hora === '') {
         $error = 'Fecha y hora de salida son obligatorias.';
+        $campoError = 'fechaSalidaVuelo';
     } elseif ($precio <= 0) {
         $error = 'El precio debe ser mayor a cero.';
+        $campoError = 'precioVuelo';
     } elseif ($asientos < 0) {
         $error = 'Los asientos disponibles no pueden ser negativos.';
+        $campoError = 'asientosDisponibles';
     } else {
         $orig_esc = mysqli_real_escape_string($link, $origen);
         $dest_esc = mysqli_real_escape_string($link, $destino);
@@ -135,7 +140,10 @@ $horaVal = substr($vuelo['horaSalidaVuelo'], 0, 5);
                       Origen <span class="text-danger">*</span>
                     </label>
                     <input type="text" id="origenVuelo" name="origenVuelo"
-                           class="form-control" maxlength="50" required
+                           class="form-control<?= $campoError === 'origenVuelo' ? ' is-invalid' : '' ?>
+<?php if ($campoError === 'origenVuelo'): ?>
+<div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
+<?php endif; ?>" maxlength="50" required
                            value="<?= htmlspecialchars($vuelo['origenVuelo'], ENT_QUOTES, 'UTF-8') ?>"/>
                   </div>
                   <div class="col-md-6">
@@ -143,7 +151,10 @@ $horaVal = substr($vuelo['horaSalidaVuelo'], 0, 5);
                       Destino <span class="text-danger">*</span>
                     </label>
                     <input type="text" id="destinoVuelo" name="destinoVuelo"
-                           class="form-control" maxlength="50" required
+                           class="form-control<?= $campoError === 'destinoVuelo' ? ' is-invalid' : '' ?>
+<?php if ($campoError === 'destinoVuelo'): ?>
+<div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
+<?php endif; ?>" maxlength="50" required
                            value="<?= htmlspecialchars($vuelo['destinoVuelo'], ENT_QUOTES, 'UTF-8') ?>"/>
                   </div>
                 </div>
@@ -154,7 +165,10 @@ $horaVal = substr($vuelo['horaSalidaVuelo'], 0, 5);
                       Fecha de salida <span class="text-danger">*</span>
                     </label>
                     <input type="date" id="fechaSalidaVuelo" name="fechaSalidaVuelo"
-                           class="form-control" required min="<?= date('Y-m-d') ?>" max="9999-12-31"
+                           class="form-control<?= $campoError === 'fechaSalidaVuelo' ? ' is-invalid' : '' ?>
+<?php if ($campoError === 'fechaSalidaVuelo'): ?>
+<div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
+<?php endif; ?>" required min="<?= date('Y-m-d') ?>" max="9999-12-31"
                            value="<?= htmlspecialchars($vuelo['fechaSalidaVuelo'], ENT_QUOTES, 'UTF-8') ?>"/>
                   </div>
                   <div class="col-md-6">
@@ -162,7 +176,10 @@ $horaVal = substr($vuelo['horaSalidaVuelo'], 0, 5);
                       Hora de salida <span class="text-danger">*</span>
                     </label>
                     <input type="time" id="horaSalidaVuelo" name="horaSalidaVuelo"
-                           class="form-control" required
+                           class="form-control<?= $campoError === 'horaSalidaVuelo' ? ' is-invalid' : '' ?>
+<?php if ($campoError === 'horaSalidaVuelo'): ?>
+<div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
+<?php endif; ?>" required
                            value="<?= htmlspecialchars($horaVal, ENT_QUOTES, 'UTF-8') ?>"/>
                   </div>
                 </div>
@@ -175,7 +192,10 @@ $horaVal = substr($vuelo['horaSalidaVuelo'], 0, 5);
                     <div class="input-group">
                       <span class="input-group-text">ARS</span>
                       <input type="number" id="precioVuelo" name="precioVuelo"
-                             class="form-control" min="1" step="0.01" required
+                             class="form-control<?= $campoError === 'precioVuelo' ? ' is-invalid' : '' ?>
+<?php if ($campoError === 'precioVuelo'): ?>
+<div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
+<?php endif; ?>" min="1" step="0.01" required
                              value="<?= htmlspecialchars((string)$vuelo['precioVuelo'], ENT_QUOTES, 'UTF-8') ?>"/>
                     </div>
                   </div>
@@ -184,7 +204,10 @@ $horaVal = substr($vuelo['horaSalidaVuelo'], 0, 5);
                       Asientos disponibles <span class="text-danger">*</span>
                     </label>
                     <input type="number" id="asientosDisponibles" name="asientosDisponibles"
-                           class="form-control" min="0" required
+                           class="form-control<?= $campoError === 'asientosDisponibles' ? ' is-invalid' : '' ?>
+<?php if ($campoError === 'asientosDisponibles'): ?>
+<div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
+<?php endif; ?>" min="0" required
                            value="<?= htmlspecialchars((string)$vuelo['asientosDisponibles'], ENT_QUOTES, 'UTF-8') ?>"/>
                     <div class="form-text">Podés ajustar si hubo cambios en disponibilidad.</div>
                   </div>

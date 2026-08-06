@@ -1,5 +1,6 @@
 <?php
 include '../../config/conexion.php';
+include '../../config/fechas.php';
 session_start();
 if (!isset($_SESSION['codUsuario'])) {
     header('Location: ../FlujoSesion/login.php');
@@ -334,7 +335,7 @@ if ($tipo === 'usuario') {
       $codFmt     = str_pad((string)$primerPendiente['codReserva'], 4, '0', STR_PAD_LEFT);
       $origenCod  = mb_strtoupper(mb_substr($primerPendiente['origenVuelo'],  0, 3));
       $destinoCod = mb_strtoupper(mb_substr($primerPendiente['destinoVuelo'], 0, 3));
-      $fechaFmt   = date('j M Y', strtotime($primerPendiente['fechaSalidaVuelo']));
+      $fechaFmt   = formatearFechaCorta($primerPendiente['fechaSalidaVuelo']);
       $extra      = $reservasPendientes > 1 ? " (y otras " . ($reservasPendientes - 1) . " más)" : '';
   ?>
   <section class="pb-4" aria-labelledby="pendiente-titulo">

@@ -137,4 +137,41 @@ document.querySelectorAll('.btn-ver-contrasena').forEach(function (btn) {
     btn.setAttribute('aria-label', visible ? 'Mostrar contraseña' : 'Ocultar contraseña');
   });
 });
+
+function habilitarFormulario(form) {
+  form.dataset.enviando = '';
+  form.querySelectorAll('button[type="submit"]').forEach(function (boton) {
+    boton.disabled = false;
+    if (boton.dataset.htmlOriginal) {
+      boton.innerHTML = boton.dataset.htmlOriginal;
+    }
+  });
+}
+
+document.querySelectorAll('form').forEach(function (form) {
+  form.addEventListener('submit', function (evento) {
+    if (evento.defaultPrevented) {
+      return;
+    }
+    if (typeof form.checkValidity === 'function' && !form.checkValidity()) {
+      return;
+    }
+    if (form.dataset.enviando === '1') {
+      evento.preventDefault();
+      return;
+    }
+    form.dataset.enviando = '1';
+    form.querySelectorAll('button[type="submit"]').forEach(function (boton) {
+      boton.dataset.htmlOriginal = boton.innerHTML;
+      boton.disabled = true;
+      boton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Procesando...';
+    });
+  });
+});
+
+window.addEventListener('pageshow', function (evento) {
+  if (evento.persisted) {
+    document.querySelectorAll('form[data-enviando="1"]').forEach(habilitarFormulario);
+  }
+});
 </script>

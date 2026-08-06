@@ -1,5 +1,6 @@
 ﻿<?php
 include '../../config/conexion.php';
+include '../../config/fechas.php';
 session_start();
 $sqlAero = "SELECT codAerolinea, nombreAerolinea FROM AEROLINEAS ORDER BY nombreAerolinea ASC";
 $resAero = mysqli_query($link, $sqlAero);
@@ -193,7 +194,7 @@ $urlBaseVuelos = 'buscar_vuelos.php' . ($queryFiltros ? '?' . $queryFiltros . '&
                   $claseAsientos = $asientos > 20 ? 'asientos-disponibles-alto'
                                  : ($asientos >  5 ? 'asientos-disponibles-medio'
                                                    : 'asientos-disponibles-bajo');
-                  $fechaFmt   = date('j M Y', strtotime($v['fechaSalidaVuelo']));
+                  $fechaFmt   = formatearFechaCorta($v['fechaSalidaVuelo']);
                   $horaFmt    = substr($v['horaSalidaVuelo'], 0, 5);
                 ?>
                 <li class="mb-3" role="listitem">

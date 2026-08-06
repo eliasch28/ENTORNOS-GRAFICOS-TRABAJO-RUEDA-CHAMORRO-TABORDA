@@ -2,6 +2,7 @@
 include '../../config/conexion.php';
 require_once '../../config/requiere_admin.php';
 $error = '';
+$campoError = '';
 $exito = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $nombreAerolinea = trim($_POST['nombreAerolinea'] ?? '');
@@ -10,20 +11,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $codigoPais = strtoupper(trim($_POST['codigoPais'] ?? ''));
   if ($nombreAerolinea === '') {
     $error = 'El nombre de la aerolínea es obligatorio.';
+    $campoError = 'nombreAerolinea';
   } elseif ($codigoIATA === '') {
     $error = 'El código IATA es obligatorio.';
+    $campoError = 'codigoIATA';
   } elseif (!preg_match('/^[A-Z]{2,3}$/', $codigoIATA)) {
     $error = 'El código IATA debe tener 2 o 3 letras.';
+    $campoError = 'codigoIATA';
   } elseif ($descripcionAerolinea === '') {
     $error = 'La descripción de la aerolínea es obligatoria.';
+    $campoError = 'descripcionAerolinea';
   } elseif ($codigoPais === '') {
     $error = 'El código de país es obligatorio.';
+    $campoError = 'codigoPais';
   } elseif (!preg_match('/^[A-Z]{2,3}$/', $codigoPais)) {
     $error = 'El código de país debe tener 2 o 3 letras.';
+    $campoError = 'codigoPais';
   } elseif (mb_strlen($nombreAerolinea) > 100) {
     $error = 'El nombre de la aerolínea no puede superar los 100 caracteres.';
+    $campoError = 'nombreAerolinea';
   } elseif (mb_strlen($descripcionAerolinea) > 200) {
     $error = 'La descripción no puede superar los 200 caracteres.';
+    $campoError = 'descripcionAerolinea';
   } else {
     $nombreEsc = mysqli_real_escape_string($link, $nombreAerolinea);
     $iataEsc = mysqli_real_escape_string($link, $codigoIATA);
@@ -32,6 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $checkIata = mysqli_query($link, "SELECT codAerolinea FROM AEROLINEAS WHERE codigoIATA = '$iataEsc'");
     if ($checkIata && mysqli_num_rows($checkIata) > 0) {
       $error = 'Ya existe una aerolínea registrada con ese código IATA.';
+      $campoError = 'codigoIATA';
     } else {
       $query = "INSERT INTO AEROLINEAS (nombreAerolinea, codigoIATA, descripcionAerolinea, codPais)
                       VALUES ('$nombreEsc', '$iataEsc', '$descEsc', '$paisEsc')";
@@ -97,7 +107,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               Nombre de la aerolínea
               <span class="text-danger" aria-hidden="true">*</span>
             </label>
-            <input type="text" id="nombreAerolinea" name="nombreAerolinea" class="form-control" required maxlength="100"
+            <input type="text" id="nombreAerolinea" name="nombreAerolinea" class="form-control<?= $campoError === 'nombreAerolinea' ? ' is-invalid' : '' ?>
+<?php if ($campoError === 'nombreAerolinea'): ?>
+<div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
+<?php endif; ?>" required maxlength="100"
               value="<?= htmlspecialchars($nombreAerolinea ?? '', ENT_QUOTES, 'UTF-8') ?>" aria-required="true" />
             <div class="form-text">Máximo 100 caracteres.</div>
           </div>
@@ -109,7 +122,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 Código IATA
                 <span class="text-danger" aria-hidden="true">*</span>
               </label>
-              <input type="text" id="codigoIATA" name="codigoIATA" class="form-control text-uppercase" required
+              <input type="text" id="codigoIATA" name="codigoIATA" class="form-control text-uppercase<?= $campoError === 'codigoIATA' ? ' is-invalid' : '' ?>
+<?php if ($campoError === 'codigoIATA'): ?>
+<div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
+<?php endif; ?>" required
                 maxlength="3" pattern="[A-Za-z]{2,3}" title="Ingresá un código IATA de 2 o 3 letras"
                 value="<?= htmlspecialchars($codigoIATA ?? '', ENT_QUOTES, 'UTF-8') ?>" aria-required="true" />
               <div class="form-text">
@@ -123,7 +139,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 Código de país
                 <span class="text-danger" aria-hidden="true">*</span>
               </label>
-              <input type="text" id="codigoPais" name="codigoPais" class="form-control text-uppercase" required
+              <input type="text" id="codigoPais" name="codigoPais" class="form-control text-uppercase<?= $campoError === 'codigoPais' ? ' is-invalid' : '' ?>
+<?php if ($campoError === 'codigoPais'): ?>
+<div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
+<?php endif; ?>" required
                 maxlength="3" pattern="[A-Za-z]{2,3}" title="Ingresá un código de país de 2 o 3 letras (ej. AR, CL)"
                 value="<?= htmlspecialchars($codigoPais ?? '', ENT_QUOTES, 'UTF-8') ?>" aria-required="true" />
               <div class="form-text">
@@ -138,9 +157,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               Descripción de la aerolínea
               <span class="text-danger" aria-hidden="true">*</span>
             </label>
-            <textarea id="descripcionAerolinea" name="descripcionAerolinea" class="form-control" rows="3"
+            <textarea id="descripcionAerolinea" name="descripcionAerolinea" class="form-control<?= $campoError === 'descripcionAerolinea' ? ' is-invalid' : '' ?>" rows="3"
               maxlength="200" required
               aria-required="true"><?= htmlspecialchars($descripcionAerolinea ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
+<?php if ($campoError === 'descripcionAerolinea'): ?>
+<div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
+<?php endif; ?>
             <div class="form-text">Máximo 200 caracteres.</div>
           </div>
 

@@ -2,6 +2,7 @@
 include '../../config/conexion.php';
 require_once '../../config/requiere_admin.php';
 $error = '';
+$campoError = '';
 $exito = '';
 $textoNovedad = '';
 $fechaPublicacionNovedad = '';
@@ -13,16 +14,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $hoy = date('Y-m-d');
   if ($textoNovedad === '') {
     $error = 'El texto de la novedad es obligatorio.';
+    $campoError = 'textoNovedad';
   } elseif (mb_strlen($textoNovedad) > 200) {
     $error = 'El texto de la novedad no puede superar los 200 caracteres.';
+    $campoError = 'textoNovedad';
   } elseif ($fechaPublicacionNovedad === '') {
     $error = 'La fecha de publicación es obligatoria.';
+    $campoError = 'fechaPublicacionNovedad';
   } elseif ($fechaExpiracionNovedad === '') {
     $error = 'La fecha de expiración es obligatoria.';
+    $campoError = 'fechaExpiracionNovedad';
   } elseif ($fechaPublicacionNovedad < $hoy) {
     $error = 'La fecha de publicación no puede ser anterior a la actual.';
+    $campoError = 'fechaPublicacionNovedad';
   } elseif ($fechaExpiracionNovedad <= $fechaPublicacionNovedad) {
     $error = 'La fecha de expiración debe ser posterior a la fecha de publicación.';
+    $campoError = 'fechaExpiracionNovedad';
   } else {
     $textoEsc = mysqli_real_escape_string($link, $textoNovedad);
     $pubEsc = mysqli_real_escape_string($link, $fechaPublicacionNovedad);
@@ -90,8 +97,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               Texto de la novedad
               <span class="text-danger" aria-hidden="true">*</span>
             </label>
-            <textarea id="textoNovedad" name="textoNovedad" class="form-control" rows="4" maxlength="200" required
+            <textarea id="textoNovedad" name="textoNovedad" class="form-control<?= $campoError === 'textoNovedad' ? ' is-invalid' : '' ?>" rows="4" maxlength="200" required
               aria-required="true"><?= htmlspecialchars($textoNovedad, ENT_QUOTES, 'UTF-8') ?></textarea>
+<?php if ($campoError === 'textoNovedad'): ?>
+<div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
+<?php endif; ?>
             <div class="form-text">Máximo 200 caracteres.</div>
           </div>
 
@@ -102,7 +112,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 Fecha de publicación
                 <span class="text-danger" aria-hidden="true">*</span>
               </label>
-              <input type="date" id="fechaPublicacionNovedad" name="fechaPublicacionNovedad" class="form-control"
+              <input type="date" id="fechaPublicacionNovedad" name="fechaPublicacionNovedad" class="form-control<?= $campoError === 'fechaPublicacionNovedad' ? ' is-invalid' : '' ?>
+<?php if ($campoError === 'fechaPublicacionNovedad'): ?>
+<div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
+<?php endif; ?>"
                 required min="<?= date('Y-m-d') ?>" max="9999-12-31"
                 value="<?= htmlspecialchars($fechaPublicacionNovedad, ENT_QUOTES, 'UTF-8') ?>" aria-required="true" />
               <div class="form-text">Debe ser de hoy en adelante.</div>
@@ -113,7 +126,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 Fecha de expiración
                 <span class="text-danger" aria-hidden="true">*</span>
               </label>
-              <input type="date" id="fechaExpiracionNovedad" name="fechaExpiracionNovedad" class="form-control" required max="9999-12-31"
+              <input type="date" id="fechaExpiracionNovedad" name="fechaExpiracionNovedad" class="form-control<?= $campoError === 'fechaExpiracionNovedad' ? ' is-invalid' : '' ?>
+<?php if ($campoError === 'fechaExpiracionNovedad'): ?>
+<div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
+<?php endif; ?>" required max="9999-12-31"
                 value="<?= htmlspecialchars($fechaExpiracionNovedad, ENT_QUOTES, 'UTF-8') ?>" aria-required="true" />
               <div class="form-text">Debe ser posterior a la fecha de publicación.</div>
             </div>

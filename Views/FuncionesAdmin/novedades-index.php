@@ -204,7 +204,9 @@ $resNovedades = mysqli_query($link, $sqlNovedades);
       aceptarBtn.addEventListener('click', function () {
         if (!formIdPendiente) return;
         const form = document.getElementById(formIdPendiente);
-        if (form) form.submit();
+        if (!form) return;
+        aceptarBtn.disabled = true;
+        form.submit();
       });
       modalEl.addEventListener('hidden.bs.modal', function () {
         formIdPendiente = null;

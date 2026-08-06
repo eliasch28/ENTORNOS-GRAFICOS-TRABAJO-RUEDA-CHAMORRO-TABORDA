@@ -1,6 +1,7 @@
 ﻿<?php
 session_start();
 include '../../config/conexion.php';
+include '../../config/fechas.php';
 $hoy = date('Y-m-d');
 function estadoNovedadUsuario(string $fechaPub, string $fechaExp, string $hoy): array {
   if ($hoy < $fechaPub) {
@@ -28,18 +29,6 @@ function estadoNovedadUsuario(string $fechaPub, string $fechaExp, string $hoy): 
     'novedad-estado-vigente',
     'bi-megaphone text-primary',
   ];
-}
-function formatearFechaLarga(string $fecha): string {
-  $meses = [
-    1 => 'enero', 2 => 'febrero', 3 => 'marzo', 4 => 'abril',
-    5 => 'mayo', 6 => 'junio', 7 => 'julio', 8 => 'agosto',
-    9 => 'septiembre', 10 => 'octubre', 11 => 'noviembre', 12 => 'diciembre',
-  ];
-  $ts = strtotime($fecha);
-  $dia = (int) date('j', $ts);
-  $mes = (int) date('n', $ts);
-  $anio = date('Y', $ts);
-  return "$dia de {$meses[$mes]} de $anio";
 }
 $sqlNovedades = "SELECT codNovedad, textoNovedad, fechaPublicacionNovedad, fechaExpiracionNovedad
                  FROM NOVEDADES
