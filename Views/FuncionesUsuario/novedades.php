@@ -118,7 +118,7 @@ $novedadesPag   = array_slice($novedades, ($pagina - 1) * $porPagina, $porPagina
               $fechaExpFmt = formatearFechaLarga($row['fechaExpiracionNovedad']);
               $expirada = $estadoKey === 'expirada';
             ?>
-              <li class="mb-4" role="listitem">
+              <li class="mb-4">
                 <article class="card border-0 shadow-sm <?= $cardClass ?>"
                          aria-label="Novedad <?= $codFmt ?>: <?= htmlspecialchars(mb_substr($texto, 0, 40), ENT_QUOTES, 'UTF-8') ?> — <?= strtolower($estadoLabel) ?>">
                   <div class="card-body p-4">
@@ -162,7 +162,7 @@ $novedadesPag   = array_slice($novedades, ($pagina - 1) * $porPagina, $porPagina
               </li>
             <?php endforeach; ?>
           <?php else: ?>
-            <li role="listitem">
+            <li>
               <div class="alert alert-info mb-0" role="status">
                 <i class="bi bi-info-circle me-2" aria-hidden="true"></i>
                 No hay novedades publicadas en este momento.

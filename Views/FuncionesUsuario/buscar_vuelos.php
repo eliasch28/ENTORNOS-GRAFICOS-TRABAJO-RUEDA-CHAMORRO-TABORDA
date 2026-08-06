@@ -197,7 +197,7 @@ $urlBaseVuelos = 'buscar_vuelos.php' . ($queryFiltros ? '?' . $queryFiltros . '&
                   $fechaFmt   = formatearFechaCorta($v['fechaSalidaVuelo']);
                   $horaFmt    = substr($v['horaSalidaVuelo'], 0, 5);
                 ?>
-                <li class="mb-3" role="listitem">
+                <li class="mb-3">
                   <article class="card tarjeta-vuelo border border-2 border-transparent shadow-sm"
                            aria-label="Vuelo <?= $codFmt ?>: <?= htmlspecialchars($v['origenVuelo'], ENT_QUOTES, 'UTF-8') ?> a <?= htmlspecialchars($v['destinoVuelo'], ENT_QUOTES, 'UTF-8') ?>, <?= $fechaFmt ?>">
                     <div class="card-body p-4">
@@ -277,7 +277,7 @@ $urlBaseVuelos = 'buscar_vuelos.php' . ($queryFiltros ? '?' . $queryFiltros . '&
                 </li>
                 <?php endforeach; ?>
               <?php else: ?>
-                <li role="listitem">
+                <li>
                   <div class="alert alert-info" role="status">
                     <i class="bi bi-info-circle me-2" aria-hidden="true"></i>
                     No se encontraron vuelos disponibles con los filtros seleccionados.

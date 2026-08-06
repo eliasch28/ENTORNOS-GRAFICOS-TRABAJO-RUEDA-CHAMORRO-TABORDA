@@ -112,7 +112,7 @@ if ($codAeroFiltro === 0) {
               $codFmt    = str_pad((string)$p['codPromocion'], 3, '0', STR_PAD_LEFT);
               $descuento = (int)$p['descuentoPromocion'];
             ?>
-            <li class="mb-4" role="listitem">
+            <li class="mb-4">
               <article class="card border-0 shadow-sm tarjeta-promocion"
                        aria-label="Promoción <?= $codFmt ?>: <?= htmlspecialchars($p['nombreAerolinea'], ENT_QUOTES, 'UTF-8') ?>, <?= $descuento ?>% de descuento">
                 <div class="card-body p-4">
@@ -168,7 +168,7 @@ if ($codAeroFiltro === 0) {
             </li>
             <?php endforeach; ?>
           <?php else: ?>
-            <li role="listitem">
+            <li>
               <div class="alert alert-info" role="status">
                 <i class="bi bi-info-circle me-2" aria-hidden="true"></i>
                 No hay promociones aprobadas en este momento.
