@@ -10,19 +10,25 @@ $resultado = mysqli_query($link, "SELECT * FROM USUARIOS WHERE codUsuario = $cod
 $usuario = mysqli_fetch_assoc($resultado);
 $error = '';
 $campoError = '';
+$exito = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $nombreUsuario = trim($_POST['nombreUsuario']);
   $apellidoUsuario = trim($_POST['apellidoUsuario']);
-  $emailUsuario = trim($_POST['emailUsuario']);
   $telefonoUsuario = trim($_POST['telefonoUsuario']);
   $claveActual = $_POST['claveActual'];
   $claveNueva = $_POST['claveNueva'];
-  $checkEmail = mysqli_query($link, "SELECT codUsuario FROM USUARIOS WHERE emailUsuario = '$emailUsuario' AND codUsuario != $cod");
-  if (mysqli_num_rows($checkEmail) > 0) {
-    $error = "El correo electrónico ya está en uso por otro usuario.";
-    $campoError = "emailUsuario";
-  } else {
+
+  if ($nombreUsuario === '') {
+    $error = "El nombre es obligatorio.";
+    $campoError = "nombreUsuario";
+  } elseif ($apellidoUsuario === '') {
+    $error = "El apellido es obligatorio.";
+    $campoError = "apellidoUsuario";
+  }
+
+  if ($error === '') {
     $telefonoOriginal = $usuario['telefonoUsuario'] ?? '';
+
     if ($telefonoUsuario !== $telefonoOriginal) {
       if (!preg_match('/^\+54\d{11}$|^\+598\d{8}$|^\+56\d{9}$|^\+595\d{9}$|^\+591\d{8}$/', $telefonoUsuario)) {
         $error = "El número de teléfono no es válido para el país seleccionado.";
@@ -31,45 +37,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
       $telefonoUsuario = $telefonoOriginal;
     }
-    if ($error === '') {
-      $query = "UPDATE USUARIOS SET nombreUsuario = '$nombreUsuario', apellidoUsuario = '$apellidoUsuario', emailUsuario = '$emailUsuario', telefonoUsuario = '$telefonoUsuario' WHERE codUsuario = $cod";
-      if (!empty($claveActual) || !empty($claveNueva)) {
-        if (empty($claveActual) || empty($claveNueva)) {
-          $error = "Para cambiar la contraseña, completá ambos campos.";
-          $campoError = "claveActual";
-        } elseif (md5($claveActual) !== $usuario['claveUsuario']) {
-          $error = "La contraseña actual es incorrecta.";
-          $campoError = "claveActual";
-        } elseif (!preg_match('/^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,32}$/', $claveNueva)) {
-          $error = "La contraseña debe tener entre 8 y 32 caracteres e incluir al menos 1 mayúscula, 1 dígito y 1 carácter especial.";
-          $campoError = "claveNueva";
-        } elseif ($nombreUsuario === '' || $apellidoUsuario === '') {
-          $error = "El nombre y el apellido son obligatorios.";
-          $campoError = "nombreUsuario";
-        } else {
-          $query = "UPDATE USUARIOS SET nombreUsuario = '$nombreUsuario', apellidoUsuario = '$apellidoUsuario', emailUsuario = '$emailUsuario', telefonoUsuario = '$telefonoUsuario', claveUsuario = '" . md5($claveNueva) . "' WHERE codUsuario = $cod";
-        }
+  }
+  if ($error === '') {
+    $nombreEsc = mysqli_real_escape_string($link, $nombreUsuario);
+    $apellidoEsc = mysqli_real_escape_string($link, $apellidoUsuario);
+    $telefonoEsc = mysqli_real_escape_string($link, $telefonoUsuario);
+    $query = "UPDATE USUARIOS SET nombreUsuario = '$nombreEsc', apellidoUsuario = '$apellidoEsc', telefonoUsuario = '$telefonoEsc' WHERE codUsuario = $cod";
+    if (!empty($claveActual) || !empty($claveNueva)) {
+      if (empty($claveActual) || empty($claveNueva)) {
+        $error = "Para cambiar la contraseña, completá ambos campos.";
+        $campoError = "claveActual";
+      } elseif (md5($claveActual) !== $usuario['claveUsuario']) {
+        $error = "La contraseña actual es incorrecta.";
+        $campoError = "claveActual";
+      } elseif (!preg_match('/^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,32}$/', $claveNueva)) {
+        $error = "La contraseña debe tener entre 8 y 32 caracteres e incluir al menos 1 mayúscula, 1 dígito y 1 carácter especial.";
+        $campoError = "claveNueva";
+      } else {
+        $query = "UPDATE USUARIOS SET nombreUsuario = '$nombreEsc', apellidoUsuario = '$apellidoEsc', telefonoUsuario = '$telefonoEsc', claveUsuario = '" . md5($claveNueva) . "' WHERE codUsuario = $cod";
       }
     }
-    if ($error === '') {
-      mysqli_query($link, $query);
-      $resultado = mysqli_query($link, "SELECT * FROM USUARIOS WHERE codUsuario = $cod");
-      $usuario = mysqli_fetch_assoc($resultado);
-      $exito = "Perfil actualizado correctamente.";
-    }
+  }
+  if ($error === '') {
+    mysqli_query($link, $query);
+    $resultado = mysqli_query($link, "SELECT * FROM USUARIOS WHERE codUsuario = $cod");
+    $usuario = mysqli_fetch_assoc($resultado);
+    $_SESSION['nombreUsuario'] = $usuario['nombreUsuario'];
+    $_SESSION['apellidoUsuario'] = $usuario['apellidoUsuario'];
+    $_SESSION['nombreCompleto'] = trim($usuario['nombreUsuario'] . ' ' . $usuario['apellidoUsuario']);
+    $exito = "Perfil actualizado correctamente.";
   }
 }
+
 // Parsear teléfono existente para pre-poblar el widget
 $telExistente = $usuario['telefonoUsuario'] ?? '';
 $paisParsed = '';
 $numeroParsed = '';
-foreach ([
-  'UY' => ['code' => '598', 'digits' => 8],
-  'PY' => ['code' => '595', 'digits' => 9],
-  'BO' => ['code' => '591', 'digits' => 8],
-  'AR' => ['code' => '54', 'digits' => 11],
-  'CL' => ['code' => '56', 'digits' => 9],
-] as $pk => $cfg) {
+foreach (
+  [
+    'UY' => ['code' => '598', 'digits' => 8],
+    'PY' => ['code' => '595', 'digits' => 9],
+    'BO' => ['code' => '591', 'digits' => 8],
+    'AR' => ['code' => '54', 'digits' => 11],
+    'CL' => ['code' => '56', 'digits' => 9],
+  ] as $pk => $cfg
+) {
   if (preg_match('/^\+' . $cfg['code'] . '(\d{' . $cfg['digits'] . '})$/', $telExistente, $m)) {
     $paisParsed = $pk;
     $numeroParsed = $m[1];
@@ -259,9 +271,13 @@ foreach ([
                     Nombre
                     <span class="text-danger" aria-hidden="true">*</span>
                   </label>
-                  <input type="text" id="nombreUsuario" name="nombreUsuario" class="form-control<?= $campoError === 'nombreUsuario' ? ' is-invalid' : '' ?>"
+                  <input type="text" id="nombreUsuario" name="nombreUsuario"
+                    class="form-control<?= $campoError === 'nombreUsuario' ? ' is-invalid' : '' ?>"
                     value="<?= htmlspecialchars($usuario['nombreUsuario']) ?>" required autocomplete="given-name"
                     aria-required="true" maxlength="100" />
+                  <?php if ($campoError === 'nombreUsuario'): ?>
+                    <div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
+                  <?php endif; ?>
                 </div>
 
                 <div class="col-md-6">
@@ -270,9 +286,13 @@ foreach ([
                     Apellido
                     <span class="text-danger" aria-hidden="true">*</span>
                   </label>
-                  <input type="text" id="apellidoUsuario" name="apellidoUsuario" class="form-control<?= $campoError === 'apellidoUsuario' ? ' is-invalid' : '' ?>"
+                  <input type="text" id="apellidoUsuario" name="apellidoUsuario"
+                    class="form-control<?= $campoError === 'apellidoUsuario' ? ' is-invalid' : '' ?>"
                     value="<?= htmlspecialchars($usuario['apellidoUsuario']) ?>" required autocomplete="family-name"
                     aria-required="true" maxlength="100" />
+                  <?php if ($campoError === 'apellidoUsuario'): ?>
+                    <div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
+                  <?php endif; ?>
                 </div>
 
                 <div class="col-md-6">
@@ -281,9 +301,12 @@ foreach ([
                     Correo electrónico
                     <span class="text-danger" aria-hidden="true">*</span>
                   </label>
-                  <input type="email" id="emailUsuario" name="emailUsuario" class="form-control<?= $campoError === 'emailUsuario' ? ' is-invalid' : '' ?>"
+                  <input type="email" id="emailUsuario" class="form-control" readonly
                     value="<?= htmlspecialchars($usuario['emailUsuario']) ?>" required autocomplete="email"
                     aria-required="true" maxlength="100" />
+                  <div class="form-text">
+                    No puedes modificar el correo electrónico de tu cuenta.
+                  </div>
                 </div>
 
                 <div class="col-md-6">
@@ -305,27 +328,43 @@ foreach ([
                       <option value="PY" <?= $paisParsed === 'PY' ? ' selected' : '' ?>>Paraguay (+595)</option>
                       <option value="BO" <?= $paisParsed === 'BO' ? ' selected' : '' ?>>Bolivia (+591)</option>
                     </select>
-<?php if ($campoError === 'emailUsuario'): ?>
-<div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
-<?php endif; ?>
-<?php if ($campoError === 'apellidoUsuario'): ?>
-<div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
-<?php endif; ?>
-<?php if ($campoError === 'nombreUsuario'): ?>
-<div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
-<?php endif; ?>
-                    <input type="text" id="numeroTelefono" class="form-control" inputmode="numeric"
+                    <input type="text" id="numeroTelefono"
+                      class="form-control<?= $campoError === 'telefonoUsuario' ? ' is-invalid' : '' ?>" inputmode="numeric"
                       value="<?= htmlspecialchars($numeroParsed, ENT_QUOTES, 'UTF-8') ?>"
                       placeholder="<?= $paisParsed ? 'Número registrado' : 'Seleccioná un país' ?>"
                       <?= $paisParsed ? '' : 'disabled' ?>
                       aria-label="Número de teléfono" />
                   </div>
+                  <?php if ($campoError === 'telefonoUsuario'): ?>
+                    <div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
+                  <?php endif; ?>
                   <div id="ayudaTelefono" class="form-text">
                     <?= $paisParsed ? 'Podés modificar el número o cambiar el país.' : 'Seleccioná un país para ingresar tu número.' ?>
                   </div>
                   <script>
-                    (function () {
-                      var PAISES = { AR: { code: '54', digits: 11 }, UY: { code: '598', digits: 8 }, CL: { code: '56', digits: 9 }, PY: { code: '595', digits: 9 }, BO: { code: '591', digits: 8 } };
+                    (function() {
+                      var PAISES = {
+                        AR: {
+                          code: '54',
+                          digits: 11
+                        },
+                        UY: {
+                          code: '598',
+                          digits: 8
+                        },
+                        CL: {
+                          code: '56',
+                          digits: 9
+                        },
+                        PY: {
+                          code: '595',
+                          digits: 9
+                        },
+                        BO: {
+                          code: '591',
+                          digits: 8
+                        }
+                      };
                       var sel = document.getElementById('paisTelefono');
                       var num = document.getElementById('numeroTelefono');
                       var hidden = document.getElementById('telefonoUsuario');
@@ -333,14 +372,17 @@ foreach ([
                       var telefonoOriginal = hidden.dataset.original || hidden.value || '';
                       var paisOriginal = sel.value;
                       var numeroOriginal = num.value;
+
                       function sync() {
                         var p = PAISES[sel.value];
                         hidden.value = (p && num.value.length === p.digits) ? '+' + p.code + num.value : '';
                       }
+
                       function limpiarValidez() {
                         sel.setCustomValidity('');
                         num.setCustomValidity('');
                       }
+
                       function update() {
                         var p = PAISES[sel.value];
                         limpiarValidez();
@@ -359,12 +401,12 @@ foreach ([
                         sync();
                       }
                       sel.addEventListener('change', update);
-                      num.addEventListener('input', function () {
+                      num.addEventListener('input', function() {
                         limpiarValidez();
                         this.value = this.value.replace(/\D/g, '').slice(0, PAISES[sel.value] ? PAISES[sel.value].digits : 0);
                         sync();
                       });
-                      sel.closest('form').addEventListener('submit', function (e) {
+                      sel.closest('form').addEventListener('submit', function(e) {
                         limpiarValidez();
                         if (telefonoOriginal && sel.value === paisOriginal && num.value === numeroOriginal) {
                           hidden.value = telefonoOriginal;
@@ -398,7 +440,6 @@ foreach ([
                   <input type="text" id="tipoUsuario" class="form-control"
                     value="<?= ucfirst($usuario['tipoUsuario']) ?>" readonly aria-readonly="true" />
                   <div class="form-text">
-                    <i class="bi bi-lock me-1" aria-hidden="true"></i>
                     El tipo es asignado por el sistema.
                   </div>
                 </div>
@@ -417,10 +458,8 @@ foreach ([
                 <div class="col-md-6">
                   <label for="claveActual" class="form-label fw-semibold">Contraseña actual</label>
                   <div class="input-group">
-                    <input type="password" id="claveActual" name="claveActual" class="form-control<?= $campoError === 'claveActual' ? ' is-invalid' : '' ?>
-<?php if ($campoError === 'claveActual'): ?>
-<div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
-<?php endif; ?>"
+                    <input type="password" id="claveActual" name="claveActual"
+                      class="form-control<?= $campoError === 'claveActual' ? ' is-invalid' : '' ?>"
                       placeholder="Ingresá tu contraseña actual" autocomplete="current-password"
                       aria-describedby="claveActual-ayuda" minlength="8" maxlength="32" />
                     <button type="button" class="btn btn-outline-secondary btn-ver-contrasena"
@@ -428,6 +467,9 @@ foreach ([
                       <i class="bi bi-eye" aria-hidden="true"></i>
                     </button>
                   </div>
+                  <?php if ($campoError === 'claveActual'): ?>
+                    <div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
+                  <?php endif; ?>
                   <div id="claveActual-ayuda" class="form-text">
                     Requerida solo si querés cambiar tu contraseña.
                   </div>
@@ -435,10 +477,8 @@ foreach ([
                 <div class="col-md-6">
                   <label for="claveNueva" class="form-label fw-semibold">Nueva contraseña</label>
                   <div class="input-group">
-                    <input type="password" id="claveNueva" name="claveNueva" class="form-control<?= $campoError === 'claveNueva' ? ' is-invalid' : '' ?>
-<?php if ($campoError === 'claveNueva'): ?>
-<div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
-<?php endif; ?>"
+                    <input type="password" id="claveNueva" name="claveNueva"
+                      class="form-control<?= $campoError === 'claveNueva' ? ' is-invalid' : '' ?>"
                       placeholder="Entre 8 y 32 caracteres" autocomplete="new-password"
                       aria-describedby="claveNueva-ayuda"
                       title="La contraseña debe tener entre 8 y 32 caracteres e incluir al menos 1 mayúscula, 1 dígito y 1 carácter especial."
@@ -448,6 +488,9 @@ foreach ([
                       <i class="bi bi-eye" aria-hidden="true"></i>
                     </button>
                   </div>
+                  <?php if ($campoError === 'claveNueva'): ?>
+                    <div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
+                  <?php endif; ?>
                   <div id="claveNueva-ayuda" class="form-text">
                     Entre 8 y 32 caracteres. Debe incluir al menos 1 mayúscula, 1 dígito y 1 carácter especial.
                   </div>
