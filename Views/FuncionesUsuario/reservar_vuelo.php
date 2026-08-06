@@ -7,7 +7,7 @@ if (!isset($_SESSION['codUsuario'])) {
 }
 $mensajeError = '';
 $codUsuario   = (int)$_SESSION['codUsuario'];
-$sqlUser = "SELECT nombreUsuario, emailUsuario, telefonoUsuario
+$sqlUser = "SELECT nombreUsuario, apellidoUsuario, emailUsuario, telefonoUsuario
             FROM USUARIOS WHERE codUsuario = $codUsuario";
 $resUser = mysqli_query($link, $sqlUser);
 $usuario = mysqli_fetch_assoc($resUser);
@@ -224,10 +224,10 @@ $horaFmt     = substr($vuelo['horaSalidaVuelo'], 0, 5);
                 <dl>
                   <div class="fila-detalle">
                     <dt class="etiqueta-detalle">
-                      <i class="bi bi-person me-1" aria-hidden="true"></i>Usuario
+                      <i class="bi bi-person me-1" aria-hidden="true"></i>Pasajero
                     </dt>
                     <dd class="valor-detalle mb-0">
-                      <?= htmlspecialchars($usuario['nombreUsuario'] ?? '', ENT_QUOTES, 'UTF-8') ?>
+                      <?= htmlspecialchars($usuario['nombreUsuario'] . ' ' . $usuario['apellidoUsuario'], ENT_QUOTES, 'UTF-8') ?>
                     </dd>
                   </div>
                   <div class="fila-detalle">

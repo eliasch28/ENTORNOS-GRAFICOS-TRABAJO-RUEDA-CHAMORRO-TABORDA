@@ -35,6 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $sqlSolicitudes = "SELECT
                       u.codUsuario,
                       u.nombreUsuario,
+                      u.apellidoUsuario,
                       u.emailUsuario,
                       u.telefonoUsuario,
                       a.nombreAerolinea,
@@ -100,7 +101,7 @@ $solicitudesResult = mysqli_query($link, $sqlSolicitudes);
                 <?php while ($row = mysqli_fetch_assoc($solicitudesResult)): ?>
                   <tr>
                     <th scope="row"><?= (int) $row['codUsuario'] ?></th>
-                    <td><?= htmlspecialchars($row['nombreUsuario'], ENT_QUOTES, 'UTF-8') ?></td>
+                    <td><?= htmlspecialchars($row['nombreUsuario'] . ' ' . $row['apellidoUsuario'], ENT_QUOTES, 'UTF-8') ?></td>
                     <td><?= htmlspecialchars($row['emailUsuario'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                     <td><?= htmlspecialchars($row['telefonoUsuario'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                     <td><?= htmlspecialchars($row['nombreAerolinea'] ?? '—', ENT_QUOTES, 'UTF-8') ?></td>

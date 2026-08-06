@@ -62,8 +62,8 @@ $preguntas = [
     'categoria' => 'registro',
     'pregunta'  => '¿Cómo me registro en VuelaLibre?',
     'respuesta' => 'Para registrarte, hacé clic en el botón <strong>"Registrarse"</strong>
-                    del menú superior. Completá el formulario con tu nombre de usuario,
-                    contraseña (máximo 8 caracteres), tipo de usuario, correo electrónico
+                    del menú superior. Completá el formulario con tu nombre, apellido,
+                    contraseña (entre 8 y 32 caracteres), tipo de usuario, correo electrónico
                     y teléfono. Si te registrás como <strong>Cliente</strong>, recibirás
                     un correo de validación para activar tu cuenta. Si te registrás como
                     <strong>CEO de Aerolínea</strong>, tu solicitud deberá ser aprobada

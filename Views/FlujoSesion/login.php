@@ -33,6 +33,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 $_SESSION['codUsuario']    = $usuario['codUsuario'];
                 $_SESSION['nombreUsuario'] = $usuario['nombreUsuario'];
+                $_SESSION['apellidoUsuario'] = $usuario['apellidoUsuario'];
+                $_SESSION['nombreCompleto'] = trim($usuario['nombreUsuario'] . ' ' . $usuario['apellidoUsuario']);
                 $_SESSION['tipoUsuario']   = $usuario['tipoUsuario'];
                 header('Location: ../LandPage/LandUsuarioRegistrado.php');
                 exit;

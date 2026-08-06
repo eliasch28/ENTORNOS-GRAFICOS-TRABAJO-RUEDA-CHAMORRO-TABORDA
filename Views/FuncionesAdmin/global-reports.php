@@ -36,7 +36,7 @@ $filasReporte = 0;
 if ($reporteValido) {
   switch ($reporteActivo) {
     case 'ventas':
-      $resReporte = mysqli_query($link, "SELECT r.codReserva, u.nombreUsuario, v.origenVuelo, v.destinoVuelo,
+      $resReporte = mysqli_query($link, "SELECT r.codReserva, u.nombreUsuario, u.apellidoUsuario, v.origenVuelo, v.destinoVuelo,
                                                 v.precioVuelo, r.fechaReserva, r.estadoReserva
                                          FROM RESERVAS r
                                          INNER JOIN USUARIOS u ON r.codUsuario = u.codUsuario
@@ -58,7 +58,7 @@ if ($reporteValido) {
                                          ORDER BY v.fechaSalidaVuelo DESC, v.codVuelo DESC");
       break;
     case 'usuarios':
-      $resReporte = mysqli_query($link, "SELECT codUsuario, nombreUsuario, tipoUsuario, emailUsuario,
+      $resReporte = mysqli_query($link, "SELECT codUsuario, nombreUsuario, apellidoUsuario, tipoUsuario, emailUsuario,
                                                 telefonoUsuario, verificado
                                          FROM USUARIOS
                                          ORDER BY FIELD(tipoUsuario, 'administrador', 'ceo de aerolinea', 'usuario'),
@@ -203,7 +203,7 @@ $queryReporte = $reporteValido ? '&reporte=' . urlencode($reporteActivo) : '';
                   ?>
                     <tr>
                       <th scope="row"><?= (int) $row['codReserva'] ?></th>
-                      <td><?= htmlspecialchars($row['nombreUsuario'], ENT_QUOTES, 'UTF-8') ?></td>
+                      <td><?= htmlspecialchars($row['nombreUsuario'] . ' ' . $row['apellidoUsuario'], ENT_QUOTES, 'UTF-8') ?></td>
                       <td><?= htmlspecialchars($row['origenVuelo'] . ' → ' . $row['destinoVuelo'], ENT_QUOTES, 'UTF-8') ?></td>
                       <td><?= htmlspecialchars(formatearPrecio($row['precioVuelo']), ENT_QUOTES, 'UTF-8') ?></td>
                       <td><?= $row['fechaReserva'] ? htmlspecialchars(date('d/m/Y', strtotime($row['fechaReserva'])), ENT_QUOTES, 'UTF-8') : '—' ?></td>
@@ -277,7 +277,7 @@ $queryReporte = $reporteValido ? '&reporte=' . urlencode($reporteActivo) : '';
                   <?php while ($row = mysqli_fetch_assoc($resReporte)): ?>
                     <tr>
                       <th scope="row"><?= (int) $row['codUsuario'] ?></th>
-                      <td><?= htmlspecialchars($row['nombreUsuario'], ENT_QUOTES, 'UTF-8') ?></td>
+                      <td><?= htmlspecialchars($row['nombreUsuario'] . ' ' . $row['apellidoUsuario'], ENT_QUOTES, 'UTF-8') ?></td>
                       <td><?= htmlspecialchars(ucfirst($row['tipoUsuario']), ENT_QUOTES, 'UTF-8') ?></td>
                       <td><?= htmlspecialchars($row['emailUsuario'] ?? '—', ENT_QUOTES, 'UTF-8') ?></td>
                       <td><?= htmlspecialchars($row['telefonoUsuario'] ?? '—', ENT_QUOTES, 'UTF-8') ?></td>
@@ -324,7 +324,7 @@ $queryReporte = $reporteValido ? '&reporte=' . urlencode($reporteActivo) : '';
               ?>
                 <tr>
                   <th scope="row"><?= (int) $row['codReserva'] ?></th>
-                  <td><?= htmlspecialchars($row['nombreUsuario'], ENT_QUOTES, 'UTF-8') ?></td>
+                  <td><?= htmlspecialchars($row['nombreUsuario'] . ' ' . $row['apellidoUsuario'], ENT_QUOTES, 'UTF-8') ?></td>
                   <td><?= htmlspecialchars($row['origenVuelo'] . ' → ' . $row['destinoVuelo'], ENT_QUOTES, 'UTF-8') ?></td>
                   <td><?= $row['fechaReserva'] ? htmlspecialchars(date('d/m/Y', strtotime($row['fechaReserva'])), ENT_QUOTES, 'UTF-8') : '—' ?></td>
                   <td><span class="badge <?= $estadoClass ?>"><?= htmlspecialchars($estadoLabel, ENT_QUOTES, 'UTF-8') ?></span></td>

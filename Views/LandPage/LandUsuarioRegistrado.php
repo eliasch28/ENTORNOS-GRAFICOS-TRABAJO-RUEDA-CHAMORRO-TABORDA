@@ -6,7 +6,7 @@ if (!isset($_SESSION['codUsuario'])) {
     exit;
 }
 $tipo = $_SESSION['tipoUsuario'];
-$nombre = htmlspecialchars($_SESSION['nombreUsuario']);
+$nombre = htmlspecialchars($_SESSION['nombreCompleto'] ?? '');
 $resNovedadesVigentes = mysqli_query($link, "SELECT COUNT(*) AS total FROM NOVEDADES
                                              WHERE fechaPublicacionNovedad <= CURDATE()
                                                AND fechaExpiracionNovedad >= CURDATE()");

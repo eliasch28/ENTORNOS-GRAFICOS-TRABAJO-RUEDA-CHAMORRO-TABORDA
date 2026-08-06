@@ -50,7 +50,7 @@ if (!$sinAerolinea) {
     $promoActiva = ($r && mysqli_num_rows($r) > 0) ? mysqli_fetch_assoc($r) : null;
     $resReservas = mysqli_query($link,
         "SELECT r.codReserva, r.estadoReserva, r.fechaReserva,
-                u.nombreUsuario,
+                u.nombreUsuario, u.apellidoUsuario,
                 v.origenVuelo, v.destinoVuelo, v.fechaSalidaVuelo
          FROM RESERVAS r
          JOIN VUELOS v ON r.codVuelo = v.codVuelo
@@ -241,7 +241,7 @@ if (!$sinAerolinea) {
                     ?>
                     <tr>
                       <td class="text-secondary"><?= $codFmt ?></td>
-                      <td><?= htmlspecialchars($res['nombreUsuario'], ENT_QUOTES, 'UTF-8') ?></td>
+                      <td><?= htmlspecialchars($res['nombreUsuario'] . ' ' . $res['apellidoUsuario'], ENT_QUOTES, 'UTF-8') ?></td>
                       <td class="fw-semibold"><?= $orig ?> → <?= $dest ?></td>
                       <td><?= $fechaResFmt ?></td>
                       <td class="text-center">
