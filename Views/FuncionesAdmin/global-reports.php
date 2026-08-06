@@ -98,6 +98,40 @@ $queryReporte = $reporteValido ? '&reporte=' . urlencode($reporteActivo) : '';
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
   <link rel="stylesheet" href="../../styles.css"/>
+  <style>
+    .print-encabezado {
+      display: none;
+    }
+    @media print {
+      header,
+      footer {
+        display: none !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-encabezado {
+        display: block !important;
+      }
+      #contenido-principal {
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+      }
+      .card {
+        border: 0 !important;
+        box-shadow: none !important;
+      }
+      .card-body {
+        padding: 0 !important;
+      }
+      body {
+        background: #fff !important;
+      }
+      .table {
+        font-size: 11px;
+      }
+    }
+  </style>
 </head>
 <body class="bg-light">
 
@@ -109,7 +143,7 @@ $queryReporte = $reporteValido ? '&reporte=' . urlencode($reporteActivo) : '';
     <p class="text-muted">Resumen del sistema y generación de reportes desde la base de datos.</p>
   </div>
 
-  <div class="row g-4 mb-5">
+  <div class="row g-4 mb-5 no-print">
     <div class="col-sm-6 col-xl-3">
       <div class="card text-bg-primary shadow-sm">
         <div class="card-body d-flex align-items-center gap-3">
@@ -157,12 +191,12 @@ $queryReporte = $reporteValido ? '&reporte=' . urlencode($reporteActivo) : '';
   </div>
 
   <div class="card shadow-sm mb-5">
-    <div class="card-header fw-semibold">
+    <div class="card-header fw-semibold no-print">
       <i class="bi bi-file-earmark-bar-graph me-2" aria-hidden="true"></i>Generar reportes
     </div>
     <div class="card-body">
-      <p class="text-secondary small mb-3">Seleccioná el tipo de reporte para visualizar el detalle completo.</p>
-      <div class="d-flex flex-wrap gap-2">
+      <p class="text-secondary small mb-3 no-print">Seleccioná el tipo de reporte para visualizar el detalle completo.</p>
+      <div class="d-flex flex-wrap gap-2 no-print">
         <a href="?reporte=ventas" class="btn btn-outline-success<?= $reporteActivo === 'ventas' ? ' active' : '' ?>">
           <i class="bi bi-cash-stack me-1" aria-hidden="true"></i>Reporte de Ventas
         </a>
@@ -175,15 +209,25 @@ $queryReporte = $reporteValido ? '&reporte=' . urlencode($reporteActivo) : '';
       </div>
 
       <?php if ($reporteValido): ?>
-        <hr class="my-4">
+        <hr class="my-4 no-print">
 
         <?php if ($reporteActivo === 'ventas'): ?>
-          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-            <h2 class="h6 fw-bold mb-0">Reporte de Ventas — reservas confirmadas</h2>
-            <span class="badge bg-success-subtle text-success border border-success-subtle">
-              Total facturado: <?= htmlspecialchars(formatearPrecio($totalVentas), ENT_QUOTES, 'UTF-8') ?>
-            </span>
-          </div>
+          <div id="area-imprimir">
+            <div class="print-encabezado mb-4">
+              <h1 class="h5 mb-1">VuelaLibre – Reporte Global</h1>
+              <p class="text-secondary mb-0">Reporte de Ventas (reservas confirmadas) · Generado el <?= date('d/m/Y H:i') ?></p>
+            </div>
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+              <h2 class="h6 fw-bold mb-0">Reporte de Ventas — reservas confirmadas</h2>
+              <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-success-subtle text-success border border-success-subtle">
+                  Total facturado: <?= htmlspecialchars(formatearPrecio($totalVentas), ENT_QUOTES, 'UTF-8') ?>
+                </span>
+                <button type="button" class="btn btn-outline-success btn-sm no-print" onclick="window.print()">
+                  <i class="bi bi-printer me-1" aria-hidden="true"></i>Imprimir
+                </button>
+              </div>
+            </div>
           <div class="table-responsive rounded">
             <table class="table table-striped table-hover align-middle mb-0">
               <thead class="table-dark">
@@ -218,9 +262,20 @@ $queryReporte = $reporteValido ? '&reporte=' . urlencode($reporteActivo) : '';
               </tbody>
             </table>
           </div>
+          </div>
 
         <?php elseif ($reporteActivo === 'vuelos'): ?>
-          <h2 class="h6 fw-bold mb-3">Reporte de Vuelos</h2>
+          <div id="area-imprimir">
+            <div class="print-encabezado mb-4">
+              <h1 class="h5 mb-1">VuelaLibre – Reporte Global</h1>
+              <p class="text-secondary mb-0">Reporte de Vuelos · Generado el <?= date('d/m/Y H:i') ?></p>
+            </div>
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+              <h2 class="h6 fw-bold mb-0">Reporte de Vuelos</h2>
+              <button type="button" class="btn btn-outline-primary btn-sm no-print" onclick="window.print()">
+                <i class="bi bi-printer me-1" aria-hidden="true"></i>Imprimir
+              </button>
+            </div>
           <div class="table-responsive rounded">
             <table class="table table-striped table-hover align-middle mb-0">
               <thead class="table-dark">
@@ -257,9 +312,20 @@ $queryReporte = $reporteValido ? '&reporte=' . urlencode($reporteActivo) : '';
               </tbody>
             </table>
           </div>
+          </div>
 
         <?php elseif ($reporteActivo === 'usuarios'): ?>
-          <h2 class="h6 fw-bold mb-3">Reporte de Usuarios</h2>
+          <div id="area-imprimir">
+            <div class="print-encabezado mb-4">
+              <h1 class="h5 mb-1">VuelaLibre – Reporte Global</h1>
+              <p class="text-secondary mb-0">Reporte de Usuarios · Generado el <?= date('d/m/Y H:i') ?></p>
+            </div>
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+              <h2 class="h6 fw-bold mb-0">Reporte de Usuarios</h2>
+              <button type="button" class="btn btn-outline-info btn-sm no-print" onclick="window.print()">
+                <i class="bi bi-printer me-1" aria-hidden="true"></i>Imprimir
+              </button>
+            </div>
           <div class="table-responsive rounded">
             <table class="table table-striped table-hover align-middle mb-0">
               <thead class="table-dark">
@@ -298,12 +364,13 @@ $queryReporte = $reporteValido ? '&reporte=' . urlencode($reporteActivo) : '';
               </tbody>
             </table>
           </div>
+          </div>
         <?php endif; ?>
       <?php endif; ?>
     </div>
   </div>
 
-  <div class="card shadow-sm">
+  <div class="card shadow-sm no-print">
     <div class="card-header fw-semibold">Últimas Reservas</div>
     <div class="card-body">
       <div class="table-responsive rounded">

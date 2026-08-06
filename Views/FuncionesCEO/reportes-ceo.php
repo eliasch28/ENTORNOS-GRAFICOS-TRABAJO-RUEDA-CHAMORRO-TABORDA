@@ -83,10 +83,43 @@ if (!$sinAerolinea) {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Reportes | VuelaLibre – UTN FRR</title>
+  <title>Reportes | VuelaLibre – UTN FRRO</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
   <link rel="stylesheet" href="../../styles.css"/>
+  <style>
+    .print-encabezado {
+      display: none;
+    }
+    @media print {
+      header,
+      footer {
+        display: none !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-encabezado {
+        display: block !important;
+      }
+      body {
+        background: #fff !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      section {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+      }
+      .card {
+        border: 0 !important;
+        box-shadow: none !important;
+      }
+      .table {
+        font-size: 11px;
+      }
+    }
+  </style>
 </head>
 <body class="bg-light">
 
@@ -107,11 +140,22 @@ if (!$sinAerolinea) {
       </div>
       <?php else: ?>
 
-      <div class="mb-2">
-        <p class="text-primary text-uppercase small fw-semibold mb-1">
-          <i class="bi bi-bar-chart-line me-1" aria-hidden="true"></i>CEO · Reportes
-        </p>
-        <h1 class="h3 fw-bold mb-0">Reportes de mi aerolínea</h1>
+      <div class="mb-2 d-flex justify-content-between align-items-end flex-wrap gap-2">
+        <div>
+          <p class="text-primary text-uppercase small fw-semibold mb-1">
+            <i class="bi bi-bar-chart-line me-1" aria-hidden="true"></i>CEO · Reportes
+          </p>
+          <h1 class="h3 fw-bold mb-0">Reportes de mi aerolínea</h1>
+        </div>
+        <button type="button" class="btn btn-primary no-print" onclick="window.print()">
+          <i class="bi bi-printer me-1" aria-hidden="true"></i>Imprimir
+        </button>
+      </div>
+
+      <div id="area-imprimir">
+      <div class="print-encabezado mb-4">
+        <h1 class="h5 mb-1">Reportes de mi aerolínea — <?= $nombreAerolinea ?></h1>
+        <p class="text-secondary mb-0">VuelaLibre · Generado el <?= date('d/m/Y H:i') ?></p>
       </div>
       <div class="mb-5">
         <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-3 py-2">
@@ -191,7 +235,7 @@ if (!$sinAerolinea) {
         <i class="bi bi-tag fs-4 flex-shrink-0" aria-hidden="true"></i>
         <div>
           Tu aerolínea no tiene ninguna promoción aprobada en este momento.
-          <a href="promociones-create.php" class="alert-link ms-1">Crear una promoción →</a>
+          <a href="promociones-create.php" class="alert-link ms-1 no-print">Crear una promoción →</a>
         </div>
       </div>
       <?php endif; ?>
@@ -310,6 +354,7 @@ if (!$sinAerolinea) {
 
       </div>
 
+      </div>
       <?php endif; ?>
     </div>
   </section>
