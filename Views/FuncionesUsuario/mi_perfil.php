@@ -11,15 +11,18 @@ $usuario = mysqli_fetch_assoc($resultado);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $nombreUsuario = trim($_POST['nombreUsuario']);
   $apellidoUsuario = trim($_POST['apellidoUsuario']);
-  $emailUsuario = trim($_POST['emailUsuario']);
   $telefonoUsuario = trim($_POST['telefonoUsuario']);
   $claveActual = $_POST['claveActual'];
   $claveNueva = $_POST['claveNueva'];
-  $checkEmail = mysqli_query($link, "SELECT codUsuario FROM USUARIOS WHERE emailUsuario = '$emailUsuario' AND codUsuario != $cod");
-  if (mysqli_num_rows($checkEmail) > 0) {
-    $error = "El correo electrónico ya está en uso por otro usuario.";
-  } else {
+
+  $telefonoOriginal = $usuario['telefonoUsuario'] ?? '';
+  if ($nombreUsuario === '' || $apellidoUsuario === '') {
+    $error = "El nombre y el apellido son obligatorios.";
+  }
+
+  if (!isset($error)) {
     $telefonoOriginal = $usuario['telefonoUsuario'] ?? '';
+
     if ($telefonoUsuario !== $telefonoOriginal) {
       if (!preg_match('/^\+54\d{11}$|^\+598\d{8}$|^\+56\d{9}$|^\+595\d{9}$|^\+591\d{8}$/', $telefonoUsuario)) {
         $error = "El número de teléfono no es válido para el país seleccionado.";
@@ -27,41 +30,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
       $telefonoUsuario = $telefonoOriginal;
     }
-    if (!isset($error)) {
-      $query = "UPDATE USUARIOS SET nombreUsuario = '$nombreUsuario', apellidoUsuario = '$apellidoUsuario', emailUsuario = '$emailUsuario', telefonoUsuario = '$telefonoUsuario' WHERE codUsuario = $cod";
-      if (!empty($claveActual) || !empty($claveNueva)) {
-        if (empty($claveActual) || empty($claveNueva)) {
-          $error = "Para cambiar la contraseña, completá ambos campos.";
-        } elseif (md5($claveActual) !== $usuario['claveUsuario']) {
-          $error = "La contraseña actual es incorrecta.";
-        } elseif (!preg_match('/^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,32}$/', $claveNueva)) {
-          $error = "La contraseña debe tener entre 8 y 32 caracteres e incluir al menos 1 mayúscula, 1 dígito y 1 carácter especial.";
-        } elseif ($nombreUsuario === '' || $apellidoUsuario === '') {
-          $error = "El nombre y el apellido son obligatorios.";
-        } else {
-          $query = "UPDATE USUARIOS SET nombreUsuario = '$nombreUsuario', apellidoUsuario = '$apellidoUsuario', emailUsuario = '$emailUsuario', telefonoUsuario = '$telefonoUsuario', claveUsuario = '" . md5($claveNueva) . "' WHERE codUsuario = $cod";
-        }
+  }
+  if (!isset($error)) {
+    $query = "UPDATE USUARIOS SET nombreUsuario = '$nombreUsuario', apellidoUsuario = '$apellidoUsuario', telefonoUsuario = '$telefonoUsuario' WHERE codUsuario = $cod";
+    if (!empty($claveActual) || !empty($claveNueva)) {
+      if (empty($claveActual) || empty($claveNueva)) {
+        $error = "Para cambiar la contraseña, completá ambos campos.";
+      } elseif (md5($claveActual) !== $usuario['claveUsuario']) {
+        $error = "La contraseña actual es incorrecta.";
+      } elseif (!preg_match('/^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,32}$/', $claveNueva)) {
+        $error = "La contraseña debe tener entre 8 y 32 caracteres e incluir al menos 1 mayúscula, 1 dígito y 1 carácter especial.";
+      } else {
+        $query = "UPDATE USUARIOS SET nombreUsuario = '$nombreUsuario', apellidoUsuario = '$apellidoUsuario', telefonoUsuario = '$telefonoUsuario', claveUsuario = '" . md5($claveNueva) . "' WHERE codUsuario = $cod";
       }
     }
-    if (!isset($error)) {
-      mysqli_query($link, $query);
-      $resultado = mysqli_query($link, "SELECT * FROM USUARIOS WHERE codUsuario = $cod");
-      $usuario = mysqli_fetch_assoc($resultado);
-      $exito = "Perfil actualizado correctamente.";
-    }
+  }
+  if (!isset($error)) {
+    mysqli_query($link, $query);
+    $resultado = mysqli_query($link, "SELECT * FROM USUARIOS WHERE codUsuario = $cod");
+    $usuario = mysqli_fetch_assoc($resultado);
+    $exito = "Perfil actualizado correctamente.";
   }
 }
+
 // Parsear teléfono existente para pre-poblar el widget
 $telExistente = $usuario['telefonoUsuario'] ?? '';
 $paisParsed = '';
 $numeroParsed = '';
-foreach ([
-  'UY' => ['code' => '598', 'digits' => 8],
-  'PY' => ['code' => '595', 'digits' => 9],
-  'BO' => ['code' => '591', 'digits' => 8],
-  'AR' => ['code' => '54', 'digits' => 11],
-  'CL' => ['code' => '56', 'digits' => 9],
-] as $pk => $cfg) {
+foreach (
+  [
+    'UY' => ['code' => '598', 'digits' => 8],
+    'PY' => ['code' => '595', 'digits' => 9],
+    'BO' => ['code' => '591', 'digits' => 8],
+    'AR' => ['code' => '54', 'digits' => 11],
+    'CL' => ['code' => '56', 'digits' => 9],
+  ] as $pk => $cfg
+) {
   if (preg_match('/^\+' . $cfg['code'] . '(\d{' . $cfg['digits'] . '})$/', $telExistente, $m)) {
     $paisParsed = $pk;
     $numeroParsed = $m[1];
@@ -273,9 +277,12 @@ foreach ([
                     Correo electrónico
                     <span class="text-danger" aria-hidden="true">*</span>
                   </label>
-                  <input type="email" id="emailUsuario" name="emailUsuario" class="form-control"
+                  <input type="email" id="emailUsuario" class="form-control" readonly
                     value="<?= htmlspecialchars($usuario['emailUsuario']) ?>" required autocomplete="email"
                     aria-required="true" maxlength="100" />
+                  <div class="form-text">
+                    No puedes modificar el correo electrónico de tu cuenta.
+                  </div>
                 </div>
 
                 <div class="col-md-6">
@@ -307,8 +314,29 @@ foreach ([
                     <?= $paisParsed ? 'Podés modificar el número o cambiar el país.' : 'Seleccioná un país para ingresar tu número.' ?>
                   </div>
                   <script>
-                    (function () {
-                      var PAISES = { AR: { code: '54', digits: 11 }, UY: { code: '598', digits: 8 }, CL: { code: '56', digits: 9 }, PY: { code: '595', digits: 9 }, BO: { code: '591', digits: 8 } };
+                    (function() {
+                      var PAISES = {
+                        AR: {
+                          code: '54',
+                          digits: 11
+                        },
+                        UY: {
+                          code: '598',
+                          digits: 8
+                        },
+                        CL: {
+                          code: '56',
+                          digits: 9
+                        },
+                        PY: {
+                          code: '595',
+                          digits: 9
+                        },
+                        BO: {
+                          code: '591',
+                          digits: 8
+                        }
+                      };
                       var sel = document.getElementById('paisTelefono');
                       var num = document.getElementById('numeroTelefono');
                       var hidden = document.getElementById('telefonoUsuario');
@@ -316,14 +344,17 @@ foreach ([
                       var telefonoOriginal = hidden.dataset.original || hidden.value || '';
                       var paisOriginal = sel.value;
                       var numeroOriginal = num.value;
+
                       function sync() {
                         var p = PAISES[sel.value];
                         hidden.value = (p && num.value.length === p.digits) ? '+' + p.code + num.value : '';
                       }
+
                       function limpiarValidez() {
                         sel.setCustomValidity('');
                         num.setCustomValidity('');
                       }
+
                       function update() {
                         var p = PAISES[sel.value];
                         limpiarValidez();
@@ -342,12 +373,12 @@ foreach ([
                         sync();
                       }
                       sel.addEventListener('change', update);
-                      num.addEventListener('input', function () {
+                      num.addEventListener('input', function() {
                         limpiarValidez();
                         this.value = this.value.replace(/\D/g, '').slice(0, PAISES[sel.value] ? PAISES[sel.value].digits : 0);
                         sync();
                       });
-                      sel.closest('form').addEventListener('submit', function (e) {
+                      sel.closest('form').addEventListener('submit', function(e) {
                         limpiarValidez();
                         if (telefonoOriginal && sel.value === paisOriginal && num.value === numeroOriginal) {
                           hidden.value = telefonoOriginal;
@@ -381,7 +412,6 @@ foreach ([
                   <input type="text" id="tipoUsuario" class="form-control"
                     value="<?= ucfirst($usuario['tipoUsuario']) ?>" readonly aria-readonly="true" />
                   <div class="form-text">
-                    <i class="bi bi-lock me-1" aria-hidden="true"></i>
                     El tipo es asignado por el sistema.
                   </div>
                 </div>

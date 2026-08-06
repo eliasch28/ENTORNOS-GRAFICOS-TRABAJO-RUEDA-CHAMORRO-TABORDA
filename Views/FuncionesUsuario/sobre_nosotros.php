@@ -1,20 +1,21 @@
 ﻿<?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description"
-        content="Conocé más sobre VuelaLibre, nuestras políticas de privacidad y cómo contactarnos." />
+    content="Conocé más sobre VuelaLibre, nuestras políticas de privacidad y cómo contactarnos." />
   <title>Sobre Nosotros | VuelaLibre – UTN FRR</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
-        crossorigin="anonymous"/>
+    rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+    crossorigin="anonymous" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-        rel="stylesheet"/>
-  <link rel="stylesheet" href="../../styles.css"/>
+    rel="stylesheet" />
+  <link rel="stylesheet" href="../../styles.css" />
 </head>
 
 <body class="bg-light">
@@ -48,7 +49,7 @@
                   <strong>VuelaLibre</strong> es una plataforma de gestión de reservas
                   de pasajes de avión desarrollada en el marco de la cátedra de
                   Entornos Gráficos de la <strong>Universidad Tecnológica Nacional —
-                  Facultad Regional Rosario</strong> (UTN FRR), año 2026.
+                    Facultad Regional Rosario</strong> (UTN FRR), año 2026.
                 </p>
                 <p class="text-secondary mb-3">
                   Nuestra misión es conectar a los viajeros con las mejores aerolíneas
@@ -74,7 +75,7 @@
                 <h3 class="h6 fw-bold mb-2">Recopilación de datos</h3>
                 <p class="text-secondary small mb-3">
                   VuelaLibre recopila únicamente los datos necesarios para operar el
-                  servicio: nombre de usuario, correo electrónico y teléfono de contacto.
+                  servicio: nombre, apellido, correo electrónico y teléfono de contacto.
                   Estos datos son utilizados exclusivamente para gestionar reservas y
                   comunicaciones relacionadas con el sistema.
                 </p>
@@ -136,4 +137,5 @@
   <?php include '../Footer/footer.php'; ?>
 
 </body>
+
 </html>
