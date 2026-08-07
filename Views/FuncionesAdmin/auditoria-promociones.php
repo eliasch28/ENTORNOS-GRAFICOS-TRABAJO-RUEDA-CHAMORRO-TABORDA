@@ -178,13 +178,13 @@ $resPromociones = mysqli_query($link, $sqlPromociones);
     </div>
   </main>
 
-  <div class="modal fade" id="modalConfirmacion" tabindex="-1" aria-labelledby="modalConfirmacionLabel"
+  <div class="modal fade" id="modalConfirmacion" tabindex="-1" role="dialog" aria-labelledby="modalConfirmacionLabel"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="modalConfirmacionLabel">Confirmar acción</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          <h2 class="fs-5 modal-title" id="modalConfirmacionLabel">Confirmar acción</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
         </div>
         <div class="modal-body">
           <div id="modalConfirmacionTexto" class="text-muted">¿Confirmás?</div>

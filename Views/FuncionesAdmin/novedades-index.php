@@ -103,7 +103,7 @@ $resNovedades = mysqli_query($link, $sqlNovedades);
                     : $row['textoNovedad'];
                   $fechaPubFmt = date('d/m/Y', strtotime($row['fechaPublicacionNovedad']));
                   $fechaExpFmt = date('d/m/Y', strtotime($row['fechaExpiracionNovedad']));
-                  ?>
+                ?>
                   <tr>
                     <th scope="row"><?= (int) $row['codNovedad'] ?></th>
                     <td title="<?= htmlspecialchars($row['textoNovedad'], ENT_QUOTES, 'UTF-8') ?>">
@@ -164,13 +164,13 @@ $resNovedades = mysqli_query($link, $sqlNovedades);
     </div>
   </main>
 
-  <div class="modal fade" id="modalConfirmacion" tabindex="-1" aria-labelledby="modalConfirmacionLabel"
+  <div class="modal fade" id="modalConfirmacion" tabindex="-1" role="dialog" aria-labelledby="modalConfirmacionLabel"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="modalConfirmacionLabel">Confirmar eliminación</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          <h2 class="fs-5 modal-title" id="modalConfirmacionLabel">Confirmar eliminación</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
         </div>
         <div class="modal-body">
           <div id="modalConfirmacionTexto" class="text-muted">¿Confirmás?</div>
@@ -188,27 +188,27 @@ $resNovedades = mysqli_query($link, $sqlNovedades);
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmFJ3d7CMK4xBqwJoKD21vBbVxy" crossorigin="anonymous"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
       const modalEl = document.getElementById('modalConfirmacion');
       const modalConfirmacion = new bootstrap.Modal(modalEl);
       const textoEl = document.getElementById('modalConfirmacionTexto');
       const aceptarBtn = document.getElementById('modalConfirmacionAceptar');
       let formIdPendiente = null;
-      document.querySelectorAll('[data-confirm-form-id]').forEach(function (btn) {
-        btn.addEventListener('click', function () {
+      document.querySelectorAll('[data-confirm-form-id]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
           formIdPendiente = btn.getAttribute('data-confirm-form-id');
           textoEl.textContent = btn.getAttribute('data-confirm-text') || '¿Confirmás?';
           modalConfirmacion.show();
         });
       });
-      aceptarBtn.addEventListener('click', function () {
+      aceptarBtn.addEventListener('click', function() {
         if (!formIdPendiente) return;
         const form = document.getElementById(formIdPendiente);
         if (!form) return;
         aceptarBtn.disabled = true;
         form.submit();
       });
-      modalEl.addEventListener('hidden.bs.modal', function () {
+      modalEl.addEventListener('hidden.bs.modal', function() {
         formIdPendiente = null;
       });
     });

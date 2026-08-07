@@ -5,61 +5,62 @@ $contactoExito = '';
 $contactoError = '';
 $campoError = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mensajeContacto'])) {
-    $nombreContacto  = trim($_POST['nombreContacto'] ?? '');
-    $emailContacto   = trim($_POST['emailContacto'] ?? '');
-    $mensajeContacto = trim($_POST['mensajeContacto'] ?? '');
-    if ($nombreContacto === '') {
-        $contactoError = 'Ingresá tu nombre para que podamos responderte.';
-        $campoError = 'nombreContacto';
-    } elseif ($emailContacto === '') {
-        $contactoError = 'Ingresá tu correo electrónico.';
-        $campoError = 'emailContacto';
-    } elseif (!filter_var($emailContacto, FILTER_VALIDATE_EMAIL)) {
-        $contactoError = 'Ingresá un correo electrónico válido.';
-        $campoError = 'emailContacto';
-    } elseif ($mensajeContacto === '') {
-        $contactoError = 'Escribí tu consulta antes de enviarla.';
-        $campoError = 'mensajeContacto';
+  $nombreContacto  = trim($_POST['nombreContacto'] ?? '');
+  $emailContacto   = trim($_POST['emailContacto'] ?? '');
+  $mensajeContacto = trim($_POST['mensajeContacto'] ?? '');
+  if ($nombreContacto === '') {
+    $contactoError = 'Ingresá tu nombre para que podamos responderte.';
+    $campoError = 'nombreContacto';
+  } elseif ($emailContacto === '') {
+    $contactoError = 'Ingresá tu correo electrónico.';
+    $campoError = 'emailContacto';
+  } elseif (!filter_var($emailContacto, FILTER_VALIDATE_EMAIL)) {
+    $contactoError = 'Ingresá un correo electrónico válido.';
+    $campoError = 'emailContacto';
+  } elseif ($mensajeContacto === '') {
+    $contactoError = 'Escribí tu consulta antes de enviarla.';
+    $campoError = 'mensajeContacto';
+  } else {
+    $nombreSafe  = htmlspecialchars($nombreContacto, ENT_QUOTES, 'UTF-8');
+    $emailSafe   = htmlspecialchars($emailContacto, ENT_QUOTES, 'UTF-8');
+    $mensajeSafe = nl2br(htmlspecialchars($mensajeContacto, ENT_QUOTES, 'UTF-8'));
+    $cuerpo = "<p><strong>Nueva consulta desde el formulario de contacto de VuelaLibre.</strong></p>"
+      . "<p><strong>Nombre:</strong> $nombreSafe</p>"
+      . "<p><strong>Correo:</strong> $emailSafe</p>"
+      . "<p><strong>Consulta:</strong></p>"
+      . "<p>$mensajeSafe</p>";
+    $enviado = enviarCorreo(
+      MAIL_SMTP_USER,
+      'Nueva consulta de contacto - VuelaLibre',
+      $cuerpo,
+      false,
+      ['email' => $emailContacto, 'nombre' => $nombreContacto]
+    );
+    if ($enviado) {
+      $contactoExito = '¡Tu consulta fue enviada! Te responderemos a la brevedad.';
     } else {
-        $nombreSafe  = htmlspecialchars($nombreContacto, ENT_QUOTES, 'UTF-8');
-        $emailSafe   = htmlspecialchars($emailContacto, ENT_QUOTES, 'UTF-8');
-        $mensajeSafe = nl2br(htmlspecialchars($mensajeContacto, ENT_QUOTES, 'UTF-8'));
-        $cuerpo = "<p><strong>Nueva consulta desde el formulario de contacto de VuelaLibre.</strong></p>"
-            . "<p><strong>Nombre:</strong> $nombreSafe</p>"
-            . "<p><strong>Correo:</strong> $emailSafe</p>"
-            . "<p><strong>Consulta:</strong></p>"
-            . "<p>$mensajeSafe</p>";
-        $enviado = enviarCorreo(
-            MAIL_SMTP_USER,
-            'Nueva consulta de contacto - VuelaLibre',
-            $cuerpo,
-            false,
-            ['email' => $emailContacto, 'nombre' => $nombreContacto]
-        );
-        if ($enviado) {
-            $contactoExito = '¡Tu consulta fue enviada! Te responderemos a la brevedad.';
-        } else {
-            $contactoError = 'No pudimos enviar tu consulta en este momento. Intentá más tarde.';
-        }
+      $contactoError = 'No pudimos enviar tu consulta en este momento. Intentá más tarde.';
     }
+  }
 }
 ?>
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description"
-        content="Encontrá respuestas a las preguntas frecuentes de VuelaLibre o contactanos directamente." />
+    content="Encontrá respuestas a las preguntas frecuentes de VuelaLibre o contactanos directamente." />
   <title>Ayuda | VuelaLibre – UTN FRR</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
-        crossorigin="anonymous"/>
+    rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+    crossorigin="anonymous" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-        rel="stylesheet"/>
-  <link rel="stylesheet" href="../../styles.css"/>
+    rel="stylesheet" />
+  <link rel="stylesheet" href="../../styles.css" />
 </head>
 
 <?php
@@ -197,7 +198,7 @@ $categorias = [
   <?php include '../Header/header.php'; ?>
 
   <main id="contenido-principal" tabindex="-1">
-    <section class="py-5" aria-labelledby="ayuda-titulo">
+    <section class="py-5" role="dialog" aria-labelledby="ayuda-titulo">
       <div class="container">
 
         <div class="mb-5">
@@ -214,11 +215,11 @@ $categorias = [
           <div class="col-lg-8">
 
             <div class="mb-4 d-flex gap-2 flex-wrap"
-                 role="group" aria-label="Filtrar preguntas por categoría">
+              role="group" aria-label="Filtrar preguntas por categoría">
               <?php foreach ($categorias as $clave => $etiqueta): ?>
                 <a href="ayuda.php<?= $clave !== 'todas' ? '?categoria=' . urlencode($clave) : '' ?>"
-                   class="btn btn-outline-primary btn-sm boton-categoria <?= $categoriaActual === $clave ? 'active' : '' ?>"
-                   <?= $categoriaActual === $clave ? 'aria-current="true"' : '' ?>>
+                  class="btn btn-outline-primary btn-sm boton-categoria <?= $categoriaActual === $clave ? 'active' : '' ?>"
+                  <?= $categoriaActual === $clave ? 'aria-current="true"' : '' ?>>
                   <?= htmlspecialchars($etiqueta) ?>
                 </a>
               <?php endforeach; ?>
@@ -236,18 +237,18 @@ $categorias = [
                   <div class="accordion-item border-0 mb-2">
                     <h2 class="accordion-header" id="<?= $pregunta['id'] ?>-header">
                       <button class="accordion-button collapsed fw-semibold"
-                              type="button"
-                              data-bs-toggle="collapse"
-                              data-bs-target="#<?= $pregunta['id'] ?>"
-                              aria-expanded="false"
-                              aria-controls="<?= $pregunta['id'] ?>">
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#<?= $pregunta['id'] ?>"
+                        aria-expanded="false"
+                        aria-controls="<?= $pregunta['id'] ?>">
                         <?= htmlspecialchars($pregunta['pregunta']) ?>
                       </button>
                     </h2>
                     <div id="<?= $pregunta['id'] ?>"
-                         class="accordion-collapse collapse"
-                         aria-labelledby="<?= $pregunta['id'] ?>-header"
-                         data-bs-parent="#faq-accordion">
+                      class="accordion-collapse collapse" role="dialog"
+                      aria-labelledby="<?= $pregunta['id'] ?>-header"
+                      data-bs-parent="#faq-accordion">
                       <div class="accordion-body text-secondary small">
                         <?= $pregunta['respuesta'] ?>
                       </div>
@@ -258,31 +259,31 @@ $categorias = [
             <?php endif; ?>
 
             <?php if ($totalPagFaq > 1): ?>
-            <nav aria-label="Paginación de preguntas frecuentes" class="mb-4">
-              <ul class="pagination justify-content-center">
-                <li class="page-item <?= $paginaFaq <= 1 ? 'disabled' : '' ?>">
-                  <a class="page-link" href="<?= $urlBaseAyuda ?>pagina=<?= $paginaFaq - 1 ?>">Anterior</a>
-                </li>
-                <?php for ($i = 1; $i <= $totalPagFaq; $i++): ?>
-                  <li class="page-item <?= $i === $paginaFaq ? 'active' : '' ?>">
-                    <a class="page-link" href="<?= $urlBaseAyuda ?>pagina=<?= $i ?>"
-                       <?= $i === $paginaFaq ? 'aria-current="page"' : '' ?>><?= $i ?></a>
+              <nav aria-label="Paginación de preguntas frecuentes" class="mb-4">
+                <ul class="pagination justify-content-center">
+                  <li class="page-item <?= $paginaFaq <= 1 ? 'disabled' : '' ?>">
+                    <a class="page-link" href="<?= $urlBaseAyuda ?>pagina=<?= $paginaFaq - 1 ?>">Anterior</a>
                   </li>
-                <?php endfor; ?>
-                <li class="page-item <?= $paginaFaq >= $totalPagFaq ? 'disabled' : '' ?>">
-                  <a class="page-link" href="<?= $urlBaseAyuda ?>pagina=<?= $paginaFaq + 1 ?>">Siguiente</a>
-                </li>
-              </ul>
-            </nav>
+                  <?php for ($i = 1; $i <= $totalPagFaq; $i++): ?>
+                    <li class="page-item <?= $i === $paginaFaq ? 'active' : '' ?>">
+                      <a class="page-link" href="<?= $urlBaseAyuda ?>pagina=<?= $i ?>"
+                        <?= $i === $paginaFaq ? 'aria-current="page"' : '' ?>><?= $i ?></a>
+                    </li>
+                  <?php endfor; ?>
+                  <li class="page-item <?= $paginaFaq >= $totalPagFaq ? 'disabled' : '' ?>">
+                    <a class="page-link" href="<?= $urlBaseAyuda ?>pagina=<?= $paginaFaq + 1 ?>">Siguiente</a>
+                  </li>
+                </ul>
+              </nav>
             <?php endif; ?>
 
             <div class="text-center mb-3">
               <button class="btn btn-primary btn-lg"
-                      type="button"
-                      data-bs-toggle="collapse"
-                      data-bs-target="#formularioContactoAyuda"
-                      aria-expanded="false"
-                      aria-controls="formularioContactoAyuda">
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#formularioContactoAyuda"
+                aria-expanded="false"
+                aria-controls="formularioContactoAyuda">
                 <i class="bi bi-envelope me-2" aria-hidden="true"></i>Contáctanos
               </button>
             </div>
@@ -309,7 +310,7 @@ $categorias = [
                   <?php endif; ?>
 
                   <form action="ayuda.php" method="post"
-                        aria-label="Formulario de consulta">
+                    aria-label="Formulario de consulta">
                     <div class="row g-3">
 
                       <div class="col-md-6">
@@ -318,10 +319,10 @@ $categorias = [
                           <span class="text-danger" aria-hidden="true">*</span>
                         </label>
                         <input type="text" id="ayuda-nombre" name="nombreContacto"
-                               class="form-control<?= $campoError === 'nombreContacto' ? ' is-invalid' : '' ?>"
-                               placeholder="Tu nombre completo"
-                               value="<?= htmlspecialchars($contactoError !== '' ? ($nombreContacto ?? '') : '', ENT_QUOTES, 'UTF-8') ?>"
-                               required maxlength="100"/>
+                          class="form-control<?= $campoError === 'nombreContacto' ? ' is-invalid' : '' ?>"
+                          placeholder="Tu nombre completo"
+                          value="<?= htmlspecialchars($contactoError !== '' ? ($nombreContacto ?? '') : '', ENT_QUOTES, 'UTF-8') ?>"
+                          required maxlength="100" />
                         <?php if ($campoError === 'nombreContacto'): ?>
                           <div class="invalid-feedback d-block"><?= htmlspecialchars($contactoError, ENT_QUOTES, 'UTF-8') ?></div>
                         <?php endif; ?>
@@ -333,10 +334,10 @@ $categorias = [
                           <span class="text-danger" aria-hidden="true">*</span>
                         </label>
                         <input type="email" id="ayuda-email" name="emailContacto"
-                               class="form-control<?= $campoError === 'emailContacto' ? ' is-invalid' : '' ?>"
-                               placeholder="tu@correo.com"
-                               value="<?= htmlspecialchars($contactoError !== '' ? ($emailContacto ?? '') : '', ENT_QUOTES, 'UTF-8') ?>"
-                               required maxlength="100"/>
+                          class="form-control<?= $campoError === 'emailContacto' ? ' is-invalid' : '' ?>"
+                          placeholder="tu@correo.com"
+                          value="<?= htmlspecialchars($contactoError !== '' ? ($emailContacto ?? '') : '', ENT_QUOTES, 'UTF-8') ?>"
+                          required maxlength="100" />
                         <?php if ($campoError === 'emailContacto'): ?>
                           <div class="invalid-feedback d-block"><?= htmlspecialchars($contactoError, ENT_QUOTES, 'UTF-8') ?></div>
                         <?php endif; ?>
@@ -348,9 +349,9 @@ $categorias = [
                           <span class="text-danger" aria-hidden="true">*</span>
                         </label>
                         <textarea id="ayuda-mensaje" name="mensajeContacto"
-                                  class="form-control<?= $campoError === 'mensajeContacto' ? ' is-invalid' : '' ?>" rows="4"
-                                  placeholder="Describí tu consulta en detalle..."
-                                  required maxlength="1000"><?= htmlspecialchars($contactoError !== '' ? ($mensajeContacto ?? '') : '', ENT_QUOTES, 'UTF-8') ?></textarea>
+                          class="form-control<?= $campoError === 'mensajeContacto' ? ' is-invalid' : '' ?>" rows="4"
+                          placeholder="Describí tu consulta en detalle..."
+                          required maxlength="1000"><?= htmlspecialchars($contactoError !== '' ? ($mensajeContacto ?? '') : '', ENT_QUOTES, 'UTF-8') ?></textarea>
                         <?php if ($campoError === 'mensajeContacto'): ?>
                           <div class="invalid-feedback d-block"><?= htmlspecialchars($contactoError, ENT_QUOTES, 'UTF-8') ?></div>
                         <?php endif; ?>
@@ -365,9 +366,9 @@ $categorias = [
                           <i class="bi bi-send me-2" aria-hidden="true"></i>Enviar consulta
                         </button>
                         <button type="button"
-                                class="btn btn-outline-secondary ms-2"
-                                data-bs-toggle="collapse"
-                                data-bs-target="#formularioContactoAyuda">
+                          class="btn btn-outline-secondary ms-2"
+                          data-bs-toggle="collapse"
+                          data-bs-target="#formularioContactoAyuda">
                           Cancelar
                         </button>
                       </div>
@@ -390,14 +391,14 @@ $categorias = [
               <ul class="list-unstyled mb-0">
                 <li class="mb-2">
                   <a href="../FlujoSesion/recuperar_contrasena_.php"
-                     class="text-decoration-none text-secondary small">
+                    class="text-decoration-none text-secondary small">
                     <i class="bi bi-key me-2 text-primary" aria-hidden="true"></i>
                     Recuperar contraseña
                   </a>
                 </li>
                 <li>
                   <a href="sobre_nosotros.php"
-                     class="text-decoration-none text-secondary small">
+                    class="text-decoration-none text-secondary small">
                     <i class="bi bi-info-circle me-2 text-primary" aria-hidden="true"></i>
                     Sobre Nosotros
                   </a>
@@ -414,10 +415,10 @@ $categorias = [
                 Usá el formulario de contacto y te respondemos a la brevedad.
               </p>
               <button class="btn btn-outline-primary btn-sm w-100"
-                      type="button"
-                      data-bs-toggle="collapse"
-                      data-bs-target="#formularioContactoAyuda"
-                      aria-controls="formularioContactoAyuda">
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#formularioContactoAyuda"
+                aria-controls="formularioContactoAyuda">
                 <i class="bi bi-envelope me-1" aria-hidden="true"></i>
                 Enviar consulta
               </button>
@@ -432,15 +433,21 @@ $categorias = [
 
   <?php include '../Footer/footer.php'; ?>
 
-<script>
-  if (window.location.hash === '#formularioContactoAyuda') {
-    var el = document.getElementById('formularioContactoAyuda');
-    if (el) {
-      new bootstrap.Collapse(el, { show: true });
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  <script>
+    if (window.location.hash === '#formularioContactoAyuda') {
+      var el = document.getElementById('formularioContactoAyuda');
+      if (el) {
+        new bootstrap.Collapse(el, {
+          show: true
+        });
+        el.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
     }
-  }
-</script>
+  </script>
 
 </body>
+
 </html>

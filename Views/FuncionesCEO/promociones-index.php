@@ -157,7 +157,7 @@ if (!$sinAerolinea) {
                             $badgeIcon = 'bi-hourglass-split';
                             $badgeLabel = 'Pendiente';
                         }
-                        ?>
+                      ?>
                         <tr>
                           <td><small class="text-secondary"><?= $codFmt ?></small></td>
                           <td><?= htmlspecialchars($p['descripcionPromocion'] ?? '—', ENT_QUOTES, 'UTF-8') ?></td>
@@ -195,7 +195,7 @@ if (!$sinAerolinea) {
     </section>
   </main>
 
-  <div class="modal fade" id="modalEliminar" tabindex="-1" aria-labelledby="modalEliminarLabel" aria-hidden="true">
+  <div class="modal fade" id="modalEliminar" tabindex="-1" role="dialog" aria-labelledby="modalEliminarLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content border-0 shadow">
         <div class="modal-header border-0">
@@ -229,7 +229,7 @@ if (!$sinAerolinea) {
     integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmEtu5PinQ2N9b+tQNBqAKFGj7EV"
     crossorigin="anonymous"></script>
   <script>
-    document.getElementById('modalEliminar').addEventListener('show.bs.modal', function (e) {
+    document.getElementById('modalEliminar').addEventListener('show.bs.modal', function(e) {
       const btn = e.relatedTarget;
       document.getElementById('inputCodPromocion').value = btn.dataset.cod;
       document.getElementById('modalDescripcion').textContent = btn.dataset.desc || '(sin descripción)';
