@@ -213,16 +213,16 @@ $urlBaseVuelos = 'LandUsuarioNoRegistrado.php' . (http_build_query($getVuelos) ?
             <nav aria-label="Paginación de aerolíneas" class="mt-4">
               <ul class="pagination justify-content-center">
                 <li class="page-item <?= $paginaAero <= 1 ? 'disabled' : '' ?>">
-                  <a class="page-link" href="<?= $urlBaseAero ?>paginaAero=<?= $paginaAero - 1 ?>">Anterior</a>
+                  <a class="page-link" href="<?= $urlBaseAero ?>paginaAero=<?= $paginaAero - 1 ?>#seccion-aerolineas">Anterior</a>
                 </li>
                 <?php for ($i = 1; $i <= $totPaginasAero; $i++): ?>
                   <li class="page-item <?= $i === $paginaAero ? 'active' : '' ?>">
-                    <a class="page-link" href="<?= $urlBaseAero ?>paginaAero=<?= $i ?>"
+                    <a class="page-link" href="<?= $urlBaseAero ?>paginaAero=<?= $i ?>#seccion-aerolineas"
                       <?= $i === $paginaAero ? 'aria-current="page"' : '' ?>><?= $i ?></a>
                   </li>
                 <?php endfor; ?>
                 <li class="page-item <?= $paginaAero >= $totPaginasAero ? 'disabled' : '' ?>">
-                  <a class="page-link" href="<?= $urlBaseAero ?>paginaAero=<?= $paginaAero + 1 ?>">Siguiente</a>
+                  <a class="page-link" href="<?= $urlBaseAero ?>paginaAero=<?= $paginaAero + 1 ?>#seccion-aerolineas">Siguiente</a>
                 </li>
               </ul>
             </nav>

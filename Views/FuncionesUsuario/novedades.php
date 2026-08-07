@@ -103,7 +103,7 @@ $novedadesPag   = array_slice($novedades, ($pagina - 1) * $porPagina, $porPagina
           </span>
         </div>
 
-        <ul class="list-unstyled" role="list" aria-label="Lista de novedades del sistema">
+        <ul class="list-unstyled" role="list" aria-label="Lista de novedades del sistema" id="listado">
 
           <?php if (!empty($novedadesPag)): ?>
             <?php foreach ($novedadesPag as $row):
@@ -176,16 +176,16 @@ $novedadesPag   = array_slice($novedades, ($pagina - 1) * $porPagina, $porPagina
           <nav aria-label="Paginación de novedades" class="mt-4">
             <ul class="pagination justify-content-center">
               <li class="page-item <?= $pagina <= 1 ? 'disabled' : '' ?>">
-                <a class="page-link" href="novedades.php?pagina=<?= $pagina - 1 ?>">Anterior</a>
+                <a class="page-link" href="novedades.php?pagina=<?= $pagina - 1 ?>#listado">Anterior</a>
               </li>
               <?php for ($i = 1; $i <= $totalPaginas; $i++): ?>
                 <li class="page-item <?= $i === $pagina ? 'active' : '' ?>">
-                  <a class="page-link" href="novedades.php?pagina=<?= $i ?>"
+                  <a class="page-link" href="novedades.php?pagina=<?= $i ?>#listado"
                      <?= $i === $pagina ? 'aria-current="page"' : '' ?>><?= $i ?></a>
                 </li>
               <?php endfor; ?>
               <li class="page-item <?= $pagina >= $totalPaginas ? 'disabled' : '' ?>">
-                <a class="page-link" href="novedades.php?pagina=<?= $pagina + 1 ?>">Siguiente</a>
+                <a class="page-link" href="novedades.php?pagina=<?= $pagina + 1 ?>#listado">Siguiente</a>
               </li>
             </ul>
           </nav>

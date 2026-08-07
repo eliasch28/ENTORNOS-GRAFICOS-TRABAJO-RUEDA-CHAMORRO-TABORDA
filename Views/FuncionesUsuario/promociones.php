@@ -105,7 +105,7 @@ if ($codAeroFiltro === 0) {
           </form>
         </div>
 
-        <ul class="list-unstyled" role="list" aria-label="Lista de promociones vigentes">
+        <ul class="list-unstyled" role="list" aria-label="Lista de promociones vigentes" id="listado">
 
           <?php if (!empty($promosPag)): ?>
             <?php foreach ($promosPag as $p):
@@ -182,16 +182,16 @@ if ($codAeroFiltro === 0) {
           <nav aria-label="Paginación de promociones" class="my-4">
             <ul class="pagination justify-content-center">
               <li class="page-item <?= $paginaPromos <= 1 ? 'disabled' : '' ?>">
-                <a class="page-link" href="<?= $urlBasePromos ?>pagina=<?= $paginaPromos - 1 ?>">Anterior</a>
+                <a class="page-link" href="<?= $urlBasePromos ?>pagina=<?= $paginaPromos - 1 ?>#listado">Anterior</a>
               </li>
               <?php for ($i = 1; $i <= $totalPaginas; $i++): ?>
                 <li class="page-item <?= $i === $paginaPromos ? 'active' : '' ?>">
-                  <a class="page-link" href="<?= $urlBasePromos ?>pagina=<?= $i ?>"
+                  <a class="page-link" href="<?= $urlBasePromos ?>pagina=<?= $i ?>#listado"
                      <?= $i === $paginaPromos ? 'aria-current="page"' : '' ?>><?= $i ?></a>
                 </li>
               <?php endfor; ?>
               <li class="page-item <?= $paginaPromos >= $totalPaginas ? 'disabled' : '' ?>">
-                <a class="page-link" href="<?= $urlBasePromos ?>pagina=<?= $paginaPromos + 1 ?>">Siguiente</a>
+                <a class="page-link" href="<?= $urlBasePromos ?>pagina=<?= $paginaPromos + 1 ?>#listado">Siguiente</a>
               </li>
             </ul>
           </nav>

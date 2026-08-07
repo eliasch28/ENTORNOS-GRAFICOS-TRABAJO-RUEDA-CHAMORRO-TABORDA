@@ -370,7 +370,7 @@ $queryReporte = $reporteValido ? '&reporte=' . urlencode($reporteActivo) : '';
     </div>
   </div>
 
-  <div class="card shadow-sm no-print">
+  <div class="card shadow-sm no-print" id="listado">
     <div class="card-header fw-semibold">Últimas Reservas</div>
     <div class="card-body">
       <div class="table-responsive rounded">
@@ -410,15 +410,15 @@ $queryReporte = $reporteValido ? '&reporte=' . urlencode($reporteActivo) : '';
         <nav aria-label="Paginación de reservas" class="mt-4">
           <ul class="pagination justify-content-center mb-0">
             <li class="page-item <?= $paginaActual <= 1 ? 'disabled' : '' ?>">
-              <a class="page-link" href="?pagina=<?= $paginaActual - 1 ?><?= $queryReporte ?>" <?= $paginaActual <= 1 ? 'tabindex="-1" aria-disabled="true"' : '' ?>>Anterior</a>
+              <a class="page-link" href="?pagina=<?= $paginaActual - 1 ?><?= $queryReporte ?>#listado" <?= $paginaActual <= 1 ? 'tabindex="-1" aria-disabled="true"' : '' ?>>Anterior</a>
             </li>
             <?php for ($i = 1; $i <= $totalPaginas; $i++): ?>
               <li class="page-item <?= $i === $paginaActual ? 'active' : '' ?>" <?= $i === $paginaActual ? 'aria-current="page"' : '' ?>>
-                <a class="page-link" href="?pagina=<?= $i ?><?= $queryReporte ?>"><?= $i ?></a>
+                <a class="page-link" href="?pagina=<?= $i ?><?= $queryReporte ?>#listado"><?= $i ?></a>
               </li>
             <?php endfor; ?>
             <li class="page-item <?= $paginaActual >= $totalPaginas ? 'disabled' : '' ?>">
-              <a class="page-link" href="?pagina=<?= $paginaActual + 1 ?><?= $queryReporte ?>" <?= $paginaActual >= $totalPaginas ? 'tabindex="-1" aria-disabled="true"' : '' ?>>Siguiente</a>
+              <a class="page-link" href="?pagina=<?= $paginaActual + 1 ?><?= $queryReporte ?>#listado" <?= $paginaActual >= $totalPaginas ? 'tabindex="-1" aria-disabled="true"' : '' ?>>Siguiente</a>
             </li>
           </ul>
         </nav>

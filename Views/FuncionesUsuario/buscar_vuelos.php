@@ -180,7 +180,7 @@ $urlBaseVuelos = 'buscar_vuelos.php' . ($queryFiltros ? '?' . $queryFiltros . '&
               </p>
             </div>
 
-            <ul class="list-unstyled" role="list" aria-label="Vuelos encontrados">
+            <ul class="list-unstyled" role="list" aria-label="Vuelos encontrados" id="listado">
 
               <?php if ($totalVuelos > 0): ?>
                 <?php foreach ($vuelosPag as $v):
@@ -291,16 +291,16 @@ $urlBaseVuelos = 'buscar_vuelos.php' . ($queryFiltros ? '?' . $queryFiltros . '&
               <nav aria-label="Paginación de vuelos" class="mt-4">
                 <ul class="pagination justify-content-center">
                   <li class="page-item <?= $paginaVuelos <= 1 ? 'disabled' : '' ?>">
-                    <a class="page-link" href="<?= $urlBaseVuelos ?>pagina=<?= $paginaVuelos - 1 ?>">Anterior</a>
+                    <a class="page-link" href="<?= $urlBaseVuelos ?>pagina=<?= $paginaVuelos - 1 ?>#listado">Anterior</a>
                   </li>
                   <?php for ($i = 1; $i <= $totalPaginas; $i++): ?>
                     <li class="page-item <?= $i === $paginaVuelos ? 'active' : '' ?>">
-                      <a class="page-link" href="<?= $urlBaseVuelos ?>pagina=<?= $i ?>"
+                      <a class="page-link" href="<?= $urlBaseVuelos ?>pagina=<?= $i ?>#listado"
                          <?= $i === $paginaVuelos ? 'aria-current="page"' : '' ?>><?= $i ?></a>
                     </li>
                   <?php endfor; ?>
                   <li class="page-item <?= $paginaVuelos >= $totalPaginas ? 'disabled' : '' ?>">
-                    <a class="page-link" href="<?= $urlBaseVuelos ?>pagina=<?= $paginaVuelos + 1 ?>">Siguiente</a>
+                    <a class="page-link" href="<?= $urlBaseVuelos ?>pagina=<?= $paginaVuelos + 1 ?>#listado">Siguiente</a>
                   </li>
                 </ul>
               </nav>

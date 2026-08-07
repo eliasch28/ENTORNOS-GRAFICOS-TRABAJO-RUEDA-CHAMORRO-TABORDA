@@ -261,16 +261,16 @@ $categorias = [
             <nav aria-label="Paginación de preguntas frecuentes" class="mb-4">
               <ul class="pagination justify-content-center">
                 <li class="page-item <?= $paginaFaq <= 1 ? 'disabled' : '' ?>">
-                  <a class="page-link" href="<?= $urlBaseAyuda ?>pagina=<?= $paginaFaq - 1 ?>">Anterior</a>
+                  <a class="page-link" href="<?= $urlBaseAyuda ?>pagina=<?= $paginaFaq - 1 ?>#faq-accordion">Anterior</a>
                 </li>
                 <?php for ($i = 1; $i <= $totalPagFaq; $i++): ?>
                   <li class="page-item <?= $i === $paginaFaq ? 'active' : '' ?>">
-                    <a class="page-link" href="<?= $urlBaseAyuda ?>pagina=<?= $i ?>"
+                    <a class="page-link" href="<?= $urlBaseAyuda ?>pagina=<?= $i ?>#faq-accordion"
                        <?= $i === $paginaFaq ? 'aria-current="page"' : '' ?>><?= $i ?></a>
                   </li>
                 <?php endfor; ?>
                 <li class="page-item <?= $paginaFaq >= $totalPagFaq ? 'disabled' : '' ?>">
-                  <a class="page-link" href="<?= $urlBaseAyuda ?>pagina=<?= $paginaFaq + 1 ?>">Siguiente</a>
+                  <a class="page-link" href="<?= $urlBaseAyuda ?>pagina=<?= $paginaFaq + 1 ?>#faq-accordion">Siguiente</a>
                 </li>
               </ul>
             </nav>
