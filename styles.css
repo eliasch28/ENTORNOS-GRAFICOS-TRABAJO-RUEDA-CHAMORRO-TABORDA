@@ -434,3 +434,53 @@ footer {
 .texto-contenido-novedad { font-size: 0.92rem; }
 .punto-estado-novedad  { font-size: 0.5rem; }
 .aclaracion-opcional   { font-size: 0.85em; }
+
+/* ── PANTALLAS CHICAS (celulares) ─────────────────────────── */
+@media (max-width: 575.98px) {
+
+  /* Los datos del perfil pasan de dos columnas a una: con la etiqueta
+     fija en 110px, un correo largo se quedaba sin espacio al lado. */
+  .fila-dato-perfil {
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+  .etiqueta-dato-perfil {
+    min-width: 0;
+  }
+
+  /* Correos, códigos y textos largos sin espacios: que corten en lugar
+     de empujar la tarjeta y generar scroll horizontal. */
+  .valor-dato-perfil,
+  .valor-detalle,
+  .texto-nombre-aerolinea {
+    overflow-wrap: anywhere;
+  }
+
+  /* Elementos decorativos grandes, para que no se coman el ancho. */
+  .icono-seccion            { font-size: 2.2rem; }
+  .icono-acceso,
+  .tarjeta-aerolinea .icono-aerolinea { font-size: 1.6rem; }
+  .codigo-iata              { font-size: 1.5rem; }
+  .insignia-descuento       { font-size: 1.15rem; }
+
+  .avatar-circular {
+    width: 64px;
+    height: 64px;
+    font-size: 1.6rem;
+  }
+
+  /* La línea punteada entre origen y destino se queda sin lugar. */
+  .linea-ruta {
+    margin: 0 0.35rem;
+  }
+
+  /* Con muchas páginas, el paginador se sale del ancho. */
+  .pagination {
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  .caja-estadistica {
+    padding: 0.75rem;
+  }
+}
