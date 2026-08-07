@@ -75,8 +75,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (time() <= $limiteTs) {
           mysqli_query($link, "UPDATE RESERVAS SET estadoReserva = 'cancelada'
                                          WHERE codReserva = $codReserva");
+          $codVueloReserva = (int) $reserva['codVuelo'];
           mysqli_query($link, "UPDATE VUELOS SET asientosDisponibles = asientosDisponibles + 1
-                                         WHERE codVuelo = {$reserva['codVuelo']}");
+                                         WHERE codVuelo = $codVueloReserva");
           $mensajeExito = 'Reserva cancelada. El asiento fue liberado.';
         } else {
           $mensajeError = 'No es posible cancelar: ya pasaron las 72 horas previas al vuelo.';
@@ -90,9 +91,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $estadoFiltro = $_GET['estado'] ?? '';
 $estadosValidos = ['pendiente de pago', 'confirmada', 'cancelada'];
 $whereEstado = '';
-if ($estadoFiltro !== '' && in_array($estadoFiltro, $estadosValidos, true)) {
-  $e = mysqli_real_escape_string($link, $estadoFiltro);
-  $whereEstado = "AND r.estadoReserva = '$e'";
+$filtraEstado = ($estadoFiltro !== '' && in_array($estadoFiltro, $estadosValidos, true));
+if ($filtraEstado) {
+  $whereEstado = "AND r.estadoReserva = ?";
 }
 $sqlReservas = "SELECT r.codReserva, r.estadoReserva, r.fechaReserva,
                        v.codVuelo, v.origenVuelo, v.destinoVuelo,
@@ -105,9 +106,16 @@ $sqlReservas = "SELECT r.codReserva, r.estadoReserva, r.fechaReserva,
                 LEFT JOIN PROMOCIONES p
                   ON p.codAerolinea = v.codAerolinea
                  AND p.estadoPromocion = 'aprobada'
-                WHERE r.codUsuario = $codUsuario $whereEstado
+                WHERE r.codUsuario = ? $whereEstado
                 ORDER BY r.fechaReserva DESC, r.codReserva DESC";
-$resReservas = mysqli_query($link, $sqlReservas);
+$stmtReservas = mysqli_prepare($link, $sqlReservas);
+if ($filtraEstado) {
+  mysqli_stmt_bind_param($stmtReservas, 'is', $codUsuario, $estadoFiltro);
+} else {
+  mysqli_stmt_bind_param($stmtReservas, 'i', $codUsuario);
+}
+mysqli_stmt_execute($stmtReservas);
+$resReservas = mysqli_stmt_get_result($stmtReservas);
 ?>
 
 <!DOCTYPE html>

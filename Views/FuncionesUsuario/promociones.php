@@ -10,14 +10,19 @@ if ($resAero) {
         $aerolineas[] = $a;
     }
 }
-$whereAero = $codAeroFiltro > 0 ? "AND a.codAerolinea = $codAeroFiltro" : '';
+$whereAero = $codAeroFiltro > 0 ? "AND a.codAerolinea = ?" : '';
 $sqlPromos = "SELECT p.codPromocion, p.descripcionPromocion, p.descuentoPromocion,
                      a.codAerolinea, a.nombreAerolinea
               FROM PROMOCIONES p
               JOIN AEROLINEAS a ON p.codAerolinea = a.codAerolinea
               WHERE p.estadoPromocion = 'aprobada' $whereAero
               ORDER BY p.descuentoPromocion DESC";
-$resPromos = mysqli_query($link, $sqlPromos);
+$stmtPromos = mysqli_prepare($link, $sqlPromos);
+if ($codAeroFiltro > 0) {
+    mysqli_stmt_bind_param($stmtPromos, 'i', $codAeroFiltro);
+}
+mysqli_stmt_execute($stmtPromos);
+$resPromos = mysqli_stmt_get_result($stmtPromos);
 $promos = [];
 if ($resPromos) {
     while ($p = mysqli_fetch_assoc($resPromos)) {

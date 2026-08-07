@@ -39,15 +39,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $error = 'Los asientos disponibles deben ser al menos 1.';
     $campoError = 'asientosDisponibles';
   } else {
-    $orig_esc = mysqli_real_escape_string($link, $origen);
-    $dest_esc = mysqli_real_escape_string($link, $destino);
-    $fech_esc = mysqli_real_escape_string($link, $fecha);
-    $hora_esc = mysqli_real_escape_string($link, $hora);
-    $ins = mysqli_query(
+    $stmtIns = mysqli_prepare(
       $link,
       "INSERT INTO VUELOS (codAerolinea, origenVuelo, destinoVuelo, fechaSalidaVuelo, horaSalidaVuelo, precioVuelo, asientosDisponibles)
-             VALUES ($codAerolinea, '$orig_esc', '$dest_esc', '$fech_esc', '$hora_esc', $precio, $asientos)"
+             VALUES (?, ?, ?, ?, ?, ?, ?)"
     );
+    mysqli_stmt_bind_param($stmtIns, 'issssdi', $codAerolinea, $origen, $destino, $fecha, $hora, $precio, $asientos);
+    $ins = mysqli_stmt_execute($stmtIns);
     if ($ins) {
       header('Location: vuelos-index.php?creado=1');
       exit;

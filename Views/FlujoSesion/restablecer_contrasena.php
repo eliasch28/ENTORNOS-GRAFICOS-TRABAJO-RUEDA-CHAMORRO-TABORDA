@@ -8,10 +8,12 @@ $exito = false;
 if ($token === '') {
     $error = "Enlace de recuperación inválido.";
 } else {
-    $tokenEscapado = mysqli_real_escape_string($link, $token);
     $query = "SELECT codUsuario FROM USUARIOS
-              WHERE tokenRecuperacion = '$tokenEscapado' AND tokenRecuperacionExp > NOW()";
-    $resultado = mysqli_query($link, $query);
+              WHERE tokenRecuperacion = ? AND tokenRecuperacionExp > NOW()";
+    $stmt = mysqli_prepare($link, $query);
+    mysqli_stmt_bind_param($stmt, 's', $token);
+    mysqli_stmt_execute($stmt);
+    $resultado = mysqli_stmt_get_result($stmt);
     if ($resultado && mysqli_num_rows($resultado) === 1) {
         $tokenValido = true;
         $usuario = mysqli_fetch_assoc($resultado);
@@ -27,9 +29,11 @@ if ($tokenValido && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $campoError = "claveUsuario";
     } else {
         $claveHash = md5($claveUsuario);
-        mysqli_query($link, "UPDATE USUARIOS
-                              SET claveUsuario = '$claveHash', tokenRecuperacion = NULL, tokenRecuperacionExp = NULL
-                              WHERE codUsuario = $codUsuario");
+        $stmtClave = mysqli_prepare($link, "UPDATE USUARIOS
+                              SET claveUsuario = ?, tokenRecuperacion = NULL, tokenRecuperacionExp = NULL
+                              WHERE codUsuario = ?");
+        mysqli_stmt_bind_param($stmtClave, 'si', $claveHash, $codUsuario);
+        mysqli_stmt_execute($stmtClave);
         $exito = true;
         $tokenValido = false;
     }

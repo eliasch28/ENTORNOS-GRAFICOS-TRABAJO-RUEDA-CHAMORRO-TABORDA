@@ -51,19 +51,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Los asientos disponibles no pueden ser negativos.';
         $campoError = 'asientosDisponibles';
     } else {
-        $orig_esc = mysqli_real_escape_string($link, $origen);
-        $dest_esc = mysqli_real_escape_string($link, $destino);
-        $fech_esc = mysqli_real_escape_string($link, $fecha);
-        $hora_esc = mysqli_real_escape_string($link, $hora);
-        $upd = mysqli_query($link,
+        $stmtUpd = mysqli_prepare($link,
             "UPDATE VUELOS
-             SET origenVuelo        = '$orig_esc',
-                 destinoVuelo       = '$dest_esc',
-                 fechaSalidaVuelo   = '$fech_esc',
-                 horaSalidaVuelo    = '$hora_esc',
-                 precioVuelo        = $precio,
-                 asientosDisponibles = $asientos
-             WHERE codVuelo = $codVuelo AND codAerolinea = $codAerolinea");
+             SET origenVuelo        = ?,
+                 destinoVuelo       = ?,
+                 fechaSalidaVuelo   = ?,
+                 horaSalidaVuelo    = ?,
+                 precioVuelo        = ?,
+                 asientosDisponibles = ?
+             WHERE codVuelo = ? AND codAerolinea = ?");
+        mysqli_stmt_bind_param($stmtUpd, 'ssssdiii', $origen, $destino, $fecha, $hora, $precio, $asientos, $codVuelo, $codAerolinea);
+        $upd = mysqli_stmt_execute($stmtUpd);
         if ($upd) {
             header('Location: vuelos-index.php?actualizado=1');
             exit;

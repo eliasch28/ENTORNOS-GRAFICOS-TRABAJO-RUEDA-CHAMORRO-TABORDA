@@ -31,12 +31,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $error = 'La fecha de expiración debe ser posterior a la fecha de publicación.';
     $campoError = 'fechaExpiracionNovedad';
   } else {
-    $textoEsc = mysqli_real_escape_string($link, $textoNovedad);
-    $pubEsc = mysqli_real_escape_string($link, $fechaPublicacionNovedad);
-    $expEsc = mysqli_real_escape_string($link, $fechaExpiracionNovedad);
     $query = "INSERT INTO NOVEDADES (textoNovedad, fechaPublicacionNovedad, fechaExpiracionNovedad)
-              VALUES ('$textoEsc', '$pubEsc', '$expEsc')";
-    if (mysqli_query($link, $query)) {
+              VALUES (?, ?, ?)";
+    $stmtAlta = mysqli_prepare($link, $query);
+    mysqli_stmt_bind_param($stmtAlta, 'sss', $textoNovedad, $fechaPublicacionNovedad, $fechaExpiracionNovedad);
+    if (mysqli_stmt_execute($stmtAlta)) {
       $exito = 'La novedad se registró correctamente.';
       $textoNovedad = $fechaPublicacionNovedad = $fechaExpiracionNovedad = '';
     } else {

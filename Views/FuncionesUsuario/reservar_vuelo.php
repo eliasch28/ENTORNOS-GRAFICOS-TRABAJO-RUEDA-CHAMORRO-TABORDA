@@ -33,8 +33,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($resCheck && mysqli_num_rows($resCheck) > 0) {
             $fechaHoy = date('Y-m-d');
             $sqlIns = "INSERT INTO RESERVAS (codUsuario, codVuelo, fechaReserva, estadoReserva)
-                       VALUES ($codUsuario, $codVuelo, '$fechaHoy', 'pendiente de pago')";
-            if (mysqli_query($link, $sqlIns)) {
+                       VALUES (?, ?, ?, 'pendiente de pago')";
+            $stmtIns = mysqli_prepare($link, $sqlIns);
+            mysqli_stmt_bind_param($stmtIns, 'iis', $codUsuario, $codVuelo, $fechaHoy);
+            if (mysqli_stmt_execute($stmtIns)) {
                 mysqli_query($link, "UPDATE VUELOS SET asientosDisponibles = asientosDisponibles - 1
                                      WHERE codVuelo = $codVuelo AND asientosDisponibles > 0");
                 header('Location: mis_reservas.php?reservaCreada=1');

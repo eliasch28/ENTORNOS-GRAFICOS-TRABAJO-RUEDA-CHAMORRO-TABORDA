@@ -6,10 +6,12 @@ $mensaje = '';
 if ($token === '') {
     $mensaje = "Enlace de verificación inválido.";
 } else {
-    $tokenEscapado = mysqli_real_escape_string($link, $token);
     $query = "SELECT codUsuario FROM USUARIOS
-              WHERE tokenVerificacion = '$tokenEscapado' AND tokenVerificacionExp > NOW()";
-    $resultado = mysqli_query($link, $query);
+              WHERE tokenVerificacion = ? AND tokenVerificacionExp > NOW()";
+    $stmt = mysqli_prepare($link, $query);
+    mysqli_stmt_bind_param($stmt, 's', $token);
+    mysqli_stmt_execute($stmt);
+    $resultado = mysqli_stmt_get_result($stmt);
     if ($resultado && mysqli_num_rows($resultado) === 1) {
         $usuario = mysqli_fetch_assoc($resultado);
         $codUsuario = (int) $usuario['codUsuario'];

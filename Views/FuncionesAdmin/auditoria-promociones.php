@@ -8,11 +8,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $accion = $_POST['accion'] ?? '';
   if ($codPromocion > 0 && in_array($accion, ['aprobar', 'rechazar'], true)) {
     $nuevoEstado = $accion === 'aprobar' ? 'aprobada' : 'denegada';
-    $nuevoEstadoEsc = mysqli_real_escape_string($link, $nuevoEstado);
     $query = "UPDATE PROMOCIONES
-              SET estadoPromocion = '$nuevoEstadoEsc'
-              WHERE codPromocion = $codPromocion";
-    if (mysqli_query($link, $query) && mysqli_affected_rows($link) > 0) {
+              SET estadoPromocion = ?
+              WHERE codPromocion = ?";
+    $stmtEstado = mysqli_prepare($link, $query);
+    mysqli_stmt_bind_param($stmtEstado, 'si', $nuevoEstado, $codPromocion);
+    if (mysqli_stmt_execute($stmtEstado) && mysqli_affected_rows($link) > 0) {
       $mensajeExito = $accion === 'aprobar'
         ? 'La promoción fue aprobada correctamente.'
         : 'La promoción fue denegada correctamente.';

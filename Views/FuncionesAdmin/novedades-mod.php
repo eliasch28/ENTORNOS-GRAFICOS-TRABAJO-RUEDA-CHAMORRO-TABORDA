@@ -41,15 +41,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $error = 'La fecha de expiración debe ser posterior a la fecha de publicación.';
     $campoError = 'fechaExpiracionNovedad';
   } else {
-    $textoEsc = mysqli_real_escape_string($link, $textoNovedad);
-    $pubEsc   = mysqli_real_escape_string($link, $fechaPublicacionNovedad);
-    $expEsc   = mysqli_real_escape_string($link, $fechaExpiracionNovedad);
     $query = "UPDATE NOVEDADES
-              SET textoNovedad            = '$textoEsc',
-                  fechaPublicacionNovedad = '$pubEsc',
-                  fechaExpiracionNovedad  = '$expEsc'
-              WHERE codNovedad = $idEsc";
-    if (mysqli_query($link, $query) && mysqli_affected_rows($link) >= 0) {
+              SET textoNovedad            = ?,
+                  fechaPublicacionNovedad = ?,
+                  fechaExpiracionNovedad  = ?
+              WHERE codNovedad = ?";
+    $stmtUpd = mysqli_prepare($link, $query);
+    mysqli_stmt_bind_param($stmtUpd, 'sssi', $textoNovedad, $fechaPublicacionNovedad, $fechaExpiracionNovedad, $idEsc);
+    if (mysqli_stmt_execute($stmtUpd) && mysqli_affected_rows($link) >= 0) {
       $exito = 'La novedad se actualizó correctamente.';
     } else {
       $error = 'Ocurrió un error al actualizar la novedad. Intentalo nuevamente.';

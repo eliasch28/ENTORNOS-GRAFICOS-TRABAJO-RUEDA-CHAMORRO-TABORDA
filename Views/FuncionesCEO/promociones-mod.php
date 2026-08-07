@@ -47,17 +47,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   ) {
     $error = 'No realizaste ningún cambio.';
   } else {
-    $desc_esc = mysqli_real_escape_string($link, $descripcion);
-
-    $upd = mysqli_query(
+    $stmtUpd = mysqli_prepare(
       $link,
       "UPDATE PROMOCIONES
-         SET descripcionPromocion = '$desc_esc',
-             descuentoPromocion   = $descuento,
+         SET descripcionPromocion = ?,
+             descuentoPromocion   = ?,
              estadoPromocion      = 'pendiente'
-         WHERE codPromocion = $codPromocion
-           AND codAerolinea = $codAerolinea"
+         WHERE codPromocion = ?
+           AND codAerolinea = ?"
     );
+    mysqli_stmt_bind_param($stmtUpd, 'sdii', $descripcion, $descuento, $codPromocion, $codAerolinea);
+    $upd = mysqli_stmt_execute($stmtUpd);
 
     if ($upd) {
       header('Location: promociones-index.php?actualizada=1');

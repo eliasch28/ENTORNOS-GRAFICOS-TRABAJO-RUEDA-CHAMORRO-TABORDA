@@ -4,17 +4,21 @@ include '../../config/EnviarCorreo.php';
 $enviado = false;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $emailUsuario = trim($_POST['emailUsuario']);
-    $emailEscapado = mysqli_real_escape_string($link, $emailUsuario);
     $query = "SELECT codUsuario, nombreUsuario FROM USUARIOS
-              WHERE emailUsuario = '$emailEscapado' AND verificado = 0 AND tipoUsuario != 'ceo de aerolinea'";
-    $resultado = mysqli_query($link, $query);
+              WHERE emailUsuario = ? AND verificado = 0 AND tipoUsuario != 'ceo de aerolinea'";
+    $stmt = mysqli_prepare($link, $query);
+    mysqli_stmt_bind_param($stmt, 's', $emailUsuario);
+    mysqli_stmt_execute($stmt);
+    $resultado = mysqli_stmt_get_result($stmt);
     if ($resultado && mysqli_num_rows($resultado) === 1) {
         $usuario = mysqli_fetch_assoc($resultado);
         $codUsuario = (int) $usuario['codUsuario'];
         $token = bin2hex(random_bytes(32));
-        mysqli_query($link, "UPDATE USUARIOS
-                              SET tokenVerificacion = '$token', tokenVerificacionExp = DATE_ADD(NOW(), INTERVAL 24 HOUR)
-                              WHERE codUsuario = $codUsuario");
+        $stmtToken = mysqli_prepare($link, "UPDATE USUARIOS
+                              SET tokenVerificacion = ?, tokenVerificacionExp = DATE_ADD(NOW(), INTERVAL 24 HOUR)
+                              WHERE codUsuario = ?");
+        mysqli_stmt_bind_param($stmtToken, 'si', $token, $codUsuario);
+        mysqli_stmt_execute($stmtToken);
         $enlace = BASE_URL . '/Views/FlujoSesion/verificar_email.php?token=' . $token;
         $cuerpo = "<p>Hola <strong>{$usuario['nombreUsuario']}</strong>,</p>"
             . "<p>Confirmá tu cuenta de VuelaLibre haciendo clic en el siguiente enlace (válido por 24 horas):</p>"

@@ -52,24 +52,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $error = 'La descripción no puede superar los 200 caracteres.';
     $campoError = 'descripcionAerolinea';
   } else {
-    $nombreEsc = mysqli_real_escape_string($link, $nombreAerolinea);
-    $iataEsc   = mysqli_real_escape_string($link, $codigoIATA);
-    $descEsc   = mysqli_real_escape_string($link, $descripcionAerolinea);
-    $paisEsc   = mysqli_real_escape_string($link, $codigoPais);
-    $checkIata = mysqli_query($link, "SELECT codAerolinea FROM AEROLINEAS
-                                      WHERE codigoIATA = '$iataEsc'
-                                        AND codAerolinea != $idEsc");
+    $stmtIata = mysqli_prepare($link, "SELECT codAerolinea FROM AEROLINEAS
+                                      WHERE codigoIATA = ?
+                                        AND codAerolinea != ?");
+    mysqli_stmt_bind_param($stmtIata, 'si', $codigoIATA, $idEsc);
+    mysqli_stmt_execute($stmtIata);
+    $checkIata = mysqli_stmt_get_result($stmtIata);
     if ($checkIata && mysqli_num_rows($checkIata) > 0) {
       $error = 'Ya existe otra aerolínea registrada con ese código IATA.';
       $campoError = 'codigoIATA';
     } else {
       $query = "UPDATE AEROLINEAS
-                SET nombreAerolinea      = '$nombreEsc',
-                    codigoIATA           = '$iataEsc',
-                    descripcionAerolinea = '$descEsc',
-                    codPais              = '$paisEsc'
-                WHERE codAerolinea = $idEsc";
-      if (mysqli_query($link, $query) && mysqli_affected_rows($link) >= 0) {
+                SET nombreAerolinea      = ?,
+                    codigoIATA           = ?,
+                    descripcionAerolinea = ?,
+                    codPais              = ?
+                WHERE codAerolinea = ?";
+      $stmtUpd = mysqli_prepare($link, $query);
+      mysqli_stmt_bind_param($stmtUpd, 'ssssi', $nombreAerolinea, $codigoIATA, $descripcionAerolinea, $codigoPais, $idEsc);
+      if (mysqli_stmt_execute($stmtUpd) && mysqli_affected_rows($link) >= 0) {
         $exito = 'La aerolínea se actualizó correctamente.';
       } else {
         $error = 'Ocurrió un error al actualizar la aerolínea. Intentalo nuevamente.';

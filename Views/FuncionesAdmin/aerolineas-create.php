@@ -34,18 +34,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $error = 'La descripción no puede superar los 200 caracteres.';
     $campoError = 'descripcionAerolinea';
   } else {
-    $nombreEsc = mysqli_real_escape_string($link, $nombreAerolinea);
-    $iataEsc = mysqli_real_escape_string($link, $codigoIATA);
-    $descEsc = mysqli_real_escape_string($link, $descripcionAerolinea);
-    $paisEsc = mysqli_real_escape_string($link, $codigoPais);
-    $checkIata = mysqli_query($link, "SELECT codAerolinea FROM AEROLINEAS WHERE codigoIATA = '$iataEsc'");
+    $stmtIata = mysqli_prepare($link, "SELECT codAerolinea FROM AEROLINEAS WHERE codigoIATA = ?");
+    mysqli_stmt_bind_param($stmtIata, 's', $codigoIATA);
+    mysqli_stmt_execute($stmtIata);
+    $checkIata = mysqli_stmt_get_result($stmtIata);
     if ($checkIata && mysqli_num_rows($checkIata) > 0) {
       $error = 'Ya existe una aerolínea registrada con ese código IATA.';
       $campoError = 'codigoIATA';
     } else {
       $query = "INSERT INTO AEROLINEAS (nombreAerolinea, codigoIATA, descripcionAerolinea, codPais)
-                      VALUES ('$nombreEsc', '$iataEsc', '$descEsc', '$paisEsc')";
-      if (mysqli_query($link, $query)) {
+                      VALUES (?, ?, ?, ?)";
+      $stmtAlta = mysqli_prepare($link, $query);
+      mysqli_stmt_bind_param($stmtAlta, 'ssss', $nombreAerolinea, $codigoIATA, $descripcionAerolinea, $codigoPais);
+      if (mysqli_stmt_execute($stmtAlta)) {
         $exito = 'La aerolínea se registró correctamente.';
         $nombreAerolinea = $codigoIATA = $descripcionAerolinea = $codigoPais = '';
       } else {

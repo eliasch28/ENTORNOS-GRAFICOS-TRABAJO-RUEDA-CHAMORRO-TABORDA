@@ -15,20 +15,27 @@ $destinoInput = trim($_GET['destinoVuelo']     ?? '');
 $fechaInput   = trim($_GET['fechaSalidaVuelo'] ?? '');
 $codAeroInput = isset($_GET['codAerolinea']) ? (int)$_GET['codAerolinea'] : 0;
 $conds = ["v.asientosDisponibles > 0", "v.fechaSalidaVuelo >= CURDATE()"];
+$tipos = '';
+$valores = [];
 if ($origenInput !== '') {
-    $e = mysqli_real_escape_string($link, $origenInput);
-    $conds[] = "v.origenVuelo LIKE '%$e%'";
+    $conds[] = "v.origenVuelo LIKE ?";
+    $tipos .= 's';
+    $valores[] = '%' . $origenInput . '%';
 }
 if ($destinoInput !== '') {
-    $e = mysqli_real_escape_string($link, $destinoInput);
-    $conds[] = "v.destinoVuelo LIKE '%$e%'";
+    $conds[] = "v.destinoVuelo LIKE ?";
+    $tipos .= 's';
+    $valores[] = '%' . $destinoInput . '%';
 }
 if ($fechaInput !== '') {
-    $e = mysqli_real_escape_string($link, $fechaInput);
-    $conds[] = "v.fechaSalidaVuelo = '$e'";
+    $conds[] = "v.fechaSalidaVuelo = ?";
+    $tipos .= 's';
+    $valores[] = $fechaInput;
 }
 if ($codAeroInput > 0) {
-    $conds[] = "v.codAerolinea = $codAeroInput";
+    $conds[] = "v.codAerolinea = ?";
+    $tipos .= 'i';
+    $valores[] = $codAeroInput;
 }
 $whereStr = implode(' AND ', $conds);
 $sqlVuelos = "SELECT v.codVuelo, v.origenVuelo, v.destinoVuelo,
@@ -43,7 +50,12 @@ $sqlVuelos = "SELECT v.codVuelo, v.origenVuelo, v.destinoVuelo,
                AND p.estadoPromocion = 'aprobada'
               WHERE $whereStr
               ORDER BY v.fechaSalidaVuelo ASC, v.horaSalidaVuelo ASC";
-$resVuelos = mysqli_query($link, $sqlVuelos);
+$stmtVuelos = mysqli_prepare($link, $sqlVuelos);
+if ($tipos !== '') {
+    mysqli_stmt_bind_param($stmtVuelos, $tipos, ...$valores);
+}
+mysqli_stmt_execute($stmtVuelos);
+$resVuelos = mysqli_stmt_get_result($stmtVuelos);
 $vuelos = [];
 if ($resVuelos) {
     while ($v = mysqli_fetch_assoc($resVuelos)) {

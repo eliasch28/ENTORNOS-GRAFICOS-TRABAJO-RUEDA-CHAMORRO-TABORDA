@@ -31,12 +31,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($resCheck && mysqli_num_rows($resCheck) > 0) {
       $error = 'Ya existe una promoción pendiente o aprobada para tu aerolínea. Solo puede haber una activa a la vez.';
     } else {
-      $desc_esc = mysqli_real_escape_string($link, $descripcion);
-      $ins = mysqli_query(
+      $stmtIns = mysqli_prepare(
         $link,
         "INSERT INTO PROMOCIONES (descripcionPromocion, descuentoPromocion, estadoPromocion, codAerolinea)
-                 VALUES ('$desc_esc', $descuento, 'pendiente', $codAerolinea)"
+                 VALUES (?, ?, 'pendiente', ?)"
       );
+      mysqli_stmt_bind_param($stmtIns, 'sdi', $descripcion, $descuento, $codAerolinea);
+      $ins = mysqli_stmt_execute($stmtIns);
       if ($ins) {
         header('Location: promociones-index.php?creada=1');
         exit;

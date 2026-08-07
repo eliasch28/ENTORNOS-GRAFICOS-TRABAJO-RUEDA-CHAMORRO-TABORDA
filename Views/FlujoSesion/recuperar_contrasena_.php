@@ -5,16 +5,20 @@ include '../../config/EnviarCorreo.php';
 $enviado = false;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $emailUsuario = trim($_POST['emailUsuario']);
-    $emailEscapado = mysqli_real_escape_string($link, $emailUsuario);
-    $query = "SELECT codUsuario, nombreUsuario FROM USUARIOS WHERE emailUsuario = '$emailEscapado'";
-    $resultado = mysqli_query($link, $query);
+    $query = "SELECT codUsuario, nombreUsuario FROM USUARIOS WHERE emailUsuario = ?";
+    $stmt = mysqli_prepare($link, $query);
+    mysqli_stmt_bind_param($stmt, 's', $emailUsuario);
+    mysqli_stmt_execute($stmt);
+    $resultado = mysqli_stmt_get_result($stmt);
     if ($resultado && mysqli_num_rows($resultado) === 1) {
         $usuario = mysqli_fetch_assoc($resultado);
         $codUsuario = (int) $usuario['codUsuario'];
         $token = bin2hex(random_bytes(32));
-        mysqli_query($link, "UPDATE USUARIOS
-                              SET tokenRecuperacion = '$token', tokenRecuperacionExp = DATE_ADD(NOW(), INTERVAL 1 HOUR)
-                              WHERE codUsuario = $codUsuario");
+        $stmtToken = mysqli_prepare($link, "UPDATE USUARIOS
+                              SET tokenRecuperacion = ?, tokenRecuperacionExp = DATE_ADD(NOW(), INTERVAL 1 HOUR)
+                              WHERE codUsuario = ?");
+        mysqli_stmt_bind_param($stmtToken, 'si', $token, $codUsuario);
+        mysqli_stmt_execute($stmtToken);
         $enlace = BASE_URL . '/Views/FlujoSesion/restablecer_contrasena.php?token=' . $token;
         $cuerpo = "<p>Hola <strong>{$usuario['nombreUsuario']}</strong>,</p>"
             . "<p>Recibimos una solicitud para restablecer tu contraseña de VuelaLibre. El siguiente enlace es válido por 1 hora:</p>"

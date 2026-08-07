@@ -39,10 +39,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
   }
   if ($error === '') {
-    $nombreEsc = mysqli_real_escape_string($link, $nombreUsuario);
-    $apellidoEsc = mysqli_real_escape_string($link, $apellidoUsuario);
-    $telefonoEsc = mysqli_real_escape_string($link, $telefonoUsuario);
-    $query = "UPDATE USUARIOS SET nombreUsuario = '$nombreEsc', apellidoUsuario = '$apellidoEsc', telefonoUsuario = '$telefonoEsc' WHERE codUsuario = $cod";
+    $query = "UPDATE USUARIOS SET nombreUsuario = ?, apellidoUsuario = ?, telefonoUsuario = ? WHERE codUsuario = ?";
+    $tiposUpd = 'sssi';
+    $valoresUpd = [$nombreUsuario, $apellidoUsuario, $telefonoUsuario, $cod];
     if (!empty($claveActual) || !empty($claveNueva)) {
       if (empty($claveActual) || empty($claveNueva)) {
         $error = "Para cambiar la contraseña, completá ambos campos.";
@@ -54,12 +53,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = "La contraseña debe tener entre 8 y 32 caracteres e incluir al menos 1 mayúscula, 1 dígito y 1 carácter especial.";
         $campoError = "claveNueva";
       } else {
-        $query = "UPDATE USUARIOS SET nombreUsuario = '$nombreEsc', apellidoUsuario = '$apellidoEsc', telefonoUsuario = '$telefonoEsc', claveUsuario = '" . md5($claveNueva) . "' WHERE codUsuario = $cod";
+        $query = "UPDATE USUARIOS SET nombreUsuario = ?, apellidoUsuario = ?, telefonoUsuario = ?, claveUsuario = ? WHERE codUsuario = ?";
+        $tiposUpd = 'ssssi';
+        $valoresUpd = [$nombreUsuario, $apellidoUsuario, $telefonoUsuario, md5($claveNueva), $cod];
       }
     }
   }
   if ($error === '') {
-    mysqli_query($link, $query);
+    $stmtUpd = mysqli_prepare($link, $query);
+    mysqli_stmt_bind_param($stmtUpd, $tiposUpd, ...$valoresUpd);
+    mysqli_stmt_execute($stmtUpd);
     $resultado = mysqli_query($link, "SELECT * FROM USUARIOS WHERE codUsuario = $cod");
     $usuario = mysqli_fetch_assoc($resultado);
     $_SESSION['nombreUsuario'] = $usuario['nombreUsuario'];
