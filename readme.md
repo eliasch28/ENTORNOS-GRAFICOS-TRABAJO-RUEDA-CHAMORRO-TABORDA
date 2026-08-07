@@ -39,7 +39,7 @@ Correo: lucia.fernandez@vuelalibre.test ; Contraseña: Vuela2026!
 - [x] Mensajes de commit entendibles.
 - [x] Hay un `.gitignore` correcto: **no** están subidos `vendor/`, `node_modules/`, `.env`, ni archivos temporales.
 - [x] **No hay credenciales, claves de API ni contraseñas en el código.** Las credenciales de base de datos y de correo viven en `config/config.php` y `config/mail.php`, que están en `.gitignore`. En el repositorio quedan `config/config.example.php` y `config/mail.example.php` como plantillas.
-- [ ] La rama principal es la que corresponde a lo entregado y está actualizada.
+- [x] La rama principal es la que corresponde a lo entregado y está actualizada.
 
 ## 3. Se puede testear sin instrucciones
 
@@ -97,8 +97,8 @@ Correo: lucia.fernandez@vuelalibre.test ; Contraseña: Vuela2026!
 
 ## 9. Visual y responsive
 
-- [ ] Se ve bien en celular, tablet y escritorio.
-- [ ] Nada se superpone, se corta ni requiere scroll horizontal.
+- [x] Se ve bien en celular, tablet y escritorio.
+- [x] Nada se superpone, se corta ni requiere scroll horizontal.
 - [x] Estilo consistente entre pantallas (colores, tipografías, botones).
 - [x] Las imágenes tienen tamaño razonable y `alt`.
 - [x] Las imágenes tiene título visible al pasar mouse sobre las mismas.
@@ -177,10 +177,10 @@ Correo: lucia.fernandez@vuelalibre.test ; Contraseña: Vuela2026!
 
 ## 20. Test de Validación de Estándares
 
-- [ ] Realizó los test de validación de HTML.
+- [x] Realizó los test de validación de HTML.
 - [x] Realizó los test de validación de CSS.
 - [x] Realizó los test de validación de ACCESIBLIDAD.
-- [ ] Pegó reportes de cada uno de los test de validación en el informe
+- [x] Pegó reportes de cada uno de los test de validación en el informe
 - [x] Explicó lo mostrado en los reportes.
 - [x] Realizó los cambios sugeridos por los test de validación. (Hay algunas Warnings de los tests que no fueron cambiadas por diferentes cuestiones, en su mayoria esteticas, y porque su )
 - [x] Fundamentó los cambios realizados según lo solicitado por los test de validación.
