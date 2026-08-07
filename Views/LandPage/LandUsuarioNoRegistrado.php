@@ -81,7 +81,7 @@ if ($resVuelos) {
     $vuelosFiltrados[] = $v;
 }
 $totalVuelosFiltrados = count($vuelosFiltrados);
-$porPagVuelo = 2;
+$porPagVuelo = 5;
 $totPaginasVuelo = max(1, (int) ceil($totalVuelosFiltrados / $porPagVuelo));
 $paginaVuelos = max(1, min($totPaginasVuelo, (int) ($_GET['paginaVuelo'] ?? 1)));
 $vuelos = array_slice($vuelosFiltrados, ($paginaVuelos - 1) * $porPagVuelo, $porPagVuelo);
@@ -213,16 +213,16 @@ $urlBaseVuelos = 'LandUsuarioNoRegistrado.php' . (http_build_query($getVuelos) ?
             <nav aria-label="Paginación de aerolíneas" class="mt-4">
               <ul class="pagination justify-content-center">
                 <li class="page-item <?= $paginaAero <= 1 ? 'disabled' : '' ?>">
-                  <a class="page-link" href="<?= $urlBaseAero ?>paginaAero=<?= $paginaAero - 1 ?>">Anterior</a>
+                  <a class="page-link" href="<?= $urlBaseAero ?>paginaAero=<?= $paginaAero - 1 ?>#seccion-aerolineas">Anterior</a>
                 </li>
                 <?php for ($i = 1; $i <= $totPaginasAero; $i++): ?>
                   <li class="page-item <?= $i === $paginaAero ? 'active' : '' ?>">
-                    <a class="page-link" href="<?= $urlBaseAero ?>paginaAero=<?= $i ?>"
+                    <a class="page-link" href="<?= $urlBaseAero ?>paginaAero=<?= $i ?>#seccion-aerolineas"
                       <?= $i === $paginaAero ? 'aria-current="page"' : '' ?>><?= $i ?></a>
                   </li>
                 <?php endfor; ?>
                 <li class="page-item <?= $paginaAero >= $totPaginasAero ? 'disabled' : '' ?>">
-                  <a class="page-link" href="<?= $urlBaseAero ?>paginaAero=<?= $paginaAero + 1 ?>">Siguiente</a>
+                  <a class="page-link" href="<?= $urlBaseAero ?>paginaAero=<?= $paginaAero + 1 ?>#seccion-aerolineas">Siguiente</a>
                 </li>
               </ul>
             </nav>
@@ -397,7 +397,7 @@ $urlBaseVuelos = 'LandUsuarioNoRegistrado.php' . (http_build_query($getVuelos) ?
             <nav aria-label="Paginación de vuelos" class="mt-4">
               <ul class="pagination justify-content-center">
                 <li class="page-item <?= $paginaVuelos <= 1 ? 'disabled' : '' ?>">
-                  <a class="page-link" href="<?= $urlBaseVuelos ?>paginaVuelo=<?= $paginaVuelos - 1 ?>#seccion-vuelos" ?>">Anterior</a>
+                  <a class="page-link" href="<?= $urlBaseVuelos ?>paginaVuelo=<?= $paginaVuelos - 1 ?>#seccion-vuelos">Anterior</a>
                 </li>
                 <?php for ($i = 1; $i <= $totPaginasVuelo; $i++): ?>
                   <li class="page-item <?= $i === $paginaVuelos ? 'active' : '' ?>">

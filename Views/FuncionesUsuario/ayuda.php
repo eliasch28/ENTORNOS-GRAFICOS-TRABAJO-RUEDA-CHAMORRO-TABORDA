@@ -259,6 +259,7 @@ $categorias = [
             <?php endif; ?>
 
             <?php if ($totalPagFaq > 1): ?>
+<<<<<<< HEAD
               <nav aria-label="Paginación de preguntas frecuentes" class="mb-4">
                 <ul class="pagination justify-content-center">
                   <li class="page-item <?= $paginaFaq <= 1 ? 'disabled' : '' ?>">
@@ -275,6 +276,24 @@ $categorias = [
                   </li>
                 </ul>
               </nav>
+=======
+            <nav aria-label="Paginación de preguntas frecuentes" class="mb-4">
+              <ul class="pagination justify-content-center">
+                <li class="page-item <?= $paginaFaq <= 1 ? 'disabled' : '' ?>">
+                  <a class="page-link" href="<?= $urlBaseAyuda ?>pagina=<?= $paginaFaq - 1 ?>#faq-accordion">Anterior</a>
+                </li>
+                <?php for ($i = 1; $i <= $totalPagFaq; $i++): ?>
+                  <li class="page-item <?= $i === $paginaFaq ? 'active' : '' ?>">
+                    <a class="page-link" href="<?= $urlBaseAyuda ?>pagina=<?= $i ?>#faq-accordion"
+                       <?= $i === $paginaFaq ? 'aria-current="page"' : '' ?>><?= $i ?></a>
+                  </li>
+                <?php endfor; ?>
+                <li class="page-item <?= $paginaFaq >= $totalPagFaq ? 'disabled' : '' ?>">
+                  <a class="page-link" href="<?= $urlBaseAyuda ?>pagina=<?= $paginaFaq + 1 ?>#faq-accordion">Siguiente</a>
+                </li>
+              </ul>
+            </nav>
+>>>>>>> 3d81150b23a59bdaa8d0b49dc8ee6b9fe2fe5b1d
             <?php endif; ?>
 
             <div class="text-center mb-3">

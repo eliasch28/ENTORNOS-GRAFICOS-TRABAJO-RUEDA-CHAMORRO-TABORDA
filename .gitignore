@@ -1,1 +1,31 @@
+# Configuracion propia de cada entorno (credenciales de base de datos y correo).
+# Cada integrante y el servidor tienen la suya. Usar los archivos .example como
+# plantilla.
 config/config.php
+config/mail.php
+
+# Variables de entorno
+.env
+.env.*
+!.env.example
+
+# Dependencias instaladas por gestores de paquetes
+vendor/
+node_modules/
+
+# Volcados y respaldos de base de datos
+*.sql.gz
+*.dump
+*.bak
+
+# Archivos temporales y de editor
+*.log
+*.tmp
+*~
+.vscode/
+.idea/
+
+# Sistema operativo
+Thumbs.db
+desktop.ini
+.DS_Store

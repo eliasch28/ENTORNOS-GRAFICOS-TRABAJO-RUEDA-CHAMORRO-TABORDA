@@ -79,7 +79,7 @@ $resPromociones = mysqli_query($link, $sqlPromociones);
           </div>
         <?php endif; ?>
 
-        <div class="table-responsive rounded">
+        <div class="table-responsive rounded" id="listado">
           <table class="table table-striped table-hover align-middle">
             <thead class="table-dark">
               <tr>
@@ -160,15 +160,15 @@ $resPromociones = mysqli_query($link, $sqlPromociones);
           <nav aria-label="Paginación" class="mt-4">
             <ul class="pagination justify-content-center mb-0">
               <li class="page-item <?= $paginaActual <= 1 ? 'disabled' : '' ?>">
-                <a class="page-link" href="?pagina=<?= $paginaActual - 1 ?>" <?= $paginaActual <= 1 ? 'tabindex="-1" aria-disabled="true"' : '' ?>>Anterior</a>
+                <a class="page-link" href="?pagina=<?= $paginaActual - 1 ?>#listado" <?= $paginaActual <= 1 ? 'tabindex="-1" aria-disabled="true"' : '' ?>>Anterior</a>
               </li>
               <?php for ($i = 1; $i <= $totalPaginas; $i++): ?>
                 <li class="page-item <?= $i === $paginaActual ? 'active' : '' ?>" <?= $i === $paginaActual ? 'aria-current="page"' : '' ?>>
-                  <a class="page-link" href="?pagina=<?= $i ?>"><?= $i ?></a>
+                  <a class="page-link" href="?pagina=<?= $i ?>#listado"><?= $i ?></a>
                 </li>
               <?php endfor; ?>
               <li class="page-item <?= $paginaActual >= $totalPaginas ? 'disabled' : '' ?>">
-                <a class="page-link" href="?pagina=<?= $paginaActual + 1 ?>" <?= $paginaActual >= $totalPaginas ? 'tabindex="-1" aria-disabled="true"' : '' ?>>Siguiente</a>
+                <a class="page-link" href="?pagina=<?= $paginaActual + 1 ?>#listado" <?= $paginaActual >= $totalPaginas ? 'tabindex="-1" aria-disabled="true"' : '' ?>>Siguiente</a>
               </li>
             </ul>
           </nav>

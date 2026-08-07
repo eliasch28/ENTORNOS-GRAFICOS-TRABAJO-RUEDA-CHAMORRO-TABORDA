@@ -37,8 +37,8 @@ Correo: lucia.fernandez@vuelalibre.test ; Contraseña: Vuela2026!
 - [x] Tiene un `README.md` con: qué hace el sistema, URL de producción, tecnologías usadas, integrantes del grupo y usuarios de prueba.
 - [x] Historial de commits real y distribuido entre los integrantes (no un único commit "final").
 - [x] Mensajes de commit entendibles.
-- [ ] Hay un `.gitignore` correcto: **no** están subidos `vendor/`, `node_modules/`, `.env`, ni archivos temporales.
-- [ ] **No hay credenciales, claves de API ni contraseñas en el código.**
+- [x] Hay un `.gitignore` correcto: **no** están subidos `vendor/`, `node_modules/`, `.env`, ni archivos temporales.
+- [x] **No hay credenciales, claves de API ni contraseñas en el código.** Las credenciales de base de datos y de correo viven en `config/config.php` y `config/mail.php`, que están en `.gitignore`. En el repositorio quedan `config/config.example.php` y `config/mail.example.php` como plantillas.
 - [ ] La rama principal es la que corresponde a lo entregado y está actualizada.
 
 ## 3. Se puede testear sin instrucciones
