@@ -9,46 +9,51 @@ $cod = $_SESSION['codUsuario'];
 $resultado = mysqli_query($link, "SELECT * FROM USUARIOS WHERE codUsuario = $cod");
 $usuario = mysqli_fetch_assoc($resultado);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  $nombreUsuario = trim($_POST['nombreUsuario']);
-  $apellidoUsuario = trim($_POST['apellidoUsuario']);
-  $telefonoUsuario = trim($_POST['telefonoUsuario']);
-  $claveActual = $_POST['claveActual'];
-  $claveNueva = $_POST['claveNueva'];
+  $accion = $_POST['accion'] ?? '';
 
-  if ($nombreUsuario === '' || $apellidoUsuario === '') {
-    $error = "El nombre y el apellido son obligatorios.";
-  }
+  if ($accion === 'datos') {
+    $nombreUsuario = trim($_POST['nombreUsuario']);
+    $apellidoUsuario = trim($_POST['apellidoUsuario']);
+    $telefonoUsuario = trim($_POST['telefonoUsuario']);
 
-  if (!isset($error)) {
-    $telefonoOriginal = $usuario['telefonoUsuario'] ?? '';
-
-    if ($telefonoUsuario !== $telefonoOriginal) {
-      if (!preg_match('/^\+54\d{11}$|^\+598\d{8}$|^\+56\d{9}$|^\+595\d{9}$|^\+591\d{8}$/', $telefonoUsuario)) {
-        $error = "El número de teléfono no es válido para el país seleccionado.";
-      }
-    } else {
-      $telefonoUsuario = $telefonoOriginal;
+    if ($nombreUsuario === '' || $apellidoUsuario === '') {
+      $errorDatos = "El nombre y el apellido son obligatorios.";
     }
-  }
-  if (!isset($error)) {
-    $query = "UPDATE USUARIOS SET nombreUsuario = '$nombreUsuario', apellidoUsuario = '$apellidoUsuario', telefonoUsuario = '$telefonoUsuario' WHERE codUsuario = $cod";
-    if (!empty($claveActual) || !empty($claveNueva)) {
-      if (empty($claveActual) || empty($claveNueva)) {
-        $error = "Para cambiar la contraseña, completá ambos campos.";
-      } elseif (md5($claveActual) !== $usuario['claveUsuario']) {
-        $error = "La contraseña actual es incorrecta.";
-      } elseif (!preg_match('/^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,32}$/', $claveNueva)) {
-        $error = "La contraseña debe tener entre 8 y 32 caracteres e incluir al menos 1 mayúscula, 1 dígito y 1 carácter especial.";
+
+    if (!isset($errorDatos)) {
+      $telefonoOriginal = $usuario['telefonoUsuario'] ?? '';
+
+      if ($telefonoUsuario !== $telefonoOriginal) {
+        if (!preg_match('/^\+54\d{11}$|^\+598\d{8}$|^\+56\d{9}$|^\+595\d{9}$|^\+591\d{8}$/', $telefonoUsuario)) {
+          $errorDatos = "El número de teléfono no es válido para el país seleccionado.";
+        }
       } else {
-        $query = "UPDATE USUARIOS SET nombreUsuario = '$nombreUsuario', apellidoUsuario = '$apellidoUsuario', telefonoUsuario = '$telefonoUsuario', claveUsuario = '" . md5($claveNueva) . "' WHERE codUsuario = $cod";
+        $telefonoUsuario = $telefonoOriginal;
       }
     }
-  }
-  if (!isset($error)) {
-    mysqli_query($link, $query);
-    $resultado = mysqli_query($link, "SELECT * FROM USUARIOS WHERE codUsuario = $cod");
-    $usuario = mysqli_fetch_assoc($resultado);
-    $exito = "Perfil actualizado correctamente.";
+
+    if (!isset($errorDatos)) {
+      $query = "UPDATE USUARIOS SET nombreUsuario = '$nombreUsuario', apellidoUsuario = '$apellidoUsuario', telefonoUsuario = '$telefonoUsuario' WHERE codUsuario = $cod";
+      mysqli_query($link, $query);
+      $resultado = mysqli_query($link, "SELECT * FROM USUARIOS WHERE codUsuario = $cod");
+      $usuario = mysqli_fetch_assoc($resultado);
+      $exitoDatos = "Perfil actualizado correctamente.";
+    }
+  } elseif ($accion === 'contrasena') {
+    $claveActual = $_POST['claveActual'] ?? '';
+    $claveNueva = $_POST['claveNueva'] ?? '';
+
+    if (empty($claveActual) || empty($claveNueva)) {
+      $errorClave = "Para cambiar la contraseña, completá ambos campos.";
+    } elseif (md5($claveActual) !== $usuario['claveUsuario']) {
+      $errorClave = "La contraseña actual es incorrecta.";
+    } elseif (!preg_match('/^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,32}$/', $claveNueva)) {
+      $errorClave = "La contraseña debe tener entre 8 y 32 caracteres e incluir al menos 1 mayúscula, 1 dígito y 1 carácter especial.";
+    } else {
+      $query = "UPDATE USUARIOS SET claveUsuario = '" . md5($claveNueva) . "' WHERE codUsuario = $cod";
+      mysqli_query($link, $query);
+      $exitoClave = "Contraseña actualizada correctamente.";
+    }
   }
 }
 
@@ -229,18 +234,19 @@ foreach (
 
           <div class="col-lg-8">
 
-            <?php if (!empty($exito)): ?>
-              <div class="alert alert-success"><i class="bi bi-check-circle me-2" aria-hidden="true"></i><?= $exito ?>
+            <?php if (!empty($exitoDatos)): ?>
+              <div class="alert alert-success"><i class="bi bi-check-circle me-2" aria-hidden="true"></i><?= $exitoDatos ?>
               </div>
             <?php endif; ?>
 
-            <?php if (!empty($error)): ?>
+            <?php if (!empty($errorDatos)): ?>
               <div class="alert alert-danger"><i class="bi bi-exclamation-triangle me-2"
-                  aria-hidden="true"></i><?= $error ?></div>
+                  aria-hidden="true"></i><?= $errorDatos ?></div>
             <?php endif; ?>
 
             <form action="mi_perfil.php" method="post" class="card border-0 shadow-sm p-4"
               aria-label="Formulario de edición de perfil">
+              <input type="hidden" name="accion" value="datos" />
 
               <p class="titulo-seccion-formulario">
                 <i class="bi bi-person me-1" aria-hidden="true"></i>Datos personales
@@ -417,12 +423,40 @@ foreach (
 
               </div>
 
+              <p class="text-secondary small mb-3">
+                <span class="text-danger" aria-hidden="true">*</span>
+                Los campos marcados son obligatorios.
+              </p>
+
+              <div class="d-flex gap-3 flex-wrap">
+                <button type="submit" class="btn btn-primary">
+                  <i class="bi bi-floppy-fill me-2" aria-hidden="true"></i>Guardar cambios
+                </button>
+                <a href="../LandPage/LandUsuarioRegistrado.php" class="btn btn-outline-secondary">
+                  <i class="bi bi-x-circle me-2" aria-hidden="true"></i>Cancelar
+                </a>
+              </div>
+
+            </form>
+
+            <?php if (!empty($exitoClave)): ?>
+              <div class="alert alert-success"><i class="bi bi-check-circle me-2"
+                  aria-hidden="true"></i><?= $exitoClave ?></div>
+            <?php endif; ?>
+
+            <?php if (!empty($errorClave)): ?>
+              <div class="alert alert-danger"><i class="bi bi-exclamation-triangle me-2"
+                  aria-hidden="true"></i><?= $errorClave ?></div>
+            <?php endif; ?>
+
+            <form action="mi_perfil.php" method="post" class="card border-0 shadow-sm p-4 mt-4"
+              aria-label="Formulario de cambio de contraseña">
+
+              <input type="hidden" name="accion" value="contrasena" />
+
               <p class="titulo-seccion-formulario">
                 <i class="bi bi-lock me-1" aria-hidden="true"></i>
                 Cambiar contraseña
-                <span class="fw-normal text-secondary aclaracion-opcional">
-                  — Opcional. Dejá los campos vacíos si no querés cambiarla.
-                </span>
               </p>
 
               <div class="row g-3 mb-4">
@@ -438,7 +472,7 @@ foreach (
                     </button>
                   </div>
                   <div id="claveActual-ayuda" class="form-text">
-                    Requerida solo si querés cambiar tu contraseña.
+                    Ingresá tu contraseña actual para confirmar el cambio.
                   </div>
                 </div>
                 <div class="col-md-6">
@@ -460,18 +494,10 @@ foreach (
                 </div>
               </div>
 
-              <p class="text-secondary small mb-3">
-                <span class="text-danger" aria-hidden="true">*</span>
-                Los campos marcados son obligatorios.
-              </p>
-
               <div class="d-flex gap-3 flex-wrap">
                 <button type="submit" class="btn btn-primary">
-                  <i class="bi bi-floppy-fill me-2" aria-hidden="true"></i>Guardar cambios
+                  <i class="bi bi-shield-lock-fill me-2" aria-hidden="true"></i>Cambiar contraseña
                 </button>
-                <a href="../LandPage/LandUsuarioRegistrado.php" class="btn btn-outline-secondary">
-                  <i class="bi bi-x-circle me-2" aria-hidden="true"></i>Cancelar
-                </a>
               </div>
 
             </form>
