@@ -37,13 +37,13 @@ if ($reporteValido) {
   switch ($reporteActivo) {
     case 'ventas':
       $resReporte = mysqli_query($link, "SELECT r.codReserva, u.nombreUsuario, u.apellidoUsuario, v.origenVuelo, v.destinoVuelo,
-                                                v.precioVuelo, r.fechaReserva, r.estadoReserva
+                                                v.precioVuelo, r.cantidadPasajes, r.fechaReserva, r.estadoReserva
                                          FROM RESERVAS r
                                          INNER JOIN USUARIOS u ON r.codUsuario = u.codUsuario
                                          INNER JOIN VUELOS v ON r.codVuelo = v.codVuelo
                                          WHERE r.estadoReserva = 'confirmada'
                                          ORDER BY r.fechaReserva DESC, r.codReserva DESC");
-      $resTotalVentas = mysqli_query($link, "SELECT COALESCE(SUM(v.precioVuelo), 0) AS total
+      $resTotalVentas = mysqli_query($link, "SELECT COALESCE(SUM(v.precioVuelo * r.cantidadPasajes), 0) AS total
                                              FROM RESERVAS r
                                              INNER JOIN VUELOS v ON r.codVuelo = v.codVuelo
                                              WHERE r.estadoReserva = 'confirmada'");
@@ -235,7 +235,9 @@ $queryReporte = $reporteValido ? '&reporte=' . urlencode($reporteActivo) : '';
                   <th scope="col">#</th>
                   <th scope="col">Cliente</th>
                   <th scope="col">Vuelo</th>
-                  <th scope="col">Precio</th>
+                  <th scope="col">Precio unit.</th>
+                  <th scope="col">Pasajes</th>
+                  <th scope="col">Subtotal</th>
                   <th scope="col">Fecha Reserva</th>
                   <th scope="col">Estado</th>
                 </tr>
@@ -244,19 +246,23 @@ $queryReporte = $reporteValido ? '&reporte=' . urlencode($reporteActivo) : '';
                 <?php if ($filasReporte > 0): ?>
                   <?php while ($row = mysqli_fetch_assoc($resReporte)):
                     [$estadoLabel, $estadoClass] = badgeEstadoReserva($row['estadoReserva']);
+                    $pasajes  = max(1, (int) $row['cantidadPasajes']);
+                    $subtotal = (float) $row['precioVuelo'] * $pasajes;
                   ?>
                     <tr>
                       <th scope="row"><?= (int) $row['codReserva'] ?></th>
                       <td><?= htmlspecialchars($row['nombreUsuario'] . ' ' . $row['apellidoUsuario'], ENT_QUOTES, 'UTF-8') ?></td>
                       <td><?= htmlspecialchars($row['origenVuelo'] . ' → ' . $row['destinoVuelo'], ENT_QUOTES, 'UTF-8') ?></td>
                       <td><?= htmlspecialchars(formatearPrecio($row['precioVuelo']), ENT_QUOTES, 'UTF-8') ?></td>
+                      <td><?= $pasajes ?></td>
+                      <td><?= htmlspecialchars(formatearPrecio($subtotal), ENT_QUOTES, 'UTF-8') ?></td>
                       <td><?= $row['fechaReserva'] ? htmlspecialchars(date('d/m/Y', strtotime($row['fechaReserva'])), ENT_QUOTES, 'UTF-8') : '—' ?></td>
                       <td><span class="badge <?= $estadoClass ?>"><?= htmlspecialchars($estadoLabel, ENT_QUOTES, 'UTF-8') ?></span></td>
                     </tr>
                   <?php endwhile; ?>
                 <?php else: ?>
                   <tr>
-                    <td colspan="6" class="text-center text-muted py-4">No hay ventas confirmadas registradas.</td>
+                    <td colspan="8" class="text-center text-muted py-4">No hay ventas confirmadas registradas.</td>
                   </tr>
                 <?php endif; ?>
               </tbody>

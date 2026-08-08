@@ -37,7 +37,7 @@ if (!$sinAerolinea) {
          WHERE v.codAerolinea = $codAerolinea AND r.estadoReserva = 'pendiente de pago'");
     $reservasPendientes = (int)(mysqli_fetch_assoc($r)['total'] ?? 0);
     $r = mysqli_query($link,
-        "SELECT COALESCE(SUM(v.precioVuelo * (1 - COALESCE(p.descuentoPromocion,0)/100)), 0) AS total
+        "SELECT COALESCE(SUM(v.precioVuelo * (1 - COALESCE(p.descuentoPromocion,0)/100) * r.cantidadPasajes), 0) AS total
          FROM RESERVAS r
          JOIN VUELOS v ON r.codVuelo = v.codVuelo
          LEFT JOIN PROMOCIONES p

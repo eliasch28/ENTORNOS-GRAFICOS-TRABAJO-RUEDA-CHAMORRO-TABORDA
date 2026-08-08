@@ -12,41 +12,62 @@ if (($_SESSION['tipoUsuario'] ?? '') !== 'usuario') {
 }
 $mensajeError = '';
 $codUsuario   = (int)$_SESSION['codUsuario'];
+// Tope de pasajes por reserva. El maximo real de cada vuelo es este numero o
+// los asientos que le queden, lo que sea menor.
+const MAX_PASAJES_POR_RESERVA = 10;
 $sqlUser = "SELECT nombreUsuario, apellidoUsuario, emailUsuario, telefonoUsuario
             FROM USUARIOS WHERE codUsuario = $codUsuario";
 $resUser = mysqli_query($link, $sqlUser);
 $usuario = mysqli_fetch_assoc($resUser);
 $codVueloPost = 0;
+$cantidadPost = 1;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $codVuelo = isset($_POST['codVuelo']) ? (int)$_POST['codVuelo'] : 0;
     $codVueloPost = $codVuelo;
+    $cantidad = isset($_POST['cantidadPasajes']) ? (int)$_POST['cantidadPasajes'] : 0;
+    $cantidadPost = $cantidad;
     $tokenEnviado = $_POST['tokenReserva'] ?? '';
     $tokenEsperado = $_SESSION['tokenReserva'] ?? '';
     unset($_SESSION['tokenReserva']);
     if ($tokenEsperado === '' || !hash_equals($tokenEsperado, $tokenEnviado)) {
         $mensajeError = 'Esta reserva ya fue enviada. Revisá Mis Reservas antes de volver a intentar.';
-    } elseif ($codVuelo > 0) {
-        $sqlCheck = "SELECT codVuelo, asientosDisponibles FROM VUELOS
-                     WHERE codVuelo = $codVuelo AND asientosDisponibles > 0
-                     AND fechaSalidaVuelo >= CURDATE()";
-        $resCheck = mysqli_query($link, $sqlCheck);
-        if ($resCheck && mysqli_num_rows($resCheck) > 0) {
+    } elseif ($codVuelo <= 0) {
+        $mensajeError = 'Vuelo inválido.';
+    } elseif ($cantidad < 1 || $cantidad > MAX_PASAJES_POR_RESERVA) {
+        $mensajeError = 'La cantidad de pasajes debe estar entre 1 y ' . MAX_PASAJES_POR_RESERVA . '.';
+        $cantidadPost = 1;
+    } else {
+        // Se descuentan los asientos ANTES de insertar: si dos personas reservan
+        // el mismo vuelo a la vez, el UPDATE solo entra una vez por asiento y la
+        // segunda se va por el else sin dejar la reserva creada.
+        $sqlReservar = "UPDATE VUELOS SET asientosDisponibles = asientosDisponibles - $cantidad
+                        WHERE codVuelo = $codVuelo
+                          AND asientosDisponibles >= $cantidad
+                          AND fechaSalidaVuelo >= CURDATE()";
+        mysqli_query($link, $sqlReservar);
+        if (mysqli_affected_rows($link) === 1) {
             $fechaHoy = date('Y-m-d');
-            $sqlIns = "INSERT INTO RESERVAS (codUsuario, codVuelo, fechaReserva, estadoReserva)
-                       VALUES ($codUsuario, $codVuelo, '$fechaHoy', 'pendiente de pago')";
-            if (mysqli_query($link, $sqlIns)) {
-                mysqli_query($link, "UPDATE VUELOS SET asientosDisponibles = asientosDisponibles - 1
-                                     WHERE codVuelo = $codVuelo AND asientosDisponibles > 0");
+            $sqlIns = "INSERT INTO RESERVAS (codUsuario, codVuelo, cantidadPasajes, fechaReserva, estadoReserva)
+                       VALUES ($codUsuario, $codVuelo, $cantidad, '$fechaHoy', 'pendiente de pago')";
+            $reservaCreada = false;
+            // mysqli esta en modo excepciones (ver config/conexion.php), asi que
+            // el catch es lo que garantiza que los asientos se devuelvan.
+            try {
+                $reservaCreada = (bool)mysqli_query($link, $sqlIns);
+            } catch (mysqli_sql_exception $e) {
+                error_log('No se pudo crear la reserva: ' . $e->getMessage());
+            }
+            if ($reservaCreada) {
                 header('Location: mis_reservas.php?reservaCreada=1');
                 exit;
-            } else {
-                $mensajeError = 'No se pudo crear la reserva. Intentá de nuevo.';
             }
+            // La reserva no se pudo guardar: se devuelven los asientos tomados.
+            mysqli_query($link, "UPDATE VUELOS SET asientosDisponibles = asientosDisponibles + $cantidad
+                                 WHERE codVuelo = $codVuelo");
+            $mensajeError = 'No se pudo crear la reserva. Intentá de nuevo.';
         } else {
-            $mensajeError = 'El vuelo ya no tiene asientos disponibles o ha salido.';
+            $mensajeError = 'El vuelo no tiene ' . $cantidad . ' asientos disponibles o ya ha salido.';
         }
-    } else {
-        $mensajeError = 'Vuelo inválido.';
     }
 }
 $codVueloGet = isset($_GET['codVuelo']) ? (int)$_GET['codVuelo'] : $codVueloPost;
@@ -79,6 +100,10 @@ $descuento   = (float)($vuelo['descuentoPromocion'] ?? 0);
 $precioBase  = (float)$vuelo['precioVuelo'];
 $precioFinal = $descuento > 0 ? $precioBase * (1 - $descuento / 100) : $precioBase;
 $ahorro      = $precioBase - $precioFinal;
+// Nunca se pueden pedir mas pasajes que asientos queden libres.
+$asientosLibres = (int)$vuelo['asientosDisponibles'];
+$maxPasajes     = min(MAX_PASAJES_POR_RESERVA, $asientosLibres);
+$cantidadSel    = min(max($cantidadPost, 1), $maxPasajes);
 $_SESSION['tokenReserva'] = bin2hex(random_bytes(16));
 $fechaFmt    = formatearFechaLarga($vuelo['fechaSalidaVuelo']);
 $horaFmt     = substr($vuelo['horaSalidaVuelo'], 0, 5);
@@ -281,19 +306,34 @@ $horaFmt     = substr($vuelo['horaSalidaVuelo'], 0, 5);
                 </h2>
 
                 <div class="fila-detalle">
-                  <span class="etiqueta-detalle">Precio base</span>
+                  <span class="etiqueta-detalle">Precio base por pasaje</span>
                   <span>ARS <?= number_format($precioBase, 0, ',', '.') ?></span>
                 </div>
                 <?php if ($descuento > 0): ?>
                 <div class="fila-detalle">
-                  <span class="etiqueta-detalle">Descuento (<?= (int)$descuento ?>%)</span>
+                  <span class="etiqueta-detalle">Descuento (<?= (int)$descuento ?>%) por pasaje</span>
                   <span class="text-success">- ARS <?= number_format($ahorro, 0, ',', '.') ?></span>
                 </div>
                 <?php endif; ?>
                 <div class="fila-detalle">
-                  <span class="fw-bold">Total a pagar</span>
-                  <span class="fw-bold fs-5 text-dark">ARS <?= number_format($precioFinal, 0, ',', '.') ?></span>
+                  <span class="etiqueta-detalle">Pasajes</span>
+                  <span>
+                    &times; <span id="resumenCantidad"><?= $cantidadSel ?></span>
+                  </span>
                 </div>
+                <div class="fila-detalle">
+                  <span class="fw-bold">Total a pagar</span>
+                  <span class="fw-bold fs-5 text-dark">
+                    ARS <span id="resumenTotal"><?= number_format($precioFinal * $cantidadSel, 0, ',', '.') ?></span>
+                  </span>
+                </div>
+                <?php if ($descuento > 0): ?>
+                <p class="text-success small mb-0 mt-2">
+                  <i class="bi bi-piggy-bank me-1" aria-hidden="true"></i>
+                  Ahorrás ARS <span id="resumenAhorro"><?= number_format($ahorro * $cantidadSel, 0, ',', '.') ?></span>
+                  en total.
+                </p>
+                <?php endif; ?>
 
                 <div class="alert alert-info small py-2 mt-3 mb-0" role="note">
                   <i class="bi bi-info-circle me-1" aria-hidden="true"></i>
@@ -318,6 +358,34 @@ $horaFmt     = substr($vuelo['horaSalidaVuelo'], 0, 5);
                 <i class="bi bi-check2-circle me-2 text-primary" aria-hidden="true"></i>
                 Confirmar reserva
               </h2>
+
+              <div class="mb-4">
+                <label for="cantidadPasajes" class="form-label fw-semibold small">
+                  <i class="bi bi-people me-1" aria-hidden="true"></i>
+                  Cantidad de pasajes
+                </label>
+                <select class="form-select" id="cantidadPasajes" name="cantidadPasajes"
+                        required
+                        aria-required="true"
+                        aria-describedby="cantidad-ayuda"
+                        data-precio-unitario="<?= htmlspecialchars((string)round($precioFinal), ENT_QUOTES, 'UTF-8') ?>"
+                        data-ahorro-unitario="<?= htmlspecialchars((string)round($ahorro), ENT_QUOTES, 'UTF-8') ?>">
+                  <?php for ($i = 1; $i <= $maxPasajes; $i++): ?>
+                    <option value="<?= $i ?>" <?= $i === $cantidadSel ? 'selected' : '' ?>>
+                      <?= $i ?> <?= $i === 1 ? 'pasaje' : 'pasajes' ?>
+                    </option>
+                  <?php endfor; ?>
+                </select>
+                <div id="cantidad-ayuda" class="form-text mt-1">
+                  <?php if ($maxPasajes < MAX_PASAJES_POR_RESERVA): ?>
+                    Solo quedan <?= $asientosLibres ?>
+                    <?= $asientosLibres === 1 ? 'asiento disponible' : 'asientos disponibles' ?>
+                    en este vuelo.
+                  <?php else: ?>
+                    Podés reservar hasta <?= MAX_PASAJES_POR_RESERVA ?> pasajes en una misma reserva.
+                  <?php endif; ?>
+                </div>
+              </div>
 
               <div class="mb-4">
                 <div class="form-check">
@@ -358,6 +426,38 @@ $horaFmt     = substr($vuelo['horaSalidaVuelo'], 0, 5);
   </main>
 
   <?php include '../Footer/footer.php'; ?>
+
+  <script>
+    // Refleja en el resumen de pago la cantidad de pasajes elegida.
+    // Si el navegador no ejecuta JS, el resumen igual se muestra bien: viene
+    // calculado desde PHP y el total definitivo se recalcula en el servidor.
+    document.addEventListener('DOMContentLoaded', function() {
+      const selectCantidad = document.getElementById('cantidadPasajes');
+      const totalEl        = document.getElementById('resumenTotal');
+      const cantidadEl     = document.getElementById('resumenCantidad');
+      const ahorroEl       = document.getElementById('resumenAhorro');
+      if (!selectCantidad || !totalEl) return;
+
+      const precioUnitario = Number(selectCantidad.dataset.precioUnitario) || 0;
+      const ahorroUnitario = Number(selectCantidad.dataset.ahorroUnitario) || 0;
+
+      function formatearPesos(valor) {
+        return Math.round(valor).toLocaleString('es-AR', { maximumFractionDigits: 0 });
+      }
+
+      function actualizarResumen() {
+        const cantidad = Number(selectCantidad.value) || 1;
+        cantidadEl.textContent = cantidad;
+        totalEl.textContent    = formatearPesos(precioUnitario * cantidad);
+        if (ahorroEl) {
+          ahorroEl.textContent = formatearPesos(ahorroUnitario * cantidad);
+        }
+      }
+
+      selectCantidad.addEventListener('change', actualizarResumen);
+      actualizarResumen();
+    });
+  </script>
 
 </body>
 </html>

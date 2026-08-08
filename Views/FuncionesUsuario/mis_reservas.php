@@ -19,9 +19,11 @@ function enviarCorreoConfirmacion(array $reserva): void
   $descuento   = (float)($reserva['descuentoPromocion'] ?? 0);
   $precioBase  = (float)$reserva['precioVuelo'];
   $precioFinal = $descuento > 0 ? $precioBase * (1 - $descuento / 100) : $precioBase;
+  $cantidad    = max(1, (int)($reserva['cantidadPasajes'] ?? 1));
   $fechaFmt    = date('d/m/Y', strtotime($reserva['fechaSalidaVuelo']));
   $horaFmt     = substr($reserva['horaSalidaVuelo'], 0, 5);
-  $totalFmt    = number_format($precioFinal, 0, ',', '.');
+  $unitarioFmt = number_format($precioFinal, 0, ',', '.');
+  $totalFmt    = number_format($precioFinal * $cantidad, 0, ',', '.');
   $nombre   = htmlspecialchars($reserva['nombreUsuario'], ENT_QUOTES, 'UTF-8');
   $origen   = htmlspecialchars($reserva['origenVuelo'], ENT_QUOTES, 'UTF-8');
   $destino  = htmlspecialchars($reserva['destinoVuelo'], ENT_QUOTES, 'UTF-8');
@@ -33,7 +35,8 @@ function enviarCorreoConfirmacion(array $reserva): void
     . "<tr><td style='border:1px solid #ddd;'><strong>Aerolínea</strong></td><td style='border:1px solid #ddd;'>$aero</td></tr>"
     . "<tr><td style='border:1px solid #ddd;'><strong>Origen</strong></td><td style='border:1px solid #ddd;'>$origen</td></tr>"
     . "<tr><td style='border:1px solid #ddd;'><strong>Destino</strong></td><td style='border:1px solid #ddd;'>$destino</td></tr>"
-    . "<tr><td style='border:1px solid #ddd;'><strong>Fecha de salida</strong></td><td style='border:1px solid #ddd;'>$fechaFmt · $horaFmt hs</td></tr>";
+    . "<tr><td style='border:1px solid #ddd;'><strong>Fecha de salida</strong></td><td style='border:1px solid #ddd;'>$fechaFmt · $horaFmt hs</td></tr>"
+    . "<tr><td style='border:1px solid #ddd;'><strong>Pasajes</strong></td><td style='border:1px solid #ddd;'>$cantidad (ARS $unitarioFmt c/u)</td></tr>";
   if ($descuento > 0) {
     $cuerpo .= "<tr><td style='border:1px solid #ddd;'><strong>Promoción aplicada</strong></td><td style='border:1px solid #ddd;'>" . (int)$descuento . "% de descuento</td></tr>";
   }
@@ -46,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $accion     = $_POST['accion']     ?? '';
   $codReserva = isset($_POST['codReserva']) ? (int)$_POST['codReserva'] : 0;
   if ($codReserva > 0) {
-    $sqlRes = "SELECT r.codReserva, r.estadoReserva,
+    $sqlRes = "SELECT r.codReserva, r.estadoReserva, r.cantidadPasajes,
                           v.codVuelo, v.origenVuelo, v.destinoVuelo,
                           v.fechaSalidaVuelo, v.horaSalidaVuelo,
                           v.precioVuelo,
@@ -73,11 +76,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $salidaTs   = strtotime($reserva['fechaSalidaVuelo'] . ' ' . $reserva['horaSalidaVuelo']);
         $limiteTs   = $salidaTs - (72 * 3600);
         if (time() <= $limiteTs) {
+          $pasajesLiberados = max(1, (int)($reserva['cantidadPasajes'] ?? 1));
           mysqli_query($link, "UPDATE RESERVAS SET estadoReserva = 'cancelada'
                                          WHERE codReserva = $codReserva");
-          mysqli_query($link, "UPDATE VUELOS SET asientosDisponibles = asientosDisponibles + 1
+          mysqli_query($link, "UPDATE VUELOS SET asientosDisponibles = asientosDisponibles + $pasajesLiberados
                                          WHERE codVuelo = {$reserva['codVuelo']}");
-          $mensajeExito = 'Reserva cancelada. El asiento fue liberado.';
+          $mensajeExito = $pasajesLiberados === 1
+            ? 'Reserva cancelada. El asiento fue liberado.'
+            : "Reserva cancelada. Se liberaron $pasajesLiberados asientos.";
         } else {
           $mensajeError = 'No es posible cancelar: ya pasaron las 72 horas previas al vuelo.';
         }
@@ -94,7 +100,7 @@ if ($estadoFiltro !== '' && in_array($estadoFiltro, $estadosValidos, true)) {
   $e = mysqli_real_escape_string($link, $estadoFiltro);
   $whereEstado = "AND r.estadoReserva = '$e'";
 }
-$sqlReservas = "SELECT r.codReserva, r.estadoReserva, r.fechaReserva,
+$sqlReservas = "SELECT r.codReserva, r.estadoReserva, r.fechaReserva, r.cantidadPasajes,
                        v.codVuelo, v.origenVuelo, v.destinoVuelo,
                        v.fechaSalidaVuelo, v.horaSalidaVuelo,
                        a.nombreAerolinea,
@@ -195,6 +201,8 @@ $resReservas = mysqli_query($link, $sqlReservas);
               $descuento  = (float)($r['descuentoPromocion'] ?? 0);
               $precioBase = (float)$r['precioVuelo'];
               $precioFinal = $descuento > 0 ? $precioBase * (1 - $descuento / 100) : $precioBase;
+              $cantidad   = max(1, (int)($r['cantidadPasajes'] ?? 1));
+              $totalReserva = $precioFinal * $cantidad;
               $fechaVueloFmt  = formatearFechaCorta($r['fechaSalidaVuelo']);
               $horaVueloFmt   = substr($r['horaSalidaVuelo'], 0, 5);
               $fechaReservaFmt = formatearFechaLarga($r['fechaReserva']);
@@ -298,9 +306,18 @@ $resReservas = mysqli_query($link, $sqlReservas);
                             </dd>
                           </div>
                           <div class="fila-detalle">
+                            <dt class="etiqueta-detalle">Pasajes</dt>
+                            <dd class="valor-detalle mb-0">
+                              <?= $cantidad ?>
+                              <span class="text-secondary fw-normal small">
+                                (ARS <?= number_format($precioFinal, 0, ',', '.') ?> c/u)
+                              </span>
+                            </dd>
+                          </div>
+                          <div class="fila-detalle">
                             <dt class="etiqueta-detalle"><?= $estado === 'confirmada' ? 'Total pagado' : 'Total' ?></dt>
                             <dd class="valor-detalle mb-0 <?= $estado === 'cancelada' ? 'text-secondary' : 'text-dark' ?>">
-                              ARS <?= number_format($precioFinal, 0, ',', '.') ?>
+                              ARS <?= number_format($totalReserva, 0, ',', '.') ?>
                             </dd>
                           </div>
                         </dl>

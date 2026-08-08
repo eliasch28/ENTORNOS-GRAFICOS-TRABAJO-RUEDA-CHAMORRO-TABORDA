@@ -8,8 +8,9 @@ if (!isset($_SESSION['codUsuario'])) {
 }
 $codUsuario = (int)$_SESSION['codUsuario'];
 $sqlStats = "SELECT COUNT(*) AS totalCompras,
-                    SUM(v.precioVuelo * (1 - COALESCE(p.descuentoPromocion, 0) / 100)) AS totalGastado,
-                    SUM(v.precioVuelo * COALESCE(p.descuentoPromocion, 0) / 100)        AS totalAhorrado
+                    COALESCE(SUM(r.cantidadPasajes), 0) AS totalPasajes,
+                    SUM(v.precioVuelo * (1 - COALESCE(p.descuentoPromocion, 0) / 100) * r.cantidadPasajes) AS totalGastado,
+                    SUM(v.precioVuelo * COALESCE(p.descuentoPromocion, 0) / 100 * r.cantidadPasajes)        AS totalAhorrado
              FROM RESERVAS r
              JOIN VUELOS v ON r.codVuelo = v.codVuelo
              LEFT JOIN PROMOCIONES p
@@ -20,9 +21,10 @@ $sqlStats = "SELECT COUNT(*) AS totalCompras,
 $resStats = mysqli_query($link, $sqlStats);
 $stats    = $resStats ? mysqli_fetch_assoc($resStats) : [];
 $totalCompras  = (int)($stats['totalCompras']  ?? 0);
+$totalPasajes  = (int)($stats['totalPasajes']  ?? 0);
 $totalGastado  = (float)($stats['totalGastado']  ?? 0);
 $totalAhorrado = (float)($stats['totalAhorrado'] ?? 0);
-$sqlHistorial = "SELECT r.codReserva, r.fechaReserva,
+$sqlHistorial = "SELECT r.codReserva, r.fechaReserva, r.cantidadPasajes,
                         v.origenVuelo, v.destinoVuelo,
                         v.fechaSalidaVuelo, v.horaSalidaVuelo,
                         v.precioVuelo,
@@ -104,9 +106,9 @@ $resHistorial = mysqli_query($link, $sqlHistorial);
           </div>
           <div class="col-6 col-md-3">
             <div class="caja-estadistica bg-info-subtle text-center">
-              <div class="fw-bold fs-4 text-info"><?= $totalCompras ?></div>
+              <div class="fw-bold fs-4 text-info"><?= $totalPasajes ?></div>
               <small class="text-secondary text-uppercase etiqueta-estadistica">
-                Vuelos realizados
+                Pasajes comprados
               </small>
             </div>
           </div>
@@ -122,7 +124,9 @@ $resHistorial = mysqli_query($link, $sqlHistorial);
               $descuento    = (float)($c['descuentoPromocion'] ?? 0);
               $precioBase   = (float)$c['precioVuelo'];
               $precioFinal  = $descuento > 0 ? $precioBase * (1 - $descuento / 100) : $precioBase;
-              $ahorro       = $precioBase - $precioFinal;
+              $cantidad     = max(1, (int)($c['cantidadPasajes'] ?? 1));
+              $totalPagado  = $precioFinal * $cantidad;
+              $ahorro       = ($precioBase - $precioFinal) * $cantidad;
               $fechaVFmt    = formatearFechaCorta($c['fechaSalidaVuelo']);
               $horaFmt      = substr($c['horaSalidaVuelo'], 0, 5);
               $fechaConfFmt = formatearFechaLarga($c['fechaReserva']);
@@ -201,9 +205,18 @@ $resHistorial = mysqli_query($link, $sqlHistorial);
                           </dd>
                         </div>
                         <div class="fila-detalle">
+                          <dt class="etiqueta-detalle">Pasajes</dt>
+                          <dd class="valor-detalle mb-0">
+                            <?= $cantidad ?>
+                            <span class="text-secondary fw-normal small">
+                              (ARS <?= number_format($precioFinal, 0, ',', '.') ?> c/u)
+                            </span>
+                          </dd>
+                        </div>
+                        <div class="fila-detalle">
                           <dt class="etiqueta-detalle">Total pagado</dt>
                           <dd class="valor-detalle mb-0 text-dark">
-                            ARS <?= number_format($precioFinal, 0, ',', '.') ?>
+                            ARS <?= number_format($totalPagado, 0, ',', '.') ?>
                           </dd>
                         </div>
                       </dl>
