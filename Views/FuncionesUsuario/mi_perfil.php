@@ -33,7 +33,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (!isset($errorDatos)) {
-      $query = "UPDATE USUARIOS SET nombreUsuario = '$nombreUsuario', apellidoUsuario = '$apellidoUsuario', telefonoUsuario = '$telefonoUsuario' WHERE codUsuario = $cod";
+      $nombreEsc   = mysqli_real_escape_string($link, $nombreUsuario);
+      $apellidoEsc = mysqli_real_escape_string($link, $apellidoUsuario);
+      $telefonoEsc = mysqli_real_escape_string($link, $telefonoUsuario);
+      $query = "UPDATE USUARIOS SET nombreUsuario = '$nombreEsc', apellidoUsuario = '$apellidoEsc', telefonoUsuario = '$telefonoEsc' WHERE codUsuario = $cod";
       mysqli_query($link, $query);
       $resultado = mysqli_query($link, "SELECT * FROM USUARIOS WHERE codUsuario = $cod");
       $usuario = mysqli_fetch_assoc($resultado);
