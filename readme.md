@@ -201,7 +201,7 @@ decisión del informe**, sin importar quién o qué la haya generado. Si no lo p
 explicar, no deben entregarlo.
 
 ### Anexar al informe
-
+Enlace al Informe: https://docs.google.com/document/d/1bNNVrx3-g1yNjL_VWoLpW_TRKS-H5tUxN4Kn4m8Uyo8/edit?usp=sharing
 El informe debe incluir una sección "Uso de herramientas de IA" (media carilla alcanza no debe ser extenso) con:
 
 - [x] *Qué herramientas usaron* (nombre y versión aproximada).
@@ -220,3 +220,6 @@ Si el grupo no utilizó ninguna herramienta de IA, también debe declararlo.
 - Se probo pegarle directamente al sitio con ráfagas de pedidos concurrentes simulando "clicks aleatorios" a varias páginas, y siempre devolvió el HTML completo y correcto.
 - Nunca se pudo reproducir en local.
 Y concluimos en que es "aleatorio" y ligado a clickear rápido en distintas páginas (más pedidos simultáneos = más chance).
+
+.Tenemos los archivos con las credenciales importantes del sitio cargadas en el host. El archivo config.example.php solamente hace que se pueda utilizar en local,
+pero lo que realmente da acceso y hace que el sitio arranque esta en el host.
