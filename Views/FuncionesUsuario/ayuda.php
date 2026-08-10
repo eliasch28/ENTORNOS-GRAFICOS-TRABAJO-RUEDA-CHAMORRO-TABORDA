@@ -1,6 +1,7 @@
 ﻿<?php
 session_start();
 require_once '../../config/EnviarCorreo.php';
+require_once '../../config/validaciones.php';
 $contactoExito = '';
 $contactoError = '';
 $campoError = '';
@@ -14,8 +15,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mensajeContacto'])) {
   } elseif ($emailContacto === '') {
     $contactoError = 'Ingresá tu correo electrónico.';
     $campoError = 'emailContacto';
-  } elseif (!filter_var($emailContacto, FILTER_VALIDATE_EMAIL)) {
-    $contactoError = 'Ingresá un correo electrónico válido.';
+  } elseif (!emailConDominioValido($emailContacto)) {
+    $contactoError = 'Ingresá un correo electrónico válido con un dominio como ejemplo@correo.com.';
     $campoError = 'emailContacto';
   } elseif ($mensajeContacto === '') {
     $contactoError = 'Escribí tu consulta antes de enviarla.';
@@ -259,8 +260,8 @@ $categorias = [
             <?php endif; ?>
 
             <?php if ($totalPagFaq > 1): ?>
-<<<<<<< HEAD
-              <nav aria-label="Paginación de preguntas frecuentes" class="mb-4">
+              <<<<<<< HEAD
+                <nav aria-label="Paginación de preguntas frecuentes" class="mb-4">
                 <ul class="pagination justify-content-center">
                   <li class="page-item <?= $paginaFaq <= 1 ? 'disabled' : '' ?>">
                     <a class="page-link" href="<?= $urlBaseAyuda ?>pagina=<?= $paginaFaq - 1 ?>">Anterior</a>
@@ -275,129 +276,129 @@ $categorias = [
                     <a class="page-link" href="<?= $urlBaseAyuda ?>pagina=<?= $paginaFaq + 1 ?>">Siguiente</a>
                   </li>
                 </ul>
-              </nav>
-=======
-            <nav aria-label="Paginación de preguntas frecuentes" class="mb-4">
-              <ul class="pagination justify-content-center">
-                <li class="page-item <?= $paginaFaq <= 1 ? 'disabled' : '' ?>">
-                  <a class="page-link" href="<?= $urlBaseAyuda ?>pagina=<?= $paginaFaq - 1 ?>#faq-accordion">Anterior</a>
-                </li>
-                <?php for ($i = 1; $i <= $totalPagFaq; $i++): ?>
-                  <li class="page-item <?= $i === $paginaFaq ? 'active' : '' ?>">
-                    <a class="page-link" href="<?= $urlBaseAyuda ?>pagina=<?= $i ?>#faq-accordion"
-                       <?= $i === $paginaFaq ? 'aria-current="page"' : '' ?>><?= $i ?></a>
-                  </li>
-                <?php endfor; ?>
-                <li class="page-item <?= $paginaFaq >= $totalPagFaq ? 'disabled' : '' ?>">
-                  <a class="page-link" href="<?= $urlBaseAyuda ?>pagina=<?= $paginaFaq + 1 ?>#faq-accordion">Siguiente</a>
-                </li>
-              </ul>
-            </nav>
->>>>>>> 3d81150b23a59bdaa8d0b49dc8ee6b9fe2fe5b1d
-            <?php endif; ?>
+                </nav>
+                =======
+                <nav aria-label="Paginación de preguntas frecuentes" class="mb-4">
+                  <ul class="pagination justify-content-center">
+                    <li class="page-item <?= $paginaFaq <= 1 ? 'disabled' : '' ?>">
+                      <a class="page-link" href="<?= $urlBaseAyuda ?>pagina=<?= $paginaFaq - 1 ?>#faq-accordion">Anterior</a>
+                    </li>
+                    <?php for ($i = 1; $i <= $totalPagFaq; $i++): ?>
+                      <li class="page-item <?= $i === $paginaFaq ? 'active' : '' ?>">
+                        <a class="page-link" href="<?= $urlBaseAyuda ?>pagina=<?= $i ?>#faq-accordion"
+                          <?= $i === $paginaFaq ? 'aria-current="page"' : '' ?>><?= $i ?></a>
+                      </li>
+                    <?php endfor; ?>
+                    <li class="page-item <?= $paginaFaq >= $totalPagFaq ? 'disabled' : '' ?>">
+                      <a class="page-link" href="<?= $urlBaseAyuda ?>pagina=<?= $paginaFaq + 1 ?>#faq-accordion">Siguiente</a>
+                    </li>
+                  </ul>
+                </nav>
+                >>>>>>> 3d81150b23a59bdaa8d0b49dc8ee6b9fe2fe5b1d
+              <?php endif; ?>
 
-            <div class="text-center mb-3">
-              <button class="btn btn-primary btn-lg"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#formularioContactoAyuda"
-                aria-expanded="false"
-                aria-controls="formularioContactoAyuda">
-                <i class="bi bi-envelope me-2" aria-hidden="true"></i>Contáctanos
-              </button>
-            </div>
+              <div class="text-center mb-3">
+                <button class="btn btn-primary btn-lg"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#formularioContactoAyuda"
+                  aria-expanded="false"
+                  aria-controls="formularioContactoAyuda">
+                  <i class="bi bi-envelope me-2" aria-hidden="true"></i>Contáctanos
+                </button>
+              </div>
 
-            <div class="collapse <?= ($contactoExito || $contactoError) ? 'show' : '' ?>" id="formularioContactoAyuda">
-              <div class="card border-0 shadow-sm">
-                <div class="card-body p-4">
+              <div class="collapse <?= ($contactoExito || $contactoError) ? 'show' : '' ?>" id="formularioContactoAyuda">
+                <div class="card border-0 shadow-sm">
+                  <div class="card-body p-4">
 
-                  <h2 class="h6 fw-bold text-primary mb-3">
-                    <i class="bi bi-envelope me-2" aria-hidden="true"></i>
-                    Envianos tu consulta
-                  </h2>
+                    <h2 class="h6 fw-bold text-primary mb-3">
+                      <i class="bi bi-envelope me-2" aria-hidden="true"></i>
+                      Envianos tu consulta
+                    </h2>
 
-                  <?php if ($contactoExito): ?>
-                    <div class="alert alert-success" role="status">
-                      <i class="bi bi-check-circle me-2" aria-hidden="true"></i>
-                      <?= htmlspecialchars($contactoExito, ENT_QUOTES, 'UTF-8') ?>
-                    </div>
-                  <?php elseif ($contactoError): ?>
-                    <div class="alert alert-danger" role="alert">
-                      <i class="bi bi-exclamation-triangle me-2" aria-hidden="true"></i>
-                      <?= htmlspecialchars($contactoError, ENT_QUOTES, 'UTF-8') ?>
-                    </div>
-                  <?php endif; ?>
-
-                  <form action="ayuda.php" method="post"
-                    aria-label="Formulario de consulta">
-                    <div class="row g-3">
-
-                      <div class="col-md-6">
-                        <label for="ayuda-nombre" class="form-label fw-semibold">
-                          Nombre completo
-                          <span class="text-danger" aria-hidden="true">*</span>
-                        </label>
-                        <input type="text" id="ayuda-nombre" name="nombreContacto"
-                          class="form-control<?= $campoError === 'nombreContacto' ? ' is-invalid' : '' ?>"
-                          placeholder="Tu nombre completo"
-                          value="<?= htmlspecialchars($contactoError !== '' ? ($nombreContacto ?? '') : '', ENT_QUOTES, 'UTF-8') ?>"
-                          required maxlength="100" />
-                        <?php if ($campoError === 'nombreContacto'): ?>
-                          <div class="invalid-feedback d-block"><?= htmlspecialchars($contactoError, ENT_QUOTES, 'UTF-8') ?></div>
-                        <?php endif; ?>
+                    <?php if ($contactoExito): ?>
+                      <div class="alert alert-success" role="status">
+                        <i class="bi bi-check-circle me-2" aria-hidden="true"></i>
+                        <?= htmlspecialchars($contactoExito, ENT_QUOTES, 'UTF-8') ?>
                       </div>
-
-                      <div class="col-md-6">
-                        <label for="ayuda-email" class="form-label fw-semibold">
-                          Correo electrónico
-                          <span class="text-danger" aria-hidden="true">*</span>
-                        </label>
-                        <input type="email" id="ayuda-email" name="emailContacto"
-                          class="form-control<?= $campoError === 'emailContacto' ? ' is-invalid' : '' ?>"
-                          placeholder="tu@correo.com"
-                          value="<?= htmlspecialchars($contactoError !== '' ? ($emailContacto ?? '') : '', ENT_QUOTES, 'UTF-8') ?>"
-                          required maxlength="100" />
-                        <?php if ($campoError === 'emailContacto'): ?>
-                          <div class="invalid-feedback d-block"><?= htmlspecialchars($contactoError, ENT_QUOTES, 'UTF-8') ?></div>
-                        <?php endif; ?>
+                    <?php elseif ($contactoError): ?>
+                      <div class="alert alert-danger" role="alert">
+                        <i class="bi bi-exclamation-triangle me-2" aria-hidden="true"></i>
+                        <?= htmlspecialchars($contactoError, ENT_QUOTES, 'UTF-8') ?>
                       </div>
+                    <?php endif; ?>
 
-                      <div class="col-12">
-                        <label for="ayuda-mensaje" class="form-label fw-semibold">
-                          Consulta
-                          <span class="text-danger" aria-hidden="true">*</span>
-                        </label>
-                        <textarea id="ayuda-mensaje" name="mensajeContacto"
-                          class="form-control<?= $campoError === 'mensajeContacto' ? ' is-invalid' : '' ?>" rows="4"
-                          placeholder="Describí tu consulta en detalle..."
-                          required maxlength="1000"><?= htmlspecialchars($contactoError !== '' ? ($mensajeContacto ?? '') : '', ENT_QUOTES, 'UTF-8') ?></textarea>
-                        <?php if ($campoError === 'mensajeContacto'): ?>
-                          <div class="invalid-feedback d-block"><?= htmlspecialchars($contactoError, ENT_QUOTES, 'UTF-8') ?></div>
-                        <?php endif; ?>
+                    <form action="ayuda.php" method="post"
+                      aria-label="Formulario de consulta">
+                      <div class="row g-3">
+
+                        <div class="col-md-6">
+                          <label for="ayuda-nombre" class="form-label fw-semibold">
+                            Nombre completo
+                            <span class="text-danger" aria-hidden="true">*</span>
+                          </label>
+                          <input type="text" id="ayuda-nombre" name="nombreContacto"
+                            class="form-control<?= $campoError === 'nombreContacto' ? ' is-invalid' : '' ?>"
+                            placeholder="Tu nombre completo"
+                            value="<?= htmlspecialchars($contactoError !== '' ? ($nombreContacto ?? '') : '', ENT_QUOTES, 'UTF-8') ?>"
+                            required maxlength="100" />
+                          <?php if ($campoError === 'nombreContacto'): ?>
+                            <div class="invalid-feedback d-block"><?= htmlspecialchars($contactoError, ENT_QUOTES, 'UTF-8') ?></div>
+                          <?php endif; ?>
+                        </div>
+
+                        <div class="col-md-6">
+                          <label for="ayuda-email" class="form-label fw-semibold">
+                            Correo electrónico
+                            <span class="text-danger" aria-hidden="true">*</span>
+                          </label>
+                          <input type="email" id="ayuda-email" name="emailContacto"
+                            class="form-control<?= $campoError === 'emailContacto' ? ' is-invalid' : '' ?>"
+                            placeholder="tu@correo.com"
+                            value="<?= htmlspecialchars($contactoError !== '' ? ($emailContacto ?? '') : '', ENT_QUOTES, 'UTF-8') ?>"
+                            required maxlength="100" />
+                          <?php if ($campoError === 'emailContacto'): ?>
+                            <div class="invalid-feedback d-block"><?= htmlspecialchars($contactoError, ENT_QUOTES, 'UTF-8') ?></div>
+                          <?php endif; ?>
+                        </div>
+
+                        <div class="col-12">
+                          <label for="ayuda-mensaje" class="form-label fw-semibold">
+                            Consulta
+                            <span class="text-danger" aria-hidden="true">*</span>
+                          </label>
+                          <textarea id="ayuda-mensaje" name="mensajeContacto"
+                            class="form-control<?= $campoError === 'mensajeContacto' ? ' is-invalid' : '' ?>" rows="4"
+                            placeholder="Describí tu consulta en detalle..."
+                            required maxlength="1000"><?= htmlspecialchars($contactoError !== '' ? ($mensajeContacto ?? '') : '', ENT_QUOTES, 'UTF-8') ?></textarea>
+                          <?php if ($campoError === 'mensajeContacto'): ?>
+                            <div class="invalid-feedback d-block"><?= htmlspecialchars($contactoError, ENT_QUOTES, 'UTF-8') ?></div>
+                          <?php endif; ?>
+                        </div>
+
+                        <div class="col-12">
+                          <p class="text-secondary small mb-3">
+                            <span class="text-danger" aria-hidden="true">*</span>
+                            Todos los campos son obligatorios.
+                          </p>
+                          <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send me-2" aria-hidden="true"></i>Enviar consulta
+                          </button>
+                          <button type="button"
+                            class="btn btn-outline-secondary ms-2"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#formularioContactoAyuda">
+                            Cancelar
+                          </button>
+                        </div>
+
                       </div>
+                    </form>
 
-                      <div class="col-12">
-                        <p class="text-secondary small mb-3">
-                          <span class="text-danger" aria-hidden="true">*</span>
-                          Todos los campos son obligatorios.
-                        </p>
-                        <button type="submit" class="btn btn-primary">
-                          <i class="bi bi-send me-2" aria-hidden="true"></i>Enviar consulta
-                        </button>
-                        <button type="button"
-                          class="btn btn-outline-secondary ms-2"
-                          data-bs-toggle="collapse"
-                          data-bs-target="#formularioContactoAyuda">
-                          Cancelar
-                        </button>
-                      </div>
-
-                    </div>
-                  </form>
-
+                  </div>
                 </div>
               </div>
-            </div>
 
           </div>
 

@@ -1,6 +1,7 @@
 ﻿<?php
 include '../../config/conexion.php';
 include '../../config/EnviarCorreo.php';
+include '../../config/validaciones.php';
 session_start();
 if (isset($_SESSION['codUsuario'])) {
   $check = mysqli_query($link, "SELECT codUsuario FROM USUARIOS WHERE codUsuario = " . (int) $_SESSION['codUsuario']);
@@ -47,6 +48,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $codAerolinea = (int) $rowAerolinea['codAerolinea'];
       }
     }
+  }
+  if (empty($error) && !emailConDominioValido($emailUsuario)) {
+    $error = "Ingresá un correo electrónico válido con un dominio como ejemplo@correo.com.";
+    $campoError = "emailUsuario";
   }
   if (empty($error) && !preg_match('/^\+54\d{11}$|^\+598\d{8}$|^\+56\d{9}$|^\+595\d{9}$|^\+591\d{8}$/', $telefonoUsuario)) {
     $error = "El número de teléfono no es válido para el país seleccionado.";
@@ -282,7 +287,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <input type="email" id="emailUsuario" name="emailUsuario" class="form-control<?= $campoError === 'emailUsuario' ? ' is-invalid' : '' ?>"
                   placeholder="ejemplo@correo.com" required autocomplete="email" aria-required="true"
                   value="<?= htmlspecialchars($_POST['emailUsuario'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
-                  aria-describedby="emailUsuario-ayuda" maxlength="100" />
+                  aria-describedby="emailUsuario-ayuda" maxlength="100"
+                  pattern="^[^@\s]+@[^@\s]+\.[^@\s]+$"
+                  title="Ingresá un correo con formato ejemplo@correo.com" />
                 <?php if ($campoError === 'emailUsuario'): ?>
                   <div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
                 <?php endif; ?>
@@ -318,20 +325,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div id="ayudaTelefono" class="form-text">Seleccioná un país para ingresar tu número.</div>
               </div>
               <script>
-                (function () {
-                  var PAISES = { AR: { code: '54', digits: 11 }, UY: { code: '598', digits: 8 }, CL: { code: '56', digits: 9 }, PY: { code: '595', digits: 9 }, BO: { code: '591', digits: 8 } };
+                (function() {
+                  var PAISES = {
+                    AR: {
+                      code: '54',
+                      digits: 11
+                    },
+                    UY: {
+                      code: '598',
+                      digits: 8
+                    },
+                    CL: {
+                      code: '56',
+                      digits: 9
+                    },
+                    PY: {
+                      code: '595',
+                      digits: 9
+                    },
+                    BO: {
+                      code: '591',
+                      digits: 8
+                    }
+                  };
                   var sel = document.getElementById('paisTelefono');
                   var num = document.getElementById('numeroTelefono');
                   var hidden = document.getElementById('telefonoUsuario');
                   var ayuda = document.getElementById('ayudaTelefono');
+
                   function sync() {
                     var p = PAISES[sel.value];
                     hidden.value = (p && num.value.length === p.digits) ? '+' + p.code + num.value : '';
                   }
+
                   function limpiarValidez() {
                     sel.setCustomValidity('');
                     num.setCustomValidity('');
                   }
+
                   function update() {
                     var p = PAISES[sel.value];
                     limpiarValidez();
@@ -349,6 +380,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ayuda.textContent = 'Ingresá exactamente ' + p.digits + ' dígitos (sin el código de país).';
                     sync();
                   }
+
                   function restaurar() {
                     if (!hidden.value) return;
                     for (var clave in PAISES) {
@@ -364,12 +396,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                   }
                   restaurar();
                   sel.addEventListener('change', update);
-                  num.addEventListener('input', function () {
+                  num.addEventListener('input', function() {
                     limpiarValidez();
                     this.value = this.value.replace(/\D/g, '').slice(0, PAISES[sel.value] ? PAISES[sel.value].digits : 0);
                     sync();
                   });
-                  sel.closest('form').addEventListener('submit', function (e) {
+                  sel.closest('form').addEventListener('submit', function(e) {
                     limpiarValidez();
                     sync();
                     var p = PAISES[sel.value];
@@ -407,11 +439,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <?php include '../Footer/footer.php'; ?>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
       const tipoUsuario = document.getElementById('tipo-usuario');
       const tipoAerolinea = document.getElementById('tipo-aerolinea');
       const campoIata = document.getElementById('campo-codigo-iata');
       const inputIata = document.getElementById('codigoIATA');
+
       function actualizarCampoIata() {
         const esCeo = tipoAerolinea.checked;
         campoIata.hidden = !esCeo;
