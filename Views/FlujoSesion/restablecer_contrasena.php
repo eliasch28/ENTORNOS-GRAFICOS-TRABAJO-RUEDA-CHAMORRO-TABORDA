@@ -6,50 +6,51 @@ $error = '';
 $campoError = '';
 $exito = false;
 if ($token === '') {
-    $error = "Enlace de recuperación inválido.";
+  $error = "Enlace de recuperación inválido.";
 } else {
-    $tokenEscapado = mysqli_real_escape_string($link, $token);
-    $query = "SELECT codUsuario FROM USUARIOS
+  $tokenEscapado = mysqli_real_escape_string($link, $token);
+  $query = "SELECT codUsuario FROM USUARIOS
               WHERE tokenRecuperacion = '$tokenEscapado' AND tokenRecuperacionExp > NOW()";
-    $resultado = mysqli_query($link, $query);
-    if ($resultado && mysqli_num_rows($resultado) === 1) {
-        $tokenValido = true;
-        $usuario = mysqli_fetch_assoc($resultado);
-        $codUsuario = (int) $usuario['codUsuario'];
-    } else {
-        $error = "El enlace de recuperación venció o no es válido.";
-    }
+  $resultado = mysqli_query($link, $query);
+  if ($resultado && mysqli_num_rows($resultado) === 1) {
+    $tokenValido = true;
+    $usuario = mysqli_fetch_assoc($resultado);
+    $codUsuario = (int) $usuario['codUsuario'];
+  } else {
+    $error = "El enlace de recuperación venció o no es válido.";
+  }
 }
 if ($tokenValido && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    $claveUsuario = $_POST['claveUsuario'];
-    if (!preg_match('/^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,32}$/', $claveUsuario)) {
-        $error = "La contraseña debe tener entre 8 y 32 caracteres e incluir al menos 1 mayúscula, 1 dígito y 1 carácter especial.";
-        $campoError = "claveUsuario";
-    } else {
-        $claveHash = md5($claveUsuario);
-        mysqli_query($link, "UPDATE USUARIOS
+  $claveUsuario = $_POST['claveUsuario'];
+  if (!preg_match('/^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,32}$/', $claveUsuario)) {
+    $error = "La contraseña debe tener entre 8 y 32 caracteres e incluir al menos 1 mayúscula, 1 dígito y 1 carácter especial.";
+    $campoError = "claveUsuario";
+  } else {
+    $claveHash = md5($claveUsuario);
+    mysqli_query($link, "UPDATE USUARIOS
                               SET claveUsuario = '$claveHash', tokenRecuperacion = NULL, tokenRecuperacionExp = NULL
                               WHERE codUsuario = $codUsuario");
-        $exito = true;
-        $tokenValido = false;
-    }
+    $exito = true;
+    $tokenValido = false;
+  }
 }
 ?>
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Restablecer Contraseña | VuelaLibre – UTN FRR</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
-        crossorigin="anonymous"/>
+    rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+    crossorigin="anonymous" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-        rel="stylesheet"/>
-  <link rel="stylesheet" href="../../styles.css"/>
+    rel="stylesheet" />
+  <link rel="stylesheet" href="../../styles.css" />
 </head>
 
 <body class="bg-light">
@@ -68,65 +69,72 @@ if ($tokenValido && $_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <?php if ($exito): ?>
-                <div class="card border-0 shadow-sm p-4 p-md-5 text-center">
-                  <div class="alert alert-success" role="alert">
-                    <i class="bi bi-check-circle me-2" aria-hidden="true"></i>
-                    Tu contraseña fue actualizada con éxito.
-                  </div>
+              <div class="card border-0 shadow-sm p-4 p-md-5 text-center">
+                <div class="alert alert-success" role="alert">
+                  <i class="bi bi-check-circle me-2" aria-hidden="true"></i>
+                  Tu contraseña fue actualizada con éxito.
                 </div>
+              </div>
             <?php elseif (!$tokenValido): ?>
-                <div class="card border-0 shadow-sm p-4 p-md-5 text-center">
-                  <div class="alert alert-danger" role="alert">
-                    <i class="bi bi-exclamation-triangle me-2" aria-hidden="true"></i><?= $error ?>
-                  </div>
-                  <a href="recuperar_contrasena_.php" class="btn btn-primary w-100">
-                    <i class="bi bi-arrow-repeat me-2" aria-hidden="true"></i>Solicitar un nuevo enlace
-                  </a>
+              <div class="card border-0 shadow-sm p-4 p-md-5 text-center">
+                <div class="alert alert-danger" role="alert">
+                  <i class="bi bi-exclamation-triangle me-2" aria-hidden="true"></i><?= $error ?>
                 </div>
+                <a href="recuperar_contrasena_.php" class="btn btn-primary w-100">
+                  <i class="bi bi-arrow-repeat me-2" aria-hidden="true"></i>Solicitar un nuevo enlace
+                </a>
+              </div>
             <?php else: ?>
 
-                <?php if (!empty($error)): ?>
-                    <div class="alert alert-danger" role="alert">
-                        <i class="bi bi-exclamation-triangle me-2" aria-hidden="true"></i><?= $error ?>
-                    </div>
-                <?php endif; ?>
+              <?php if (!empty($error)): ?>
+                <div class="alert alert-danger" role="alert">
+                  <i class="bi bi-exclamation-triangle me-2" aria-hidden="true"></i><?= $error ?>
+                </div>
+              <?php endif; ?>
 
-                <form action="restablecer_contrasena.php" method="post"
-                      class="card border-0 shadow-sm p-4 p-md-5"
-                      aria-label="Formulario de restablecimiento de contraseña">
+              <form action="restablecer_contrasena.php" method="post"
+                class="card border-0 shadow-sm p-4 p-md-5"
+                aria-label="Formulario de restablecimiento de contraseña">
 
-                  <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>"/>
+                <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>" />
 
-                  <div class="mb-4">
-                    <label for="claveUsuario" class="form-label fw-semibold">
-                      <i class="bi bi-lock me-1" aria-hidden="true"></i>
-                      Nueva contraseña
-                      <span class="text-danger" aria-hidden="true">*</span>
-                    </label>
+                <div class="mb-4">
+                  <label for="claveUsuario" class="form-label fw-semibold">
+                    <i class="bi bi-lock me-1" aria-hidden="true"></i>
+                    Nueva contraseña
+                    <span class="text-danger" aria-hidden="true">*</span>
+                  </label>
+                  <div class="input-group">
+
                     <input type="password"
-                           id="claveUsuario" name="claveUsuario"
-                           class="form-control<?= $campoError === 'claveUsuario' ? ' is-invalid' : '' ?>"
-                           placeholder="Entre 8 y 32 caracteres"
-                           required autofocus
-                           autocomplete="new-password"
-                           aria-required="true"
-                           aria-describedby="claveUsuario-ayuda"
-                           minlength="8" maxlength="32"
-                           title="La contraseña debe tener entre 8 y 32 caracteres e incluir al menos 1 mayúscula, 1 dígito y 1 carácter especial."/>
-                    <?php if ($campoError === 'claveUsuario'): ?>
-                      <div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
-                    <?php endif; ?>
-                    <div id="claveUsuario-ayuda" class="form-text">
-                      La contraseña debe tener entre 8 y 32 caracteres e incluir al menos una mayúscula, un dígito y un carácter especial.
-                    </div>
+                      id="claveUsuario" name="claveUsuario"
+                      class="form-control<?= $campoError === 'claveUsuario' ? ' is-invalid' : '' ?>"
+                      placeholder="Entre 8 y 32 caracteres"
+                      required autofocus
+                      autocomplete="new-password"
+                      aria-required="true"
+                      aria-describedby="claveUsuario-ayuda"
+                      minlength="8" maxlength="32"
+                      title="La contraseña debe tener entre 8 y 32 caracteres e incluir al menos 1 mayúscula, 1 dígito y 1 carácter especial." />
+                    <button type="button" class="btn btn-outline-secondary btn-ver-contrasena"
+                      aria-label="Mostrar contraseña" aria-controls="claveUsuario">
+                      <i class="bi bi-eye" aria-hidden="true"></i>
+                    </button>
                   </div>
+                  <?php if ($campoError === 'claveUsuario'): ?>
+                    <div class="invalid-feedback d-block"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
+                  <?php endif; ?>
+                  <div id="claveUsuario-ayuda" class="form-text">
+                    La contraseña debe tener entre 8 y 32 caracteres e incluir al menos una mayúscula, un dígito y un carácter especial.
+                  </div>
+                </div>
 
-                  <button type="submit" class="btn btn-primary w-100 btn-lg">
-                    <i class="bi bi-check-circle me-2" aria-hidden="true"></i>
-                    Actualizar contraseña
-                  </button>
+                <button type="submit" class="btn btn-primary w-100 btn-lg">
+                  <i class="bi bi-check-circle me-2" aria-hidden="true"></i>
+                  Actualizar contraseña
+                </button>
 
-                </form>
+              </form>
 
             <?php endif; ?>
 
@@ -139,4 +147,5 @@ if ($tokenValido && $_SERVER['REQUEST_METHOD'] === 'POST') {
   <?php include '../Footer/footer.php'; ?>
 
 </body>
+
 </html>
