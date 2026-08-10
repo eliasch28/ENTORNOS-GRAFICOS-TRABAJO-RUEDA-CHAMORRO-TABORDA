@@ -93,6 +93,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
   }
 }
+$expiradasActualizadas = 0;
+$resExpiradas = mysqli_query(
+  $link,
+  "SELECT r.codReserva, r.codVuelo, r.cantidadPasajes
+   FROM RESERVAS r
+   JOIN VUELOS v ON r.codVuelo = v.codVuelo
+   WHERE r.codUsuario = $codUsuario
+     AND r.estadoReserva = 'pendiente de pago'
+     AND CONCAT(v.fechaSalidaVuelo, ' ', v.horaSalidaVuelo) <= NOW()"
+);
+if ($resExpiradas) {
+  while ($expirada = mysqli_fetch_assoc($resExpiradas)) {
+    $codReservaExpirada = (int)$expirada['codReserva'];
+    $codVueloExpirado   = (int)$expirada['codVuelo'];
+    $pasajesLiberados   = max(1, (int)($expirada['cantidadPasajes'] ?? 1));
+    mysqli_query($link, "UPDATE RESERVAS SET estadoReserva = 'cancelada' WHERE codReserva = $codReservaExpirada");
+    mysqli_query($link, "UPDATE VUELOS SET asientosDisponibles = asientosDisponibles + $pasajesLiberados WHERE codVuelo = $codVueloExpirado");
+    $expiradasActualizadas++;
+  }
+}
+if ($expiradasActualizadas > 0) {
+  $mensajeExito = ($mensajeExito !== '' ? $mensajeExito . ' ' : '') . (
+    $expiradasActualizadas === 1
+    ? 'Una reserva pendiente de pago vencida se canceló automáticamente.'
+    : "Se cancelaron automáticamente $expiradasActualizadas reservas pendientes de pago vencidas."
+  );
+}
 $estadoFiltro = $_GET['estado'] ?? '';
 $estadosValidos = ['pendiente de pago', 'confirmada', 'cancelada'];
 $whereEstado = '';
